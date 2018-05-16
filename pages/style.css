@@ -8,7 +8,8 @@ button, input[type="submit"] { cursor: pointer; }
 .gmaps-venue { width: 40px; height: 40px; }
   .gmaps-player i, .gmaps-item i { font-size: 2em; color: #424242; }
   .gmaps-venue > * { position: absolute; color: #4caf50; }
-  .gmaps-venue.robbed > i { color: #a1887f; }
+  .gmaps-venue.robbed > * { color: #a1887f; }
+  .gmaps-venue.exit > * { color: #f50057; }
   .gmaps-venue i { left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; font-size: 3em; }
   .gmaps-venue .name, .gmaps-venue .requirements, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { display: block; pointer-events: none; }
   .gmaps-venue .name, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { position: absolute; left: -30px; top: 40px; width: 100px; text-align: center; font-weight: 700; text-transform: uppercase; opacity: 0; transition: opacity .4s; }
@@ -50,6 +51,7 @@ button, input[type="submit"] { cursor: pointer; }
   .gmaps-venue  i.museum:before        { content: "\E6A1" !important; }
   .gmaps-venue  i.bank:before          { content: "\E680" !important; }
   .gmaps-venue  i.mint:before          { content: "\EA51" !important; }
+  .gmaps-venue  i.exit:before          { content: "\E69A" !important; }
   .gmaps-venue.glow-red  i:before      { animation: glow-red 1s ease-in-out infinite alternate; }
   .gmaps-venue.glow-green  i:before    { animation: glow-green 1s ease-in-out infinite alternate; }
 

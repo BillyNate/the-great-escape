@@ -261,10 +261,11 @@
           }
           PlayerMarker.prototype = new HTMLMarker();
 
-          VenueMarker = function(latlng, iconname, name, requirements=[], state='')
+          VenueMarker = function(latlng, iconname, name, requirements=[], worth=1000, state='')
           {
             this.classToAdd = 'gmaps-venue ' + state;
             this.requirements = requirements;
+            this.worth = worth;
             this.state = state;
             this.init(latlng, iconname, name);
           }
@@ -277,7 +278,7 @@
                 liEls = '';
             gainEl.className = 'gain';
             reqEl.className = 'requirements';
-            gainEl.innerHTML = '&#36; ' + (this.requirements.length * 1000);
+            gainEl.innerHTML = '&#36; ' + this.worth;
             for(let i=0; i<this.requirements.length; i++)
             {
               liEls += '<li class="game-icon ' + this.requirements[i] + '"></li>';
@@ -881,6 +882,32 @@
               }
             }
           }
+          
+          if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+          {
+            distance = Math.sqrt(Math.pow(firebaseGame.values.exit.location.lat - location.lat, 2) + Math.pow(firebaseGame.values.exit.location.lng - location.lng, 2));
+            if(distance < 0.0001)
+            {
+              let classToAdd = 'glow-red',
+                  balance = 0;
+              for(let i in firebaseGame.values.venues)
+              {
+                if(firebaseGame.values.venues[i].state == 'robbed')
+                {
+                  balance += entities.venues[i].needs.length * 1000;
+                }
+              }
+              if(balance >= 5000)
+              {
+                classToAdd = 'glow-green';
+              }
+              $('.battlefield .gmaps-venue.exit').addClass(classToAdd);
+            }
+            else
+            {
+              $('.battlefield .gmaps-venue.exit').removeClass('glow-red').removeClass('glow-green');
+            }
+          }
         }
 
         firebase.database().ref('/.info/serverTimeOffset').once('value').then(function(snapshot)
@@ -1074,7 +1101,7 @@
               let balance = 0;
               for(let i in firebaseGame.values.venues)
               {
-                mapMarkers.venues[i] = new VenueMarker(firebaseGame.values.venues[i].location, firebaseGame.values.venues[i].type, texts.venues[firebaseGame.values.venues[i].type], entities.venues[i].needs, firebaseGame.values.venues[i].state);
+                mapMarkers.venues[i] = new VenueMarker(firebaseGame.values.venues[i].location, firebaseGame.values.venues[i].type, texts.venues[firebaseGame.values.venues[i].type], entities.venues[i].needs, entities.venues[i].needs.length * 1000, firebaseGame.values.venues[i].state);
                 mapMarkers.venues[i].setMap(map);
                 /*
                 if(firebaseGame.values.venues[i].state == 'ordinary')
@@ -1106,6 +1133,12 @@
                 });
               }
               $('.piggybank').text(balance);
+
+              if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+              {
+                let exitMarker = new VenueMarker(firebaseGame.values.exit.location, 'exit', 'Exit', [], -5000);
+                exitMarker.setMap(map);
+              }
 
               // Put other players on the map:
               $.each(firebaseGame.values.users, function(userID, user)
@@ -1310,11 +1343,19 @@
                   // Assume venue only glows green when nearby and all items present:
                   if($(this).hasClass('glow-green') && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
                   {
-                    let i = $('.battlefield .gmaps-venue').index(this);
-                    fireDatabase.ref('games/' + firebaseGame.uid + '/venues/' + i).update({ state: 'robbed' });
-                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ location: firebaseUser.values.location, timestamp: firebase.database.ServerValue.TIMESTAMP });
-                    // Recalculate amount of money the fugitive has stolen!
-                    $(this).removeClass('glow-green');
+                    if($(this).hasClass('exit'))
+                    {
+                      // Fugitive is done!
+                      // GAME OVER!
+                    }
+                    else
+                    {
+                      let i = $('.battlefield .gmaps-venue').index(this);
+                      fireDatabase.ref('games/' + firebaseGame.uid + '/venues/' + i).update({ state: 'robbed' });
+                      fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ location: firebaseUser.values.location, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                      // Recalculate amount of money the fugitive has stolen!
+                      $(this).removeClass('glow-green');
+                    }
                   }
                 }
                 // Concerns a player:
