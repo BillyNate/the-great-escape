@@ -1,0 +1,88 @@
+{
+  "items" : [ {
+    "amount" : 8,
+    "type" : "bullet"
+  }, {
+    "amount" : 2,
+    "type" : "ladder"
+  }, {
+    "amount" : 2,
+    "type" : "crowbar"
+  }, {
+    "amount" : 2,
+    "type" : "flashlight"
+  }, {
+    "amount" : 2,
+    "type" : "poisongas"
+  }, {
+    "amount" : 2,
+    "type" : "gasmask"
+  }, {
+    "amount" : 2,
+    "type" : "lockpicks"
+  }, {
+    "amount" : 2,
+    "type" : "rope"
+  }, {
+    "amount" : 5,
+    "type" : "life"
+  } ],
+  "languages" : {
+    "en" : {
+      "items" : {
+        "bullet" : "Bullet",
+        "crowbar" : "Crowbar",
+        "flashlight" : "Flashlight",
+        "gasmask" : "Gas mask",
+        "ladder" : "Ladder",
+        "life" : "Med kit",
+        "lockpicks" : "Lockpicks",
+        "poisongas" : "Smoke grenade",
+        "rope" : "Rope"
+      },
+      "venues" : {
+        "bank" : "The bank",
+        "bookies" : "The bookies",
+        "candyshop" : "Candy shop",
+        "casino" : "Casino",
+        "club" : "Club Ragnarock",
+        "gasstation" : "Gas station",
+        "jewelrystore" : "Jewelry store",
+        "mint" : "The mint",
+        "museum" : "Art museum",
+        "penthouse" : "Penthouse"
+      }
+    }
+  },
+  "venues" : [ {
+    "needs" : [ "flashlight" ],
+    "type" : "club"
+  }, {
+    "needs" : [ "gasmask" ],
+    "type" : "gasstation"
+  }, {
+    "needs" : [ "crowbar" ],
+    "type" : "bookies"
+  }, {
+    "needs" : [ "lockpicks" ],
+    "type" : "candyshop"
+  }, {
+    "needs" : [ "ladder" ],
+    "type" : "penthouse"
+  }, {
+    "needs" : [ "ladder", "lockpicks" ],
+    "type" : "jewelrystore"
+  }, {
+    "needs" : [ "poisongas", "lockpicks" ],
+    "type" : "casino"
+  }, {
+    "needs" : [ "rope", "flashlight" ],
+    "type" : "museum"
+  }, {
+    "needs" : [ "crowbar", "rope" ],
+    "type" : "bank"
+  }, {
+    "needs" : [ "poisongas", "gasmask", "flashlight" ],
+    "type" : "mint"
+  } ]
+}

@@ -1,0 +1,157 @@
+html, body { width: 100%; height: 100%; }
+body { background: #000 url("/background01.jpg") no-repeat center center fixed; background-size: cover; color: rgba(0, 0, 0, 0.87); font-family: Roboto, Helvetica, Arial, sans-serif; color: #fff; }
+button, input[type="submit"] { cursor: pointer; }
+
+/* Replace drag handle in Google Maps */
+.googlemap .gm-style > :first-child > :nth-child(3) > :nth-child(2) > :nth-child(3) > :first-child > :first-child > :first-child { background: transparent url("/drag_handle.png") !important; width: 24px !important; height: 24px !important; border: none !important; top: -8px !important; left: -8px !important; }
+.gmaps-player, .gmaps-item, .gmaps-venue { position: absolute; width: 30px; height: 30px; border-radius: 30%; cursor: pointer; transform: translate(-50%, -50%); }
+.gmaps-venue { width: 40px; height: 40px; }
+  .gmaps-player i, .gmaps-item i { font-size: 2em; color: #424242; }
+  .gmaps-venue > * { position: absolute; color: #4caf50; }
+  .gmaps-venue.robbed > i { color: #a1887f; }
+  .gmaps-venue i { left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; font-size: 3em; }
+  .gmaps-venue .name, .gmaps-venue .requirements, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { display: block; pointer-events: none; }
+  .gmaps-venue .name, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { position: absolute; left: -30px; top: 40px; width: 100px; text-align: center; font-weight: 700; text-transform: uppercase; opacity: 0; transition: opacity .4s; }
+  .gmaps-player .name, .gmaps-item .name { left: -35px; top: 30px; }
+  .gmaps-player.fugitive .name { color: #b71c1c; }
+  .gmaps-player.hunter .name { color: #303f9f; }
+  .gmaps-item .name { color: #424242; }
+  .gmaps-venue .gain { top: 52px; }
+  .gmaps-venue.open .name, .gmaps-venue.open .gain, .gmaps-player.open .name, .gmaps-item.open .name { opacity: 1; }
+  .gmaps-venue .requirements { position: absolute; left: -30px; top: 0px; width: 100px; padding: 0; margin: 0; border-radius: .8em; text-align: center; transition: top .4s; }
+  .gmaps-venue.open .requirements { top: -30px; }
+    .gmaps-venue .requirements li { display: inline-block; background-color: #fff; border-radius: 50%; padding: .3em; margin: 0 -1.1em; color: #333; opacity: 0; transition: margin .4s, opacity .4s; }
+    .gmaps-venue .requirements li:before { font-size: 1.5em; }
+    .gmaps-venue.open .requirements li { margin: 0 .1em; opacity: 1; }  
+  
+  .gmaps-player i.fugitive:before, ul.inventory i.fugitive:before  { content: "\E629" !important; }
+  .gmaps-player i.hunter:before,   ul.inventory i.hunter:before    { content: "\E63D" !important; }
+  .gmaps-player i.fugitive:before     { color: #b71c1c; }
+  .gmaps-player i.hunter:before       { color: #303f9f; }
+  .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before    { content: "\E248" !important; }
+  .gmaps-item   i.life:before,     ul.inventory i.life:before      { content: "\EBAE" !important; }
+  .gmaps-item   i.bullet:before       { color: #03a9f4; }
+  .gmaps-item   i.life:before         { color: #e91e63; }
+  .gmaps-item   i.ladder:before,      .gmaps-venue .requirements li.ladder:before,      ul.inventory i.ladder:before       { content: "\E6AD" !important; }
+  .gmaps-item   i.crowbar:before,     .gmaps-venue .requirements li.crowbar:before,     ul.inventory i.crowbar:before      { content: "\E214" !important; }
+  .gmaps-item   i.flashlight:before,  .gmaps-venue .requirements li.flashlight:before,  ul.inventory i.flashlight:before   { content: "\E5B0" !important; }
+  .gmaps-item   i.poisongas:before,   .gmaps-venue .requirements li.poisongas:before,   ul.inventory i.poisongas:before    { content: "\E55F" !important; }
+  .gmaps-item   i.gasmask:before,     .gmaps-venue .requirements li.gasmask:before,     ul.inventory i.gasmask:before      { content: "\E55C" !important; }
+  .gmaps-item   i.lockpicks:before,   .gmaps-venue .requirements li.lockpicks:before,   ul.inventory i.lockpicks:before    { content: "\EAB8" !important; }
+  .gmaps-item   i.rope:before,        .gmaps-venue .requirements li.rope:before,        ul.inventory i.rope:before         { content: "\E45F" !important; }
+  .gmaps-item.glow   i:before          { animation: glow-blue 1s ease-in-out infinite alternate; }
+  .gmaps-venue  i.club:before          { content: "\E6F3" !important; }
+  .gmaps-venue  i.gasstation:before    { content: "\E49B" !important; }
+  .gmaps-venue  i.bookies:before       { content: "\E87F" !important; }
+  .gmaps-venue  i.candyshop:before     { content: "\E981" !important; }
+  .gmaps-venue  i.penthouse:before     { content: "\E6CC" !important; }
+  .gmaps-venue  i.jewelrystore:before  { content: "\E77C" !important; }
+  .gmaps-venue  i.casino:before        { content: "\E127" !important; }
+  .gmaps-venue  i.museum:before        { content: "\E6A1" !important; }
+  .gmaps-venue  i.bank:before          { content: "\E680" !important; }
+  .gmaps-venue  i.mint:before          { content: "\EA51" !important; }
+  .gmaps-venue.glow-red  i:before      { animation: glow-red 1s ease-in-out infinite alternate; }
+  .gmaps-venue.glow-green  i:before    { animation: glow-green 1s ease-in-out infinite alternate; }
+
+.container { position: relative; width: 90%; min-width: 240px; margin: auto; }
+  ul.loading { display: block; position: relative; width: 100%; max-width: 540px; margin: 10vh auto 0; padding: 0; border-radius: .5rem; max-height: 80vh; overflow: auto; }
+    ul.loading li { display: block; position: relative; width: 100%; padding: .5rem 1rem; overflow: hidden; background-color: #00bcd4; line-height: 24px; }
+      ul.loading li > * { display: block; position: relative; float: left; }
+      ul.loading li > :first-child { margin-right: 1rem; }
+  form.enter { display: block; position: relative; width: 100%; max-width: 540px; margin: 2vh auto 0; }
+  	form.enter input { display: block; position: relative; float: left; width: 100%; padding: .5rem 1rem; margin: .5rem; border: 1px solid #00bcd4; border-radius: .5rem; }
+  	form.enter input[type="text"]::placeholder { color: inherit; }
+  	form.enter input[type="submit"] { background-color: #00bcd4; }
+  .locationpick { width: 100%; }
+    .googlemap { width: 100%; height: 80vh; margin: 5vh auto 0; }
+    form.location { width: 100%; }
+      form.location button, form.location input { display: block; position: relative; float: left; width: 100%; padding: .5rem 1rem; margin: .5rem 0; border: 1px solid #00bcd4; border-radius: .5rem; }
+      form.location button, form.location input[type="submit"] { background-color: #00bcd4; }
+    ul.players { display: block; position: relative; width: 100%; max-width: 540px; margin: 10vh auto 0; padding: 0; border-radius: .5rem; max-height: 80vh; overflow: auto; }
+      ul.players li { display: block; position: relative; width: 100%; padding: .5rem 1rem; overflow: hidden; background-color: #00bcd4; line-height: 2rem; }
+        ul.players li > * { float: left; }
+        ul.players li span { margin-left: 1rem; }
+        ul.players li i { font-size: 1.5rem; line-height: 2rem; }
+        ul.players li i:last-child { float: right; }
+        ul.players li i.role.hunter:before { content: "\E63D" !important; }
+        ul.players li i.role.fugitive:before { content: "\E629" !important; }
+        ul.players li i.state { width: 2rem; height: 2rem; text-align: center; border-radius: 50%; }
+        ul.players li i.state { background-color: #f44336; }
+        ul.players li i.state.ready { background-color: #4caf50; }
+        ul.players li i.state.ready:before { content: "\E4BB" !important; }
+        ul.players li i.state.biding:before { content: "\E4BE" !important; }
+  form.controls { display: block; position: relative; width: 100%; max-width: 540px; margin: 0 auto; }
+    form.controls input, form.controls button { display: block; position: relative; float: right; width: 100%; padding: .5rem 1rem; margin: 2vh 0 0; border: 1px solid #00bcd4; border-radius: .5rem; }
+    form.controls button[name="whatsapp"] { float: left; background-color: #00bcd4; }
+    form.controls input[type="submit"] { background-color: #00bcd4; }
+.battlefield { width: 100%; height: 100%; }
+  ul.inventory, .distance, .piggybank, .clock, button.fire { display: block; position: absolute; }
+  ul.inventory { left: 2vw; top: 5vh; width: 3rem; max-height: 90vh; padding: 0; margin: 0; overflow: auto; color: #fff; }
+    ul.inventory li { display: block; position: relative; width: 2.5rem; height: 2.5rem; line-height: 2rem; text-align: center; padding: .2rem; background-color: #00bcd4; }
+    ul.inventory li:first-child { border-top-left-radius: .5rem; border-top-right-radius: .5rem; }
+    ul.inventory li:last-child { border-bottom-left-radius: .5rem; border-bottom-right-radius: .5rem; }
+  .distance { left: 2vw; right: 55px; bottom: 5vh; height: 2rem; border: 1px solid #00bcd4; border-radius: .5rem; overflow: visible; background-image: linear-gradient(90deg, #4caf50 0%, #4caf50 40%, #ffeb3b 60%, #ffeb3b 65%, #f44336 85%, #f44336 100%); }
+  .distance:before { content: ""; display: block; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; overflow: hidden; background-size: 15% 50%, 15% 25%, 1.5% 12.5%; background-position: 0 100%, 7.5% 100%, 0 100%; background-repeat: repeat-x; background-image: linear-gradient(90deg, #424242 0, #424242 1%, transparent 1%, transparent 99%, #424242 99%, #424242 100%), linear-gradient(90deg, #424242 0, #424242 1%, transparent 1%, transparent 99%, #424242 99%, #424242 100%), linear-gradient(90deg, #424242 0, #424242 10%, transparent 10%, transparent 90%, #424242 90%, #424242 100%); }
+    .distance label { display: block; position: absolute; font-size: .7rem; line-height: 2rem; padding: 2px 5px; color: #424242; }
+    .distance label:before { content: attr(for); }
+    .distance label[for="200"] { left: 0%; }
+    .distance label[for="150"] { left: 25%; }
+    .distance label[for="100"] { left: 50%; }
+    .distance label[for="50"] { left: 75%; }
+    .distance .pin { position: absolute; top: -1.65rem; width: 0; height: 0; overflow: visible; font-size: 1.5rem; color: #f44336; transform: rotate(45deg); }
+    .distance .pin:before { content: "\EA27" !important; }
+  .piggybank, .clock { background: #fff; border-radius: .5rem; text-align: center; color: #333; line-height: 1.5em; }
+  .piggybank { right: 55px; top: 10px; width: 100px; }
+  .piggybank:before { content: "$ "; }
+  .clock { right: 9px; bottom: 95px; width: 46px; height: 1.5em; }
+  button.fire { display: none; right: 9px; bottom: 130px; width: 46px; height: 46px; line-height: 46px; text-align: center; background-color: #fff; border: none; border-radius: .5rem; }
+    button.fire i { font-size: 2rem; color: #e91e63; }
+
+
+/*  Small devices (landscape phones, 576px and up) */
+@media(min-width: 576px){
+      form.location button, form.location input { width: 47.5%; max-width: 250px; float: right; }
+      form.location button:first-child, form.location input:first-child { float: left; }
+      form.controls input { max-width: 15rem; }
+      form.controls button, form.controls input { width: 47.5%; max-width: 250px; }
+  .distance:before { background-size: 10% 20px, 10% 10px, 1% 5px; }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media(min-width: 768px){
+  .distance:before { background-size: 5% 20px, 5% 10px, .5% 5px; }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media(min-width: 992px){
+  
+}
+
+/* Extra large devices (large desktops, 1200px and up) */
+@media(min-width: 1200px){
+  
+}
+
+
+
+.material-icons.rotating { animation: rotate-icon 2s linear infinite; }
+
+@keyframes rotate-icon {
+  0%    { transform: rotate(0deg); }
+  100%  { transform: rotate(360deg); }
+}
+
+@keyframes glow-red {
+  from  { text-shadow: 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #ff1177, 0 0 0 #ff1177, 0 0 0 #ff1177, 0 0 0 #ff1177, 0 0 0 #ff1177; }
+  to    { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #ff1177, 0 0 35px #ff1177, 0 0 40px #ff1177, 0 0 50px #ff1177, 0 0 75px #ff1177; }
+}
+
+@keyframes glow-blue {
+  from  { text-shadow: 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #00bcd4, 0 0 0 #00bcd4, 0 0 0 #00bcd4, 0 0 0 #00bcd4, 0 0 0 #00bcd4; }
+  to    { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #00bcd4, 0 0 35px #00bcd4, 0 0 40px #00bcd4, 0 0 50px #00bcd4, 0 0 75px #00bcd4; }
+}
+
+@keyframes glow-green {
+  from  { text-shadow: 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #4caf50, 0 0 0 #4caf50, 0 0 0 #4caf50, 0 0 0 #4caf50, 0 0 0 #4caf50; }
+  to    { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #4caf50, 0 0 35px #4caf50, 0 0 40px #4caf50, 0 0 50px #4caf50, 0 0 75px #4caf50; }
+}
