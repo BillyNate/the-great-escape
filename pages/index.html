@@ -1038,7 +1038,7 @@
           return new Promise(function(resolve, reject)
           {
             $('.container').remove();
-            $(templates.battlefield).children().clone().prependTo('body').filter('ul.inventory').find('li').remove();
+            $(templates.battlefield).children().clone().prependTo('body').filter('ul.inventory, ul.pharmacy').find('li').remove();
             $('.distance .pin').remove();
             mapOptions.center = firebaseUser.values.location;
 
@@ -1219,22 +1219,39 @@
               });
 
               // Show items gathered in inventory:
+              /*
               if(firebaseUser.values.items)
               {
+                let itemContainer = '';
                 for(let i in firebaseUser.values.items)
                 {
-                  $(templates.battlefield).find('ul.inventory li').clone().appendTo('ul.inventory').find('i').addClass(firebaseUser.values.items[i]);
+                  itemContainer = 'inventory';
+                  if(firebaseUser.values.items[i] == 'life')
+                  {
+                    itemContainer = 'pharmacy';
+                  }
+                  console.log(itemContainer);
+
+                  $(templates.battlefield).find('ul.' + itemContainer + ' li').clone().appendTo('ul.' + itemContainer).find('i').addClass(firebaseUser.values.items[i]);
                 }
               }
+              */
 
               // Listen for changes on the user's items:
               fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').on('value', function(useritemsSnapshot)
               {
-                let items = useritemsSnapshot.val();
-                $('ul.inventory').empty();
+                let items = useritemsSnapshot.val(),
+                    itemContainer = '';
+
+                $('ul.inventory, ul.pharmacy').empty();
                 for(let i in items)
                 {
-                  $(templates.battlefield).find('ul.inventory li').clone().appendTo('ul.inventory').find('i').addClass(items[i]);
+                  itemContainer = 'inventory';
+                  if(items[i] == 'life')
+                  {
+                    itemContainer = 'pharmacy';
+                  }
+                  $(templates.battlefield).find('ul.' + itemContainer + ' li').clone().appendTo('ul.' + itemContainer).find('i').addClass(items[i]);
                 }
                 if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && items.indexOf('bullet') >= 0)
                 {

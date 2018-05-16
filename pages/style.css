@@ -24,21 +24,21 @@ button, input[type="submit"] { cursor: pointer; }
     .gmaps-venue .requirements li:before { font-size: 1.5em; }
     .gmaps-venue.open .requirements li { margin: 0 .1em; opacity: 1; }  
   
-  .gmaps-player i.fugitive:before, ul.inventory i.fugitive:before  { content: "\E629" !important; }
-  .gmaps-player i.hunter:before,   ul.inventory i.hunter:before    { content: "\E63D" !important; }
+  .gmaps-player i.fugitive:before     { content: "\E629" !important; }
+  .gmaps-player i.hunter:before       { content: "\E63D" !important; }
   .gmaps-player i.fugitive:before     { color: #b71c1c; }
   .gmaps-player i.hunter:before       { color: #303f9f; }
-  .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before    { content: "\E248" !important; }
-  .gmaps-item   i.life:before,     ul.inventory i.life:before      { content: "\EBAE" !important; }
+  .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before,   ul.pharmacy i.bullet:before    { content: "\E248" !important; }
+  .gmaps-item   i.life:before,     ul.inventory i.life:before,     ul.pharmacy i.life:before      { content: "\EBAE" !important; }
   .gmaps-item   i.bullet:before       { color: #03a9f4; }
   .gmaps-item   i.life:before         { color: #e91e63; }
-  .gmaps-item   i.ladder:before,      .gmaps-venue .requirements li.ladder:before,      ul.inventory i.ladder:before       { content: "\E6AD" !important; }
-  .gmaps-item   i.crowbar:before,     .gmaps-venue .requirements li.crowbar:before,     ul.inventory i.crowbar:before      { content: "\E214" !important; }
-  .gmaps-item   i.flashlight:before,  .gmaps-venue .requirements li.flashlight:before,  ul.inventory i.flashlight:before   { content: "\E5B0" !important; }
-  .gmaps-item   i.poisongas:before,   .gmaps-venue .requirements li.poisongas:before,   ul.inventory i.poisongas:before    { content: "\E55F" !important; }
-  .gmaps-item   i.gasmask:before,     .gmaps-venue .requirements li.gasmask:before,     ul.inventory i.gasmask:before      { content: "\E55C" !important; }
-  .gmaps-item   i.lockpicks:before,   .gmaps-venue .requirements li.lockpicks:before,   ul.inventory i.lockpicks:before    { content: "\EAB8" !important; }
-  .gmaps-item   i.rope:before,        .gmaps-venue .requirements li.rope:before,        ul.inventory i.rope:before         { content: "\E45F" !important; }
+  .gmaps-item   i.ladder:before,      .gmaps-venue .requirements li.ladder:before,      ul.inventory i.ladder:before,      ul.pharmacy i.ladder:before       { content: "\E6AD" !important; }
+  .gmaps-item   i.crowbar:before,     .gmaps-venue .requirements li.crowbar:before,     ul.inventory i.crowbar:before,     ul.pharmacy i.crowbar:before      { content: "\E214" !important; }
+  .gmaps-item   i.flashlight:before,  .gmaps-venue .requirements li.flashlight:before,  ul.inventory i.flashlight:before,  ul.pharmacy i.flashlight:before   { content: "\E5B0" !important; }
+  .gmaps-item   i.poisongas:before,   .gmaps-venue .requirements li.poisongas:before,   ul.inventory i.poisongas:before,   ul.pharmacy i.poisongas:before    { content: "\E55F" !important; }
+  .gmaps-item   i.gasmask:before,     .gmaps-venue .requirements li.gasmask:before,     ul.inventory i.gasmask:before,     ul.pharmacy i.gasmask:before      { content: "\E55C" !important; }
+  .gmaps-item   i.lockpicks:before,   .gmaps-venue .requirements li.lockpicks:before,   ul.inventory i.lockpicks:before,   ul.pharmacy i.lockpicks:before    { content: "\EAB8" !important; }
+  .gmaps-item   i.rope:before,        .gmaps-venue .requirements li.rope:before,        ul.inventory i.rope:before,        ul.pharmacy i.rope:before         { content: "\E45F" !important; }
   .gmaps-item.glow   i:before          { animation: glow-blue 1s ease-in-out infinite alternate; }
   .gmaps-venue  i.club:before          { content: "\E6F3" !important; }
   .gmaps-venue  i.gasstation:before    { content: "\E49B" !important; }
@@ -85,12 +85,17 @@ button, input[type="submit"] { cursor: pointer; }
     form.controls button[name="whatsapp"] { float: left; background-color: #00bcd4; }
     form.controls input[type="submit"] { background-color: #00bcd4; }
 .battlefield { width: 100%; height: 100%; }
-  ul.inventory, .distance, .piggybank, .clock, button.fire { display: block; position: absolute; }
-  ul.inventory { left: 2vw; top: 5vh; width: 3rem; max-height: 90vh; padding: 0; margin: 0; overflow: auto; color: #fff; }
-    ul.inventory li { display: block; position: relative; width: 2.5rem; height: 2.5rem; line-height: 2rem; text-align: center; padding: .2rem; background-color: #00bcd4; }
-    ul.inventory li:first-child { border-top-left-radius: .5rem; border-top-right-radius: .5rem; }
+  ul.inventory, ul.pharmacy, .distance, .piggybank, .clock, button.fire { display: block; position: absolute; }
+  ul.inventory, ul.pharmacy { padding: 0; margin: 0; overflow: auto; color: #fff; }
+    ul.inventory li, ul.pharmacy li { display: block; position: relative; width: 2.5rem; height: 2.5rem; line-height: 2rem; text-align: center; padding: .2rem; background-color: #00bcd4; }
+  ul.inventory { left: 9px; top: 5vh; width: 3rem; max-height: 90vh; }
+    ul.inventory li:first-child { border-top-left-radius: .5rem; /*border-top-right-radius: .5rem;*/ }
     ul.inventory li:last-child { border-bottom-left-radius: .5rem; border-bottom-right-radius: .5rem; }
-  .distance { left: 2vw; right: 55px; bottom: 5vh; height: 2rem; border: 1px solid #00bcd4; border-radius: .5rem; overflow: visible; background-image: linear-gradient(90deg, #4caf50 0%, #4caf50 40%, #ffeb3b 60%, #ffeb3b 65%, #f44336 85%, #f44336 100%); }
+  ul.pharmacy { left: 58px; top: 5vh; }
+    ul.pharmacy li { float: left; }
+    /*ul.pharmacy li:first-child { border-top-left-radius: .5rem; border-bottom-left-radius: .5rem; }*/
+    ul.pharmacy li:last-child { border-top-right-radius: .5rem; border-bottom-right-radius: .5rem; }
+  .distance { left: 58px; right: 55px; bottom: 5vh; height: 2rem; border: 1px solid #00bcd4; border-radius: .5rem; overflow: visible; background-image: linear-gradient(90deg, #4caf50 0%, #4caf50 40%, #ffeb3b 60%, #ffeb3b 65%, #f44336 85%, #f44336 100%); }
   .distance:before { content: ""; display: block; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; overflow: hidden; background-size: 15% 50%, 15% 25%, 1.5% 12.5%; background-position: 0 100%, 7.5% 100%, 0 100%; background-repeat: repeat-x; background-image: linear-gradient(90deg, #424242 0, #424242 1%, transparent 1%, transparent 99%, #424242 99%, #424242 100%), linear-gradient(90deg, #424242 0, #424242 1%, transparent 1%, transparent 99%, #424242 99%, #424242 100%), linear-gradient(90deg, #424242 0, #424242 10%, transparent 10%, transparent 90%, #424242 90%, #424242 100%); }
     .distance label { display: block; position: absolute; font-size: .7rem; line-height: 2rem; padding: 2px 5px; color: #424242; }
     .distance label:before { content: attr(for); }
@@ -98,7 +103,7 @@ button, input[type="submit"] { cursor: pointer; }
     .distance label[for="150"] { left: 25%; }
     .distance label[for="100"] { left: 50%; }
     .distance label[for="50"] { left: 75%; }
-    .distance .pin { position: absolute; top: -1.65rem; width: 0; height: 0; overflow: visible; font-size: 1.5rem; color: #f44336; transform: rotate(45deg); }
+    .distance .pin { position: absolute; top: -1.65rem; width: 0; height: 0; overflow: visible; font-size: 1.5rem; color: #f44336; transform: rotate(45deg); transition: right .2s; }
     .distance .pin:before { content: "\EA27" !important; }
   .piggybank, .clock { background: #fff; border-radius: .5rem; text-align: center; color: #333; line-height: 1.5em; }
   .piggybank { right: 55px; top: 10px; width: 100px; }
