@@ -1350,7 +1350,11 @@
                     {
                       items = firebaseGame.values.users[firebaseUser.uid].items;
                     }
-                    items.push(firebaseGame.values.items[i].type);
+                    // Check if item of this type is not already added to the inventory:
+                    if(items.indexOf(firebaseGame.values.items[i].type) < 0 || firebaseGame.values.items[i].type == 'life')
+                    {
+                      items.push(firebaseGame.values.items[i].type);
+                    }
                     fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + i).update({ state: 'found' });
                     //fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
                     fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ items: items, location: firebaseUser.values.location, timestamp: firebase.database.ServerValue.TIMESTAMP });
