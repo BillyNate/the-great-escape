@@ -110,7 +110,7 @@ button:focus, a:focus { outline: none; }
     .distance .pin { position: absolute; top: -.8rem; width: 0; height: 0; overflow: visible; font-size: 1.5rem; color: #303f9f; transform: rotate(60deg); text-shadow: -.5px -.5px .5px #fff, .5px -.5px .5px #fff, -.5px .5px .5px #fff, .5px .5px .5px #fff; transition: right .2s; }
     .distance .pin:before { content: "\E808" !important; }
   .piggybank, .clock { background: #fff; border-radius: .5rem; text-align: center; color: #333; line-height: 1.5em; }
-  .piggybank { right: 55px; top: 10px; width: 100px; }
+  .piggybank { right: 55px; top: 10px; padding: 0 1rem; }
   .piggybank:before { content: "$ "; }
   .clock { right: 9px; bottom: 95px; width: 46px; height: 1.5em; }
   button.fire { display: none; right: 9px; bottom: 130px; width: 46px; height: 46px; line-height: 46px; text-align: center; background-color: #fff; border: none; border-radius: .5rem; }
