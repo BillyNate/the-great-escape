@@ -861,13 +861,10 @@
           {
             if(firebaseGame.values.items[i].state == 'lost' && ((firebaseGame.values.items[i].type == 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'hunter') || (firebaseGame.values.items[i].type != 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')))
             {
-              // TODO: Don't pick up automaticly but ask player if he wants to pick up ;)
-              // TODO: Add additional check if bullets or lives are full
               distance = Math.sqrt(Math.pow(firebaseGame.values.items[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.items[i].location.lng - location.lng, 2));
               if(distance < 0.0001)
               {
                 $('.battlefield .gmaps-item:eq(' + i + ')').addClass('glow');
-                //$(templates.battlefield).find('ul.inventory li').clone().appendTo('ul.inventory').find('i').addClass(firebaseGame.values.items[i].type);
               }
               else
               {
@@ -879,7 +876,6 @@
           {
             if(firebaseGame.values.venues[i].state == 'ordinary' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
             {
-              // TODO: Check if necessary items are present, ask user to rob, and do so!
               distance = Math.sqrt(Math.pow(firebaseGame.values.venues[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.venues[i].location.lng - location.lng, 2));
               if(distance < 0.0001)
               {
@@ -1079,6 +1075,7 @@
               else
               {
                 // GAME OVER!
+                fireDatabase.ref('games/' + firebaseGame.uid).update({ state: 'apprehended' });
               }
             }
           });
@@ -1095,6 +1092,14 @@
             $(templates.battlefield).children().clone().prependTo('body').filter('ul.inventory, ul.pharmacy').find('li').remove();
             $('.distance .pin').remove();
             mapOptions.center = firebaseUser.values.location;
+
+            fireDatabase.ref('games/' + firebaseGame.uid + '/state').on('value', function(gameStateSnapshot)
+            {
+              if(gameStateSnapshot.val() == 'apprehended' || gameStateSnapshot.val() == 'vanished')
+              {
+                resolve(gameStateSnapshot.val());
+              }
+            });
 
             showGameMap(document.getElementsByClassName('battlefield')[0], mapOptions)
             .then(function(returnValues)
@@ -1378,6 +1383,7 @@
                     {
                       // Fugitive is done!
                       // GAME OVER!
+                      fireDatabase.ref('games/' + firebaseGame.uid).update({ state: 'vanished' });
                     }
                     else
                     {
@@ -1443,6 +1449,15 @@
               // If hits is higher than medkits, the fugitive will be captured! GAME OVER
             });
           });
+        })
+        .then(function(state)
+        {
+          let modalText = 'The fugitive has been apprehended!';
+          if(state == 'vanished')
+          {
+            modalText = 'The fugitive has escaped!';
+          }
+          $(templates.gameover).clone().find('.modal').append($('<strong>').text(modalText)).closest('#gameover').appendTo('body');
         })
         .catch(function(error)
         {

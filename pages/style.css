@@ -115,6 +115,11 @@ button:focus, a:focus { outline: none; }
   .clock { right: 9px; bottom: 95px; width: 46px; height: 1.5em; }
   button.fire { display: none; right: 9px; bottom: 130px; width: 46px; height: 46px; line-height: 46px; text-align: center; background-color: #fff; border: none; border-radius: .5rem; }
     button.fire i { font-size: 2rem; color: #e91e63; }
+#gameover { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-color: rgba(0, 0, 0, .75); }
+  #gameover .modal { width: 100%; max-width: 540px; padding: 5vh 0; margin: 10vh auto 0; background-color: #00bcd4; border-radius: .5rem; text-align: center; }
+    #gameover .modal > :first-child { margin-top: 0; }
+    #gameover h3 { text-transform: uppercase; }
+    #gameover strong { font-weight: normal; }
 
 
 /*  Small devices (landscape phones, 576px and up) */
