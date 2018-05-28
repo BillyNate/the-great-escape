@@ -49,6 +49,7 @@
     <script defer src="//maps.googleapis.com/maps/api/js?v=3&key=AIzaSyDj1NcE7259YziwZBoxXaVGaNtnmA4uBVI&libraries=drawing,geometry&callback=googlemapsready"></script>
     <script src="/sleep.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-fullscreen-plugin/1.1.4/jquery.fullscreen-min.js"></script>
     <script src="/loadtemplates.js"></script>
     <script src="/sleep-config.js"></script>
     <script>
@@ -411,7 +412,7 @@
       $(function()
       {
         // "global" vars:
-        var mapOptions = { zoom: 16, gestureHandling: 'greedy', mapTypeId: google.maps.MapTypeId.ROADMAP, streetViewControl: false, mapTypeControl: false, styles: [{ featureType: 'poi', stylers: [{visibility: 'off'}] }, { featureType: 'transit', elementType: 'labels.icon', stylers: [{visibility: 'off'}] }] },
+        var mapOptions = { zoom: 16, gestureHandling: 'greedy', mapTypeId: google.maps.MapTypeId.ROADMAP, streetViewControl: false, mapTypeControl: false, fullscreenControl: false, styles: [{ featureType: 'poi', stylers: [{visibility: 'off'}] }, { featureType: 'transit', elementType: 'labels.icon', stylers: [{visibility: 'off'}] }] },
             templates = null,
             texts = null,
             fireDatabase = firebase.database(),
@@ -1390,6 +1391,22 @@
                   {
 
                   }
+                }
+              });
+              
+              $('button.fullscreen').on('click', function(event)
+              {
+                event.preventDefault();
+
+                if($('body').fullScreen())
+                {
+                  $('body').fullScreen(false);
+                  $(this).find('i.material-icons').text('fullscreen');
+                }
+                else
+                {
+                  $('body').fullScreen(true);
+                  $(this).find('i.material-icons').text('fullscreen_exit');
                 }
               });
 

@@ -1,6 +1,7 @@
 html, body { width: 100%; height: 100%; }
 body { background: #000 url("/background01.jpg") no-repeat center center fixed; background-size: cover; color: rgba(0, 0, 0, 0.87); font-family: Roboto, Helvetica, Arial, sans-serif; color: #fff; }
 button, input[type="submit"] { cursor: pointer; }
+button:focus, a:focus { outline: none; }
 
 /* Replace drag handle in Google Maps */
 .googlemap .gm-style > :first-child > :nth-child(3) > :nth-child(2) > :nth-child(3) > :first-child > :first-child > :first-child { background: transparent url("/drag_handle.png") !important; width: 24px !important; height: 24px !important; border: none !important; top: -8px !important; left: -8px !important; }
@@ -87,6 +88,7 @@ button, input[type="submit"] { cursor: pointer; }
     form.controls button[name="whatsapp"] { float: left; background-color: #00bcd4; }
     form.controls input[type="submit"] { background-color: #00bcd4; }
 .battlefield { width: 100%; height: 100%; }
+  button.fullscreen { position: absolute; right: 14px; top: 10px; width: 24px; height: 24px; background-color: #fff; border: none; padding: 0; color: #000; }
   ul.inventory, ul.pharmacy, .distance, .piggybank, .clock, button.fire { display: block; position: absolute; }
   ul.inventory, ul.pharmacy { padding: 0; margin: 0; overflow: auto; color: #fff; }
     ul.inventory li, ul.pharmacy li { display: block; position: relative; width: 2.5rem; height: 2.5rem; line-height: 2rem; text-align: center; padding: .2rem; background-color: #00bcd4; }
