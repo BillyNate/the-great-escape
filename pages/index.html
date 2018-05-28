@@ -632,8 +632,10 @@
                     e.preventDefault();
 
                     $('form.location').hide();
-                    let gameUpdates = [];
+                    let gameUpdates = [],
+                        exitLocation = randomLocations(event.overlay.center, event.overlay.radius, 1)[0];
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/location').set(gameLocation));
+                    gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/exit').set({ location: { lat: exitLocation.latitude, lng: exitLocation.longitude } }));
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/items').set(items.map(function(item)
                     {
                       return { location: item.location, type: item.type, state: 'lost' };
@@ -642,6 +644,7 @@
                     {
                       return { location: venue.location, type: venue.type, state: 'ordinary' };
                     })));
+
                     Promise.all(gameUpdates).then(function()
                     {
                       resolve();
@@ -650,6 +653,7 @@
                   }).show().find('input[type="submit"]').hide().siblings('button[name="scramble"]').on('click', function(e)
                   {
                     e.preventDefault();
+
                     loadNearestRoads(randomLocations(event.overlay.center, event.overlay.radius, venues.length))
                     .then(function(venueLocations)
                     {
@@ -678,6 +682,7 @@
                         }
                       }
                     });
+
                     loadNearestRoads(randomLocations(event.overlay.center, event.overlay.radius, items.length))
                     .then(function(itemLocations)
                     {
@@ -707,6 +712,7 @@
                       }
                       $('form.location input[type="submit"]').show();
                     });
+                    
                     $(this).text('Shuffle items');
                   });
                 });
