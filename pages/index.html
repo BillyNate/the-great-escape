@@ -635,7 +635,7 @@
                     let gameUpdates = [],
                         exitLocation = randomLocations(event.overlay.center, event.overlay.radius, 1)[0];
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/location').set(gameLocation));
-                    gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/exit').set({ location: { lat: exitLocation.latitude, lng: exitLocation.longitude } }));
+                    gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/exit').set({ location: { lat: exitLocation.lat(), lng: exitLocation.lng() } }));
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/items').set(items.map(function(item)
                     {
                       return { location: item.location, type: item.type, state: 'lost' };
@@ -906,7 +906,7 @@
             }
           }
           
-          if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+          if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && firebaseGame.values.exit)
           {
             distance = Math.sqrt(Math.pow(firebaseGame.values.exit.location.lat - location.lat, 2) + Math.pow(firebaseGame.values.exit.location.lng - location.lng, 2));
             if(distance < 0.0001)
@@ -1166,7 +1166,7 @@
               }
               $('.piggybank').text(balance);
 
-              if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+              if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && firebaseGame.values.exit)
               {
                 let exitMarker = new VenueMarker(firebaseGame.values.exit.location, 'exit', 'Exit', [], -5000);
                 exitMarker.setMap(map);
