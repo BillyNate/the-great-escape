@@ -263,6 +263,11 @@
             this.draw();
           };
 
+          HTMLMarker.prototype.getPosition = function()
+          {
+            return this.pos;
+          };
+
           HTMLMarker.prototype.show = function()
           {
             this.visible = true;
@@ -1053,7 +1058,7 @@
           fireDatabase.ref('games/' + firebaseGame.uid).on('child_changed', function(gameSnapshot)
           {
             firebaseGame.values[gameSnapshot.key] = gameSnapshot.val();
-            
+
             if(gameSnapshot.key == 'hits' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
             {
               console.log('You got hit!');
@@ -1253,11 +1258,11 @@
                         distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userSnapshot.val().lat, userSnapshot.val().lng), new google.maps.LatLng(firebaseGame.values.users[firebaseFugitiveUser].location.lat, firebaseGame.values.users[firebaseFugitiveUser].location.lng));
                         if(distance < 200)
                         {
-                          $('.distance .pin[data-user-id="' + UserID + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
+                          $('.distance .pin[data-user-id="' + userID + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
                         }
                         else
                         {
-                          $('.distance .pin[data-user-id="' + UserID + '"]').hide();
+                          $('.distance .pin[data-user-id="' + userID + '"]').hide();
                         }
                       }
                     }
@@ -1266,6 +1271,7 @@
                     // - Hunter sees hunters
                     // - Every 4 minutes
                     // - When the fugitive picks up an item, or robs a venue
+                    // - When a hunter fires
                     if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && $('.gmaps-player[data-user-id="' + userID + '"]').hasClass('hunter')) // TODO: Replace usage of htmlmarker for actual (firebase) data
                     {
                       mapMarkers.users[userID].setPosition(userSnapshot.val());
@@ -1281,6 +1287,23 @@
                     }
                   });
                 }
+                fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID).on('child_removed', function(userchildSnapshot)
+                {
+                  let mapMarker = mapMarkers.me;
+                  if(userID != firebaseUser.uid)
+                  {
+                    mapMarker = mapMarkers.users[userID];
+                  }
+                  // The items of a hunter are only removed when he fires his one and only bullet:
+                  if(userchildSnapshot.key == 'items' && firebaseGame.values.users[userID].role == 'hunter')
+                  {
+                    $(mapMarker.div).find('i.game-icon').addClass('fire');
+                    setTimeout(function()
+                    {
+                      $(mapMarker.div).find('i.game-icon').removeClass('fire');
+                    }, 250);
+                  }
+                });
               });
 
               // Show items gathered in inventory:
@@ -1307,6 +1330,11 @@
               {
                 let items = useritemsSnapshot.val(),
                     itemContainer = '';
+
+                if(items === null)
+                {
+                  items = [];
+                }
 
                 $('ul.inventory, ul.pharmacy').empty();
                 for(let i in items)
@@ -1430,7 +1458,7 @@
                 $(this).hide();
 
                 // Calculate range:
-                let distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseOtherUsers[firebaseFugitiveUser].location.lat, firebaseOtherUsers[firebaseFugitiveUser].location.lng), new google.maps.LatLng(firebaseGame.values.users[firebaseUser.uid].location.lat, firebaseGame.values.users[firebaseUser.uid].location.lng));
+                let distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseOtherUsers[firebaseFugitiveUser].location.lat, firebaseOtherUsers[firebaseFugitiveUser].location.lng), mapMarkers.me.getPosition());
                 if(distance < 50)
                 {
                   fireDatabase.ref('games/' + firebaseGame.uid).update({ hits: (firebaseGame.values.hits + 1) });
@@ -1440,9 +1468,10 @@
                 {
                   // Notify (all users?) of miss!
                 }
+                fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ location: { lat: mapMarkers.me.getPosition().lat(), lng: mapMarkers.me.getPosition().lng() }, items: null, timestamp: firebase.database.ServerValue.TIMESTAMP });
                 
                 // Remove all items from the inventory, cause there can only be one bullet anyway:
-                fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').remove();
+                //fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').remove();
               });
               // Concerning the above:
               // The fugitive should listen for updates on the hits counter, and check this against its medkits.

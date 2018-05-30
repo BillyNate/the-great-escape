@@ -30,6 +30,7 @@ button:focus, a:focus { outline: none; }
   .gmaps-player i.hunter:before       { content: "\E63D" !important; }
   .gmaps-player i.fugitive:before     { color: #b71c1c; }
   .gmaps-player i.hunter:before       { color: #303f9f; }
+  .gmaps-player i.hunter.fire:after   { content: "\E5C9" !important; font-family: "game-icons"; position: absolute; color: #f50057; font-size: 1.8em; font-style: normal; left: -.22em; top: -.55em; z-index: -1; animation: alternate-scale .1s infinite; }
   .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before,   ul.pharmacy i.bullet:before    { content: "\E248" !important; }
   .gmaps-item   i.life:before,     ul.inventory i.life:before,     ul.pharmacy i.life:before      { content: "\EBAE" !important; }
   .gmaps-item   i.bullet:before       { color: #03a9f4; }
@@ -153,6 +154,13 @@ button:focus, a:focus { outline: none; }
 @keyframes rotate-icon {
   0%    { transform: rotate(0deg); }
   100%  { transform: rotate(360deg); }
+}
+
+@keyframes alternate-scale {
+  0%    { transform: scaleX(1); }
+  50%   { transform: scaleX(1); }
+  51%   { transform: scaleX(-1); }
+  100%  { transform: scaleX(-1); }
 }
 
 @keyframes glow-red {
