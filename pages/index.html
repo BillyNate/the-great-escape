@@ -418,7 +418,7 @@
             fireDatabase = firebase.database(),
             firebaseUser = { uid: null, values: null },
             firebaseGame = { uid: null, values: null },
-            firebaseOtherUsers = {},
+            firebaseUsers = {},
             firebaseFugitiveUser = null,
             entities = { items: [], venues: [] },
             geoloc = { lat: 0, lng: 0 },
@@ -1109,10 +1109,6 @@
             {
               map = returnValues.map;
 
-              // Put the player itself on the map:
-              mapMarkers.me = new PlayerMarker(firebaseUser.values.location, firebaseGame.values.users[firebaseUser.uid].role);
-              mapMarkers.me.setMap(map);
-
               // Put items on the map:
               for(let i in firebaseGame.values.items)
               {
@@ -1178,89 +1174,73 @@
               // Put other players on the map:
               $.each(firebaseGame.values.users, function(userID, user)
               {
+                firebaseUsers[userID] = { location: firebaseUser.values.location };
+
                 if(user.role == 'fugitive')
                 {
                   firebaseFugitiveUser = userID;
                 }
-
-                if(userID != firebaseUser.uid)
+                else
                 {
-                  firebaseOtherUsers[userID] = { location: firebaseUser.values.location };
-
-                  mapMarkers.users[userID] = new PlayerMarker(firebaseOtherUsers[userID].location, user.role, ''); // TODO: Set user name
-                  mapMarkers.users[userID].setMap(map);
-
-                  if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
-                  {
-                    mapMarkers.users[userID].hide();
-                  }
-                  else if(firebaseGame.values.users[userID].role == 'fugitive')
-                  {
-                    mapMarkers.users[userID].hide();
-                  }
-
                   $(templates.battlefield).find('.distance .pin').clone().appendTo('.distance').attr('data-user-id', userID).hide();
+                }
 
+                if(userID == firebaseUser.uid)
+                {
+                  // Put the player itself on the map:
+                  mapMarkers.me = new PlayerMarker(firebaseUser.values.location, firebaseGame.values.users[firebaseUser.uid].role);
+                  mapMarkers.me.setMap(map);
+                }
+                else
+                {
+                  // Put the other players on the map:
+                  mapMarkers.users[userID] = new PlayerMarker(firebaseUsers[userID].location, user.role, ''); // TODO: Set user name
+                  mapMarkers.users[userID].setMap(map);
+                  mapMarkers.users[userID].hide();
+
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/location').on('value', function(userLocationSnapshot)
+                  {
+                    if(userLocationSnapshot.val())
+                    {
+                      mapMarkers.users[userID].setPosition(userLocationSnapshot.val());
+                      mapMarkers.users[userID].show();
+                    }
+                  });
+                }
+
+                if(true)
+                {
                   fireDatabase.ref('users/' + userID + '/location').on('value', function(userSnapshot)
                   {
-                    let distance;
+                    let distance = 0,
+                        pinsToUpdate = [];
 
-                    firebaseOtherUsers[userID].location = userSnapshot.val();
+                    firebaseUsers[userID].location = userSnapshot.val();
 
-                    if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive') // assume updated user location is a hunter
+                    if(firebaseGame.values.users[userID].role == 'fugitive')
                     {
-                      distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userSnapshot.val().lat, userSnapshot.val().lng), new google.maps.LatLng(firebaseUser.values.location.lat, firebaseUser.values.location.lng));
-                      if(distance < 200)
-                      {
-                        $('.distance .pin[data-user-id="' + userID + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
-                      }
-                      else
-                      {
-                        $('.distance .pin[data-user-id="' + userID + '"]').hide();
-                      }
+                      // Loop all other users against this one
+                      pinsToUpdate = Object.keys(firebaseUsers);
+                      pinsToUpdate.splice(pinsToUpdate.indexOf(firebaseFugitiveUser), 1);
                     }
-                    else if(firebaseGame.values.users[userID].role == 'fugitive') // self.role == 'hunter'
+                    else if(firebaseFugitiveUser != null)
                     {
-                      for(let otherUserID in firebaseOtherUsers)
-                      {
-                        if(otherUserID != userID)
-                        {
-                          distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userSnapshot.val().lat, userSnapshot.val().lng), new google.maps.LatLng(firebaseOtherUsers[otherUserID].location.lat, firebaseOtherUsers[otherUserID].location.lng));
-                          if(distance < 200)
-                          {
-                            $('.distance .pin[data-user-id="' + otherUserID + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
-                          }
-                          else
-                          {
-                            $('.distance .pin[data-user-id="' + otherUserID + '"]').hide();
-                          }
-                        }
-                        else
-                        {
-                          distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userSnapshot.val().lat, userSnapshot.val().lng), new google.maps.LatLng(firebaseUser.values.location.lat, firebaseUser.values.location.lng));
-                          if(distance < 200)
-                          {
-                            $('.distance .pin[data-user-id="' + firebaseUser.uid + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
-                          }
-                          else
-                          {
-                            $('.distance .pin[data-user-id="' + firebaseUser.uid + '"]').hide();
-                          }
-                        }
-                      }
+                      // compare this user with fugitive
+                      pinsToUpdate = [userID];
                     }
-                    else // self.role == 'hunter' && updated is also hunter
+
+                    if(firebaseFugitiveUser != null)
                     {
-                      if(firebaseFugitiveUser)
+                      for(let i in pinsToUpdate)
                       {
-                        distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(userSnapshot.val().lat, userSnapshot.val().lng), new google.maps.LatLng(firebaseGame.values.users[firebaseFugitiveUser].location.lat, firebaseGame.values.users[firebaseFugitiveUser].location.lng));
+                        distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[pinsToUpdate[i]].location.lat, firebaseUsers[pinsToUpdate[i]].location.lng), new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng));
                         if(distance < 200)
                         {
-                          $('.distance .pin[data-user-id="' + UserID + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
+                          $('.distance .pin[data-user-id="' + pinsToUpdate[i] + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
                         }
                         else
                         {
-                          $('.distance .pin[data-user-id="' + UserID + '"]').hide();
+                          $('.distance .pin[data-user-id="' + pinsToUpdate[i] + '"]').hide();
                         }
                       }
                     }
@@ -1272,15 +1252,6 @@
                     if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && $('.gmaps-player[data-user-id="' + userID + '"]').hasClass('hunter')) // TODO: Replace usage of htmlmarker for actual (firebase) data
                     {
                       mapMarkers.users[userID].setPosition(userSnapshot.val());
-                    }
-                  });
-
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/location').on('value', function(userLocationSnapshot)
-                  {
-                    if(userLocationSnapshot.val())
-                    {
-                      mapMarkers.users[userID].setPosition(userLocationSnapshot.val());
-                      mapMarkers.users[userID].show();
                     }
                   });
                 }
@@ -1312,18 +1283,22 @@
                     itemContainer = '';
 
                 $('ul.inventory, ul.pharmacy').empty();
-                for(let i in items)
+
+                if(items) // can be null...
                 {
-                  itemContainer = 'inventory';
-                  if(items[i] == 'life')
+                  for(let i in items)
                   {
-                    itemContainer = 'pharmacy';
+                    itemContainer = 'inventory';
+                    if(items[i] == 'life')
+                    {
+                      itemContainer = 'pharmacy';
+                    }
+                    $(templates.battlefield).find('ul.' + itemContainer + ' li').clone().appendTo('ul.' + itemContainer).find('i').addClass(items[i]);
                   }
-                  $(templates.battlefield).find('ul.' + itemContainer + ' li').clone().appendTo('ul.' + itemContainer).find('i').addClass(items[i]);
-                }
-                if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && items.indexOf('bullet') >= 0)
-                {
-                  $('button.fire').show();
+                  if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && items.indexOf('bullet') >= 0)
+                  {
+                    $('button.fire').show();
+                  }
                 }
               });
 
@@ -1433,7 +1408,7 @@
                 $(this).hide();
 
                 // Calculate range:
-                let distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseOtherUsers[firebaseFugitiveUser].location.lat, firebaseOtherUsers[firebaseFugitiveUser].location.lng), new google.maps.LatLng(firebaseGame.values.users[firebaseUser.uid].location.lat, firebaseGame.values.users[firebaseUser.uid].location.lng));
+                let distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng), new google.maps.LatLng(firebaseGame.values.users[firebaseUser.uid].location.lat, firebaseGame.values.users[firebaseUser.uid].location.lng));
                 if(distance < 50)
                 {
                   fireDatabase.ref('games/' + firebaseGame.uid).update({ hits: (firebaseGame.values.hits + 1) });
