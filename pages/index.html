@@ -1046,39 +1046,11 @@
             queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').update(users));
           }
           // TODO: A listener for firebaseGame is create here:
-          fireDatabase.ref('games/' + firebaseGame.uid).once('value').then(function(gameSnapshot)
+          fireDatabase.ref('games/' + firebaseGame.uid).on('value', function(gameSnapshot)
           {
             firebaseGame.values = gameSnapshot.val();
           });
-          fireDatabase.ref('games/' + firebaseGame.uid).on('child_changed', function(gameSnapshot)
-          {
-            firebaseGame.values[gameSnapshot.key] = gameSnapshot.val();
-            
-            if(gameSnapshot.key == 'hits' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
-            {
-              console.log('You got hit!');
 
-              // Assume hits is always an increase of one, no edge cases...
-              let indexOfLife = -1;
-              if(firebaseGame.values.users[firebaseUser.uid].items)
-              {
-                indexOfLife = firebaseGame.values.users[firebaseUser.uid].items.indexOf('life');
-              }
-
-              if(indexOfLife >= 0)
-              {
-                let items = firebaseGame.values.users[firebaseUser.uid].items;
-                items.splice(indexOfLife, 1);
-                fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
-                // Notify users about the survival of the fugitive
-              }
-              else
-              {
-                // GAME OVER!
-                fireDatabase.ref('games/' + firebaseGame.uid).update({ state: 'apprehended' });
-              }
-            }
-          });
           return Promise.all(queries);
         })
         // Everything save! Continue to next phase
@@ -1100,6 +1072,37 @@
                 resolve(gameStateSnapshot.val());
               }
             });
+
+            if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+            {
+              let knownHits = null;
+              fireDatabase.ref('games/' + firebaseGame.uid + '/hits').on('value', function(hitsSnapshot)
+              {
+                if(knownHits !== null)
+                {
+                  // Assume hits is always an increase of one, no edge cases...
+                  let indexOfLife = -1;
+                  if(firebaseGame.values.users[firebaseUser.uid].items)
+                  {
+                    indexOfLife = firebaseGame.values.users[firebaseUser.uid].items.indexOf('life');
+                  }
+
+                  if(indexOfLife >= 0)
+                  {
+                    let items = firebaseGame.values.users[firebaseUser.uid].items;
+                    items.splice(indexOfLife, 1);
+                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
+                    // Notify users about the survival of the fugitive
+                  }
+                  else
+                  {
+                    // GAME OVER!
+                    fireDatabase.ref('games/' + firebaseGame.uid).update({ state: 'apprehended' });
+                  }
+                }
+                knownHits = hitsSnapshot.val();
+              });
+            }
 
             showGameMap(document.getElementsByClassName('battlefield')[0], mapOptions)
             .then(function(returnValues)
