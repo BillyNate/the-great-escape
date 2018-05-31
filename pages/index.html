@@ -1004,7 +1004,7 @@
 
                   if($(this).find('input[name="game"]').val().length <= 0)
                   {
-                    let gameSettings = { state: 'assembling', hits: 0, users: {} };
+                    let gameSettings = { state: 'assembling', users: {} };
                     gameSettings.users[firebaseUser.uid] = { role: 'fugitive', state: 'biding', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
                     gameSettings.admin = firebaseUser.uid;
 
@@ -1073,36 +1073,41 @@
               }
             });
 
-            if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+            fireDatabase.ref('games/' + firebaseGame.uid + '/shots').orderByChild('timestamp').startAt(Date.now() + serverTimeOffset).on('child_added', function(shotSnapshot)
             {
-              let knownHits = null;
-              fireDatabase.ref('games/' + firebaseGame.uid + '/hits').on('value', function(hitsSnapshot)
-              {
-                if(knownHits !== null)
-                {
-                  // Assume hits is always an increase of one, no edge cases...
-                  let indexOfLife = -1;
-                  if(firebaseGame.values.users[firebaseUser.uid].items)
-                  {
-                    indexOfLife = firebaseGame.values.users[firebaseUser.uid].items.indexOf('life');
-                  }
+              console.log(shotSnapshot.key);
+              console.log(shotSnapshot.val());
 
-                  if(indexOfLife >= 0)
-                  {
-                    let items = firebaseGame.values.users[firebaseUser.uid].items;
-                    items.splice(indexOfLife, 1);
-                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
-                    // Notify users about the survival of the fugitive
-                  }
-                  else
-                  {
-                    // GAME OVER!
-                    fireDatabase.ref('games/' + firebaseGame.uid).update({ state: 'apprehended' });
-                  }
+              if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && !shotSnapshot.val().hit)
+              {
+                // TODO: Notify the fugitive he dodged a bullet
+              }
+              else if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive') // && shotSnapshot.val().hit
+              {
+                let indexOfLife = -1;
+                if(firebaseGame.values.users[firebaseUser.uid].items)
+                {
+                  indexOfLife = firebaseGame.values.users[firebaseUser.uid].items.indexOf('life');
                 }
-                knownHits = hitsSnapshot.val();
-              });
-            }
+
+                if(indexOfLife >= 0)
+                {
+                  let items = firebaseGame.values.users[firebaseUser.uid].items;
+                  items.splice(indexOfLife, 1);
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
+                  // TODO: Notify fugitive he survived and lost a medkit...
+                }
+                else
+                {
+                  // GAME OVER!
+                  fireDatabase.ref('games/' + firebaseGame.uid).update({ state: 'apprehended' });
+                }
+              }
+              else // firebaseGame.values.users[firebaseUser.uid].role == 'hunter'
+              {
+                // TODO: Notify other hunters of who shot and hit/miss
+              }
+            });
 
             showGameMap(document.getElementsByClassName('battlefield')[0], mapOptions)
             .then(function(returnValues)
@@ -1409,22 +1414,12 @@
 
                 // Calculate range:
                 let distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng), new google.maps.LatLng(firebaseGame.values.users[firebaseUser.uid].location.lat, firebaseGame.values.users[firebaseUser.uid].location.lng));
-                if(distance < 50)
-                {
-                  fireDatabase.ref('games/' + firebaseGame.uid).update({ hits: (firebaseGame.values.hits + 1) });
-                  // Notify (all users?) of a hit!
-                }
-                else
-                {
-                  // Notify (all users?) of miss!
-                }
+                
+                fireDatabase.ref('games/' + firebaseGame.uid + '/shots').push({ by: firebaseUser.uid, hit: (distance < 50), timestamp: firebase.database.ServerValue.TIMESTAMP });
                 
                 // Remove all items from the inventory, cause there can only be one bullet anyway:
                 fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').remove();
               });
-              // Concerning the above:
-              // The fugitive should listen for updates on the hits counter, and check this against its medkits.
-              // If hits is higher than medkits, the fugitive will be captured! GAME OVER
             });
           });
         })
