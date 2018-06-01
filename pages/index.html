@@ -263,14 +263,23 @@
             {
               let nameEl = document.createElement('span');
               nameEl.className = 'name';
-              nameEl.innerHTML = this.name;
               this.div = document.createElement('div');
-              this.div.className = this.classToAdd + ' ' + this.iconname;
-              this.div.innerHTML = '<i class="game-icon ' + this.iconname + '"></i>';
+              this.div.innerHTML = '<i class="game-icon"></i>';
               this.div.appendChild(nameEl);
               panes.overlayImage.appendChild(this.div);
+              this.setDetails();
             }
             this.div.style.display = (this.visible ? 'block' : 'none');
+          };
+
+          HTMLMarker.prototype.setDetails = function()
+          {
+            if(this.div)
+            {
+              this.div.className = this.classToAdd + ' ' + this.iconname;
+              this.div.getElementsByClassName('game-icon')[0].className = 'game-icon ' + this.iconname;
+              this.div.getElementsByClassName('name')[0].innerHTML = this.name;
+            }
           };
           
           HTMLMarker.prototype.draw = function()
@@ -314,6 +323,11 @@
             this.init(latlng, iconname, name);
           }
           PlayerMarker.prototype = new HTMLMarker();
+          PlayerMarker.prototype.setName = function(name)
+          {
+            this.name = name;
+            HTMLMarker.prototype.setDetails.call(this);
+          };
 
           VenueMarker = function(latlng, iconname, name, requirements=[], worth=1000, state='')
           {
@@ -1133,7 +1147,12 @@
             {
               if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && !shotSnapshot.val().hit)
               {
-                notify('A shot has been fired!', 'luckily it did not hit you');
+                let shootername = 'Someone';
+                if(firebaseUsers[shotSnapshot.val().by].name)
+                {
+                  shootername = firebaseUsers[shotSnapshot.val().by].name;
+                }
+                notify(shootername + ' shot at you!', 'Luckily it did not hit you');
               }
               else if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive') // && shotSnapshot.val().hit
               {
@@ -1148,8 +1167,14 @@
                   let items = firebaseGame.values.users[firebaseUser.uid].items;
                   items.splice(indexOfLife, 1);
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
+
+                  let shootername = 'Someone';
+                  if(firebaseUsers[shotSnapshot.val().by].name)
+                  {
+                    shootername = firebaseUsers[shotSnapshot.val().by].name;
+                  }
                   
-                  notify('A shot has been fired!', 'you got hit and used up one medkit');
+                  notify(shootername + ' shot at you!', 'You got hit and used up one medkit');
                 }
                 else
                 {
@@ -1159,7 +1184,17 @@
               }
               else if(!shotSnapshot.val().hit) // && firebaseGame.values.users[firebaseUser.uid].role == 'hunter'
               {
-                notify('A shot has been fired!', 'unfortunately it did not hit');
+                console.log(firebaseUsers);
+                let shootername = 'Someone';
+                if(shotSnapshot.val().by == firebaseUser.uid)
+                {
+                  shootername = 'You';
+                }
+                else if(firebaseUsers[shotSnapshot.val().by].name)
+                {
+                  shootername = firebaseUsers[shotSnapshot.val().by].name;
+                }
+                notify(shootername + ' shot at the fugitive!', 'Unfortunately it did not hit');
               }
               else // shotSnapshot.val().hit && firebaseGame.values.users[firebaseUser.uid].role == 'hunter'
               {
@@ -1196,7 +1231,7 @@
                   if(itemsSnapshot.val().type == 'bullet')
                   {
                     notify('A bullet has been picked up');
-                    // TODO: Should also say which player
+                    // TODO: Should also say which player. So move this to an eventlistener on each player?
                   }
                   else
                   {
@@ -1239,7 +1274,12 @@
                   }
                   $('.piggybank').text(balance);
                   $('.gmaps-venue.' + venuesSnapshot.val().type).addClass('robbed');
-                  notify(texts.venues[venuesSnapshot.val().type] + ' has been robbed', 'The fugitive now has $ ' + balance);
+                  let fugitivename = 'The fugitive';
+                  if(firebaseUsers[firebaseFugitiveUser].name)
+                  {
+                    fugitivename = firebaseUsers[firebaseFugitiveUser].name;
+                  }
+                  notify(texts.venues[venuesSnapshot.val().type] + ' has been robbed', fugitivename + ' now has $ ' + balance);
                 }
               });
 
@@ -1252,7 +1292,7 @@
               // Put other players on the map:
               $.each(firebaseGame.values.users, function(userID, user)
               {
-                firebaseUsers[userID] = { location: firebaseUser.values.location };
+                firebaseUsers[userID] = { name: null, location: firebaseUser.values.location };
 
                 if(user.role == 'fugitive')
                 {
@@ -1272,9 +1312,15 @@
                 else
                 {
                   // Put the other players on the map:
-                  mapMarkers.users[userID] = new PlayerMarker(firebaseUsers[userID].location, user.role, ''); // TODO: Set user name
+                  mapMarkers.users[userID] = new PlayerMarker(firebaseUsers[userID].location, user.role); // TODO: Set user name
                   mapMarkers.users[userID].setMap(map);
                   mapMarkers.users[userID].hide();
+
+                  fireDatabase.ref('users/' + userID + '/name').once('value').then(function(userNameSnapshot)
+                  {
+                    firebaseUsers[userID].name = userNameSnapshot.val();
+                    mapMarkers.users[userID].setName(firebaseUsers[userID].name);
+                  });
 
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/location').on('value', function(userLocationSnapshot)
                   {
@@ -1292,19 +1338,48 @@
                   {
                     if(useritemsSnapshot.val() == 'life')
                     {
-                      notify('A shot has been fired!', 'the fugitive has been hit, but used a medkit');
+                      let lastShot = null,
+                          shootername = 'Someone',
+                          fugitivename = 'The fugitive';
+                      for(let shotID in firebaseGame.values.shots)
+                      {
+                        if(lastShot == null)
+                        {
+                          lastShot = firebaseGame.values.shots[shotID];
+                        }
+                        else if(lastShot.timestamp < firebaseGame.values.shots[shotID].timestamp)
+                        {
+                          lastShot = firebaseGame.values.shots[shotID];
+                        }
+                      }
+                      if(lastShot)
+                      {
+                        if(lastShot.by == firebaseUser.uid)
+                        {
+                          shootername = 'You';
+                        }
+                        else if(firebaseUsers[lastShot.by].name)
+                        {
+                          shootername = firebaseUsers[lastShot.by].name;
+                        }
+                      }
+                      if(firebaseUsers[firebaseFugitiveUser].name)
+                      {
+                        fugitivename = firebaseUsers[firebaseFugitiveUser].name;
+                      }
+                      notify(shootername + ' shot at the fugitive!', fugitivename + ' has been hit, but used a medkit');
                     }
                   });
                 }
 
                 if(true)
                 {
-                  fireDatabase.ref('users/' + userID + '/location').on('value', function(userSnapshot)
+                  fireDatabase.ref('users/' + userID + '/location').on('value', function(userLocationSnapshot)
                   {
                     let distance = 0,
                         pinsToUpdate = [];
 
-                    firebaseUsers[userID].location = userSnapshot.val();
+                    firebaseUsers[userID].location = userLocationSnapshot.val();
 
                     if(firebaseGame.values.users[userID].role == 'fugitive')
                     {
@@ -1340,7 +1415,7 @@
                     // - When the fugitive picks up an item, or robs a venue
                     if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && $('.gmaps-player[data-user-id="' + userID + '"]').hasClass('hunter')) // TODO: Replace usage of htmlmarker for actual (firebase) data
                     {
-                      mapMarkers.users[userID].setPosition(userSnapshot.val());
+                      mapMarkers.users[userID].setPosition(userLocationSnapshot.val());
                     }
                   });
                 }
@@ -1515,7 +1590,7 @@
             modalText = 'The fugitive has escaped!';
           }
           $(templates.gameover).clone().find('.modal').append($('<strong>').text(modalText)).closest('#gameover').appendTo('body');
-          notify('The game is finished', modalText);
+          notify('GAME OVER', modalText);
         })
         .catch(function(error)
         {
