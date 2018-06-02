@@ -508,6 +508,24 @@
           });
         }
 
+        function storeLanguageTexts(loadedTexts)
+        {
+          texts = loadedTexts;
+          return Promise.resolve();
+        }
+
+        function replaceLoadingTexts()
+        {
+          $('li.locationaccess span').text(texts.misc.access_loc);
+          $('li.notificationaccess span').text(texts.misc.access_notify);
+          $('li.userdata span').text(texts.misc.load_data_user);
+          $('li.gamedata span').text(texts.misc.load_data_game);
+          $('li.maps span').text(texts.misc.load_map);
+          $('input[name="username"]').prop('placeholder', texts.misc.placeholder_name);
+          $('input[type="submit"]').val(texts.misc.submit_join);
+          return Promise.resolve();
+        }
+
         function loadUserGame()
         {
           console.log('loadUserGame()');
@@ -657,7 +675,8 @@
                   venues = [];
 
               $('.container').empty();
-              $(templates.locationpick).appendTo('.container').find('form.location').hide();
+              $(templates.locationpick).appendTo('.container').find('form.location').hide().find('button[name="scramble"]').text(texts.misc.button_place);
+              $('form.location input[type="submit"]').val(texts.misc.button_save);
 
               mapOptions.center = firebaseUser.values.location;
 
@@ -780,7 +799,7 @@
                       $('form.location input[type="submit"]').show();
                     });
                     
-                    $(this).text('Shuffle items');
+                    $(this).text(texts.misc.button_shuffle);
                   });
                 });
               });
@@ -839,7 +858,8 @@
                     }
                   });
                 });
-              });
+              }).find('button[name="whatsapp"]').text(texts.misc.button_invite_whatsapp).siblings('input[type="submit"]').val(texts.misc.button_start);
+              
               if(firebaseGame.values.admin == firebaseUser.uid)
               {
                 $('form.controls button[name="whatsapp"]').show();
@@ -1011,7 +1031,7 @@
           readyGoogleMaps().then(createCustomMarker).then(updateVisualLoader('maps')),
           checkGeolocation(onLocationChange).then(updateVisualLoader('locationaccess')),
           loadTemplates('/templates.html'),
-          loadLanguageTexts(),
+          loadLanguageTexts().then(storeLanguageTexts).then(replaceLoadingTexts),
           checkNotifications().then(updateVisualLoader('notificationaccess')).catch(updateVisualLoader('notificationaccess', false))
         ])
         .then(function(returnValues)
@@ -1026,9 +1046,6 @@
           }
 
           templates = returnValues[3];
-
-          texts = returnValues[4];
-          // TODO: Replace loading texts...
 
           if(!firebaseGame.uid)
           {
@@ -1047,7 +1064,7 @@
             {
               if(!firebaseGame.uid)
               {
-                $('form.enter input[type="submit"]').val('Create new game');
+                $('form.enter input[type="submit"]').val(texts.misc.submit_new_game);
               }
               else
               {
@@ -1133,7 +1150,7 @@
             $('.distance .pin').remove();
             mapOptions.center = firebaseUser.values.location;
 
-            notify('The game has begun', 'Time to start moving!');
+            notify(texts.misc.notify_start_title, texts.misc.notify_start_body);
 
             fireDatabase.ref('games/' + firebaseGame.uid + '/state').on('value', function(gameStateSnapshot)
             {
@@ -1147,12 +1164,12 @@
             {
               if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && !shotSnapshot.val().hit)
               {
-                let shootername = 'Someone';
+                let shootername = texts.misc.someone;
                 if(firebaseUsers[shotSnapshot.val().by].name)
                 {
                   shootername = firebaseUsers[shotSnapshot.val().by].name;
                 }
-                notify(shootername + ' shot at you!', 'Luckily it did not hit you');
+                notify(texts.misc.notify_shot_at_title.replace('$1', shootername), texts.misc.notify_shot_at_body_miss);
               }
               else if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive') // && shotSnapshot.val().hit
               {
@@ -1168,13 +1185,13 @@
                   items.splice(indexOfLife, 1);
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
 
-                  let shootername = 'Someone';
+                  let shootername = texts.misc.someone;
                   if(firebaseUsers[shotSnapshot.val().by].name)
                   {
                     shootername = firebaseUsers[shotSnapshot.val().by].name;
                   }
                   
-                  notify(shootername + ' shot at you!', 'You got hit and used up one medkit');
+                  notify(texts.misc.notify_shot_at_title.replace('$1', shootername), texts.misc.notify_shot_at_body_hit);
                 }
                 else
                 {
@@ -1184,17 +1201,16 @@
               }
               else if(!shotSnapshot.val().hit) // && firebaseGame.values.users[firebaseUser.uid].role == 'hunter'
               {
-                console.log(firebaseUsers);
-                let shootername = 'Someone';
+                let shootername = texts.misc.someone;
                 if(shotSnapshot.val().by == firebaseUser.uid)
                 {
-                  shootername = 'You';
+                  shootername = texts.misc.you;
                 }
                 else if(firebaseUsers[shotSnapshot.val().by].name)
                 {
                   shootername = firebaseUsers[shotSnapshot.val().by].name;
                 }
-                notify(shootername + ' shot at the fugitive!', 'Unfortunately it did not hit');
+                notify(texts.misc.notify_shot_to_title.replace($1, shootername), texts.misc.notify_shot_to_body_miss);
               }
               else // shotSnapshot.val().hit && firebaseGame.values.users[firebaseUser.uid].role == 'hunter'
               {
@@ -1230,12 +1246,12 @@
                   mapMarkers.items[itemsSnapshot.key].hide();
                   if(itemsSnapshot.val().type == 'bullet')
                   {
-                    notify('A bullet has been picked up');
+                    notify(texts.misc.notify_found_bullet);
                     // TODO: Should also say which player. So move this to an eventlistener on each player?
                   }
                   else
                   {
-                    notify('The fugitive stole a ' + texts.items[itemsSnapshot.val().type]);
+                    notify(texts.misc.notify_found_item.replace('$1', texts.items[itemsSnapshot.val().type]));
                   }
                 }
               });
@@ -1279,13 +1295,14 @@
                   {
                     fugitivename = firebaseUsers[firebaseFugitiveUser].name;
                   }
-                  notify(texts.venues[venuesSnapshot.val().type] + ' has been robbed', fugitivename + ' now has $ ' + balance);
+                  
+                  notify(texts.misc.notify_robbed_title.replace($1, texts.venues[venuesSnapshot.val().type]), notify_robbed_body.replace('$1', fugitivename).replace('$2', balance));
                 }
               });
 
               if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && firebaseGame.values.exit)
               {
-                let exitMarker = new VenueMarker(firebaseGame.values.exit.location, 'exit', 'Exit', [], -5000);
+                let exitMarker = new VenueMarker(firebaseGame.values.exit.location, 'exit', texts.misc.exit, [], -5000);
                 exitMarker.setMap(map);
               }
 
@@ -1367,7 +1384,7 @@
                       {
                         fugitivename = firebaseUsers[firebaseFugitiveUser].name;
                       }
-                      notify(shootername + ' shot at the fugitive!', fugitivename + ' has been hit, but used a medkit');
+                      notify(texts.misc.notify_shot_to_title.replace($1, shootername), texts.misc.notify_shot_to_body_hit.replace($1, fugitivename));
                     }
                   });
                 }
@@ -1584,13 +1601,13 @@
         })
         .then(function(state)
         {
-          let modalText = 'The fugitive has been apprehended!';
+          let modalText = texts.misc.notify_apprehended;
           if(state == 'vanished')
           {
-            modalText = 'The fugitive has escaped!';
+            modalText = texts.misc.notify_escaped;
           }
-          $(templates.gameover).clone().find('.modal').append($('<strong>').text(modalText)).closest('#gameover').appendTo('body');
-          notify('GAME OVER', modalText);
+          $(templates.gameover).clone().find('.modal').append($('<strong>').text(modalText)).find('h3').text(texts.misc.notify_game_over_title).closest('#gameover').appendTo('body');
+          notify(texts.misc.notify_game_over_title, modalText);
         })
         .catch(function(error)
         {
