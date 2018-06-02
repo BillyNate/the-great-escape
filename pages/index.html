@@ -1319,6 +1319,10 @@
                 else
                 {
                   $(templates.battlefield).find('.distance .pin').clone().appendTo('.distance').attr('data-user-id', userID).hide();
+                  if(userID == firebaseUser.uid)
+                  {
+                    $('.distance .pin[data-user-id="' + userID + '"]').addClass('self');
+                  }
                 }
 
                 if(userID == firebaseUser.uid)
