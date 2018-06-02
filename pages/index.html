@@ -1149,6 +1149,7 @@
             $(templates.battlefield).children().clone().prependTo('body').filter('ul.inventory, ul.pharmacy').find('li').remove();
             $('.distance .pin').remove();
             mapOptions.center = firebaseUser.values.location;
+            mapOptions.zoom = 18;
 
             notify(texts.misc.notify_start_title, texts.misc.notify_start_body);
 
