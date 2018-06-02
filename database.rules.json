@@ -13,9 +13,6 @@
         ".read": true,
 //        ".write": "auth !== null && ((!data.exists() && data.child('state').val() == 'assembling') || data.child('admin').val() === auth.uid)",
         ".write": "auth !== null && (data.child('admin').val() === auth.uid || !data.exists())",
-        "hits": {
-          ".write": true //Shouldn't this only be possible if user is member of game?
-        },
         "items": {
           "$item_id": {
             "state": {
@@ -49,6 +46,14 @@
               ".write": "$user_id === auth.uid"
             }
           }
+        },
+        "shots": {
+          "$shot_id": {
+            ".write": "!data.exists()"
+          }
+        },
+        "state": {
+          ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || (newData.val() == 'apprehended' || newData.val() == 'vanished'))"
         }
       }
     },
