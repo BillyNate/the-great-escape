@@ -198,7 +198,6 @@
         {
           if(!('Notification' in window))
           {
-            // TODO: Update visualisation
             reject();
           }
           else if(Notification.permission === 'granted') // Let's check whether notification permissions have already been granted
@@ -1130,7 +1129,6 @@
             users[firebaseUser.uid] = { state: 'biding', role: 'hunter', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
             queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').update(users));
           }
-          // TODO: A listener for firebaseGame is create here:
           fireDatabase.ref('games/' + firebaseGame.uid).on('value', function(gameSnapshot)
           {
             firebaseGame.values = gameSnapshot.val();
@@ -1334,7 +1332,7 @@
                 else
                 {
                   // Put the other players on the map:
-                  mapMarkers.users[userID] = new PlayerMarker(firebaseUsers[userID].location, user.role); // TODO: Set user name
+                  mapMarkers.users[userID] = new PlayerMarker(firebaseUsers[userID].location, user.role);
                   mapMarkers.users[userID].setMap(map);
                   mapMarkers.users[userID].hide();
 
