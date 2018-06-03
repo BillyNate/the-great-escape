@@ -4,7 +4,6 @@ button, input[type="submit"] { cursor: pointer; }
 button:focus, a:focus { outline: none; }
 
 /* Replace drag handle in Google Maps */
-.googlemap .gm-style > :first-child > :nth-child(3) > :nth-child(2) > :nth-child(3) > :first-child > :first-child > :first-child { background: transparent url("/drag_handle.png") !important; width: 24px !important; height: 24px !important; border: none !important; top: -8px !important; left: -8px !important; }
 .gmaps-player, .gmaps-item, .gmaps-venue { position: absolute; width: 30px; height: 30px; border-radius: 30%; cursor: pointer; transform: translate(-50%, -50%); }
 .gmaps-venue { width: 40px; height: 40px; }
   .gmaps-player i, .gmaps-item i { font-size: 2em; color: #424242; }
