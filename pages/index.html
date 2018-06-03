@@ -930,7 +930,7 @@
               $('form.controls button[name="whatsapp"]').on('click', function(event)
               {
                 event.preventDefault();
-                window.open('whatsapp://send?text=Join our game on ' + encodeURI(window.location.protocol + '//' + window.location.hostname + '/game/' + firebaseGame.uid), 'WhatsApp');
+                window.open('whatsapp://send?text=' + texts.misc.invitation.replace('$1', encodeURI(window.location.protocol + '//' + window.location.hostname + '/game/' + firebaseGame.uid)), 'WhatsApp');
               });
             }
           });
