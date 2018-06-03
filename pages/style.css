@@ -65,7 +65,7 @@ button:focus, a:focus { outline: none; }
   	form.enter input[type="text"]::placeholder { color: inherit; }
   	form.enter input[type="submit"] { background-color: #00bcd4; }
   .locationpick { width: 100%; }
-    .googlemap { width: 100%; height: 80vh; margin: 5vh auto 0; }
+    .googlemap { width: 100%; height: 70vh; margin: 5vh auto 0; }
     form.location { width: 100%; }
       form.location button, form.location input { display: block; position: relative; float: left; width: 100%; padding: .5rem 1rem; margin: .5rem 0; border: 1px solid #00bcd4; border-radius: .5rem; }
       form.location button, form.location input[type="submit"] { background-color: #00bcd4; }
@@ -138,7 +138,7 @@ button:focus, a:focus { outline: none; }
 
 /* Large devices (desktops, 992px and up) */
 @media(min-width: 992px){
-  
+    .googlemap { height: 80vh; }
 }
 
 /* Extra large devices (large desktops, 1200px and up) */
