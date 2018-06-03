@@ -5,6 +5,7 @@ button:focus, a:focus { outline: none; }
 
 /* Replace drag handle in Google Maps */
 .gmaps-player, .gmaps-item, .gmaps-venue { position: absolute; width: 30px; height: 30px; border-radius: 30%; cursor: pointer; transform: translate(-50%, -50%); }
+.gmaps-player.clickthrough { pointer-events: none; }
 .gmaps-venue { width: 40px; height: 40px; }
   .gmaps-player i, .gmaps-item i { font-size: 2em; color: #424242; }
   .gmaps-venue > * { position: absolute; color: #4caf50; }

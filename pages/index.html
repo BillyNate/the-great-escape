@@ -1017,6 +1017,15 @@
               $('.battlefield .gmaps-venue.exit').removeClass('glow-red').removeClass('glow-green');
             }
           }
+
+          if($('.battlefield .gmaps-item.glow').length > 0 || $('.battlefield .gmaps-venue.glow-red').length > 0 || $('.battlefield .gmaps-venue.glow-green').length > 0)
+          {
+            $(mapMarkers.me.div).addClass('clickthrough');
+          }
+          else if($(mapMarkers.me.div).hasClass('clickthrough'))
+          {
+            $(mapMarkers.me.div).removeClass('clickthrough')
+          }
         }
 
         firebase.database().ref('/.info/serverTimeOffset').once('value').then(function(snapshot)
@@ -1242,6 +1251,7 @@
               {
                 if(itemsSnapshot.val().state == 'found')
                 {
+                  $(mapMarkers.items[itemsSnapshot.key].div).removeClass('glow');
                   mapMarkers.items[itemsSnapshot.key].hide();
                   if(itemsSnapshot.val().type == 'bullet')
                   {
