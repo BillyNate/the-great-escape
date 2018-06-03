@@ -568,18 +568,6 @@
             {
               resolveLoadUserGame(firebaseUser);
             })
-            // Determine the game this user is in:
-            /*
-            .then(function(user)
-            {
-              return determineGame(user);
-            })
-            .then(function(gameID)
-            {
-              firebaseGame.uid = gameID;
-              resolveLoadUserGame();
-            })
-            */
             .catch(function(error)
             {
               rejectLoadUserGame(error);
@@ -843,12 +831,6 @@
                     if(usersSnapshot.numChildren() == Object.keys(firebaseGame.values.users).length)
                     {
                       $('form.controls').hide();
-                      /*
-                      $.each(firebaseGame.values.users, function(userID, user)
-                      {
-                        fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID).set({ location: { lat: 0, lng: 0, timestamp: 0 } });
-                      });
-                      */
                       fireDatabase.ref('games/' + firebaseGame.uid).update({ state: 'ongoing', timestamp: firebase.database.ServerValue.TIMESTAMP });
                     }
                     else
@@ -863,15 +845,7 @@
               {
                 $('form.controls button[name="whatsapp"]').show();
               }
-              /*
-              $.each(firebaseGame.values.users, function(userID, user)
-              {
-                fireDatabase.ref('users/' + userID).once('value').then(function(userSnapshot)
-                {
-                  $(templates.playerlistitem).find('li').clone().attr('data-user-id', userID).appendTo('ul.players').find('span').text(userSnapshot.val().name).siblings('.role').addClass(user.role).siblings('.state').addClass(user.state);
-                });
-              });
-              */
+
               $('ul.players').on('click', 'i', function()
               {
                 if($(this).hasClass('state') && $(this).closest('li').data('user-id') == firebaseUser.uid)
@@ -1271,12 +1245,7 @@
               {
                 mapMarkers.venues[i] = new VenueMarker(firebaseGame.values.venues[i].location, firebaseGame.values.venues[i].type, texts.venues[firebaseGame.values.venues[i].type], entities.venues[i].needs, entities.venues[i].needs.length * 1000, firebaseGame.values.venues[i].state);
                 mapMarkers.venues[i].setMap(map);
-                /*
-                if(firebaseGame.values.venues[i].state == 'ordinary')
-                {
-                  mapMarkers.venues[i].setMap(map);
-                }
-                */
+
                 if(firebaseGame.values.venues[i].state == 'robbed')
                 {
                   balance += entities.venues[i].needs.length * 1000;
@@ -1450,25 +1419,6 @@
                   });
                 }
               });
-
-              // Show items gathered in inventory:
-              /*
-              if(firebaseUser.values.items)
-              {
-                let itemContainer = '';
-                for(let i in firebaseUser.values.items)
-                {
-                  itemContainer = 'inventory';
-                  if(firebaseUser.values.items[i] == 'life')
-                  {
-                    itemContainer = 'pharmacy';
-                  }
-                  console.log(itemContainer);
-
-                  $(templates.battlefield).find('ul.' + itemContainer + ' li').clone().appendTo('ul.' + itemContainer).find('i').addClass(firebaseUser.values.items[i]);
-                }
-              }
-              */
 
               // Listen for changes on the user's items:
               fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').on('value', function(useritemsSnapshot)
