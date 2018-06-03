@@ -1371,53 +1371,50 @@
                   });
                 }
 
-                if(true)
+                fireDatabase.ref('users/' + userID + '/location').on('value', function(userLocationSnapshot)
                 {
-                  fireDatabase.ref('users/' + userID + '/location').on('value', function(userLocationSnapshot)
+                  let distance = 0,
+                      pinsToUpdate = [];
+
+                  firebaseUsers[userID].location = userLocationSnapshot.val();
+
+                  if(firebaseGame.values.users[userID].role == 'fugitive')
                   {
-                    let distance = 0,
-                        pinsToUpdate = [];
+                    // Loop all other users against this one
+                    pinsToUpdate = Object.keys(firebaseUsers);
+                    pinsToUpdate.splice(pinsToUpdate.indexOf(firebaseFugitiveUser), 1);
+                  }
+                  else if(firebaseFugitiveUser != null)
+                  {
+                    // compare this user with fugitive
+                    pinsToUpdate = [userID];
+                  }
 
-                    firebaseUsers[userID].location = userLocationSnapshot.val();
-
-                    if(firebaseGame.values.users[userID].role == 'fugitive')
+                  if(firebaseFugitiveUser != null)
+                  {
+                    for(let i in pinsToUpdate)
                     {
-                      // Loop all other users against this one
-                      pinsToUpdate = Object.keys(firebaseUsers);
-                      pinsToUpdate.splice(pinsToUpdate.indexOf(firebaseFugitiveUser), 1);
-                    }
-                    else if(firebaseFugitiveUser != null)
-                    {
-                      // compare this user with fugitive
-                      pinsToUpdate = [userID];
-                    }
-
-                    if(firebaseFugitiveUser != null)
-                    {
-                      for(let i in pinsToUpdate)
+                      distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[pinsToUpdate[i]].location.lat, firebaseUsers[pinsToUpdate[i]].location.lng), new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng));
+                      if(distance < 200)
                       {
-                        distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[pinsToUpdate[i]].location.lat, firebaseUsers[pinsToUpdate[i]].location.lng), new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng));
-                        if(distance < 200)
-                        {
-                          $('.distance .pin[data-user-id="' + pinsToUpdate[i] + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
-                        }
-                        else
-                        {
-                          $('.distance .pin[data-user-id="' + pinsToUpdate[i] + '"]').hide();
-                        }
+                        $('.distance .pin[data-user-id="' + pinsToUpdate[i] + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
+                      }
+                      else
+                      {
+                        $('.distance .pin[data-user-id="' + pinsToUpdate[i] + '"]').hide();
                       }
                     }
+                  }
 
-                    // Updating map location only happens on very specific curcumstances:
-                    // - Hunter sees hunters
-                    // - Every 4 minutes
-                    // - When the fugitive picks up an item, or robs a venue
-                    if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && $('.gmaps-player[data-user-id="' + userID + '"]').hasClass('hunter')) // TODO: Replace usage of htmlmarker for actual (firebase) data
-                    {
-                      mapMarkers.users[userID].setPosition(userLocationSnapshot.val());
-                    }
-                  });
-                }
+                  // Updating map location only happens on very specific curcumstances:
+                  // - Hunter sees hunters
+                  // - Every 4 minutes
+                  // - When the fugitive picks up an item, or robs a venue
+                  if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && $('.gmaps-player[data-user-id="' + userID + '"]').hasClass('hunter')) // TODO: Replace usage of htmlmarker for actual (firebase) data
+                  {
+                    mapMarkers.users[userID].setPosition(userLocationSnapshot.val());
+                  }
+                });
               });
 
               // Listen for changes on the user's items:
