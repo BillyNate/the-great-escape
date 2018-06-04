@@ -484,6 +484,7 @@
             serverTimeOffset = 0,
             userMaxTimeout = 20 * 1000;
             map = null,
+            centerMapOnPlayer = true,
             mapMarkers = { me: null, items: [], venues: [], users: {} };
 
         function loadLanguageTexts()
@@ -916,6 +917,10 @@
         {
           // Update location of player
           mapMarkers.me.setPosition({ lat: location.lat, lng: location.lng });
+          if(centerMapOnPlayer)
+          {
+            map.setCenter(new google.maps.LatLng(location.lat, location.lng));
+          }
 
           let distance = 0;
 
@@ -1212,6 +1217,12 @@
             .then(function(returnValues)
             {
               map = returnValues.map;
+
+              google.maps.event.addListener(map, 'dragstart', function(event)
+              {
+                centerMapOnPlayer = false;
+                $('button.center').show();
+              });
 
               // Put items on the map:
               for(let i in firebaseGame.values.items)
@@ -1602,6 +1613,16 @@
                 // Remove all items from the inventory, cause there can only be one bullet anyway:
                 fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').remove();
               });
+
+              $('button.center').on('click', function(event)
+              {
+                event.preventDefault();
+
+                $(this).hide();
+
+                map.setCenter(new google.maps.LatLng(firebaseUsers[firebaseUser.uid].location.lat, firebaseUsers[firebaseUser.uid].location.lng));
+                centerMapOnPlayer = true;
+              }).hide();
             });
           });
         })

@@ -89,7 +89,7 @@ button:focus, a:focus { outline: none; }
     form.controls input[type="submit"] { background-color: #00bcd4; }
 .battlefield { width: 100%; height: 100%; }
   button.fullscreen { position: absolute; right: 14px; top: 10px; width: 24px; height: 24px; background-color: #fff; border: none; padding: 0; color: #000; }
-  ul.inventory, ul.pharmacy, .distance, .piggybank, .clock, button.fire { display: block; position: absolute; }
+  ul.inventory, ul.pharmacy, .distance, .piggybank, .clock, button.fire, button.center { display: block; position: absolute; }
   ul.inventory, ul.pharmacy { padding: 0; margin: 0; overflow: auto; color: #fff; }
     ul.inventory li, ul.pharmacy li { display: block; position: relative; width: 2.5rem; height: 2.5rem; line-height: 2rem; text-align: center; padding: .2rem; background-color: #00bcd4; }
   ul.inventory { left: 9px; top: 5vh; width: 3rem; max-height: 90vh; }
@@ -110,12 +110,14 @@ button:focus, a:focus { outline: none; }
     .distance .pin { position: absolute; top: -.8rem; width: 0; height: 0; overflow: visible; font-size: 1.5rem; color: #303f9f; transform: rotate(60deg) translate(.25rem, -.5rem); text-shadow: -.5px -.5px .5px #fff, .5px -.5px .5px #fff, -.5px .5px .5px #fff, .5px .5px .5px #fff; transition: right .2s; }
     .distance .pin:before { content: "\E808" !important; }
     .distance .pin.self { text-shadow: -1px -1px .5px #fff, 1px -1px .5px #fff, -1px 1px .5px #fff, 1px 1px .5px #fff; }
-  .piggybank, .clock { background: #fff; border-radius: .5rem; text-align: center; color: #333; line-height: 1.5em; }
+  .piggybank, .clock, button.fire, button.center { background: #fff; border: none; border-radius: .5rem; text-align: center; color: #333; line-height: 1.5em; }
   .piggybank { right: 55px; top: 10px; padding: 0 1rem; }
   .piggybank:before { content: "$ "; }
   .clock { right: 9px; bottom: 95px; width: 46px; height: 1.5em; }
-  button.fire { display: none; right: 9px; bottom: 130px; width: 46px; height: 46px; line-height: 46px; text-align: center; background-color: #fff; border: none; border-radius: .5rem; }
+  button.fire { display: none; right: 9px; bottom: 130px; width: 46px; height: 46px; line-height: 46px; }
     button.fire i { font-size: 2rem; color: #e91e63; }
+  button.center { left: 58px; bottom: 70px; width: 2.5rem; height: 2.5rem; }
+    button.center i { line-height: 2.5rem; }
 #gameover { position: absolute; top: 0; right: 0; bottom: 0; left: 0; background-color: rgba(0, 0, 0, .75); }
   #gameover .modal { width: 100%; max-width: 540px; padding: 5vh 0; margin: 10vh auto 0; background-color: #00bcd4; border-radius: .5rem; text-align: center; }
     #gameover .modal > :first-child { margin-top: 0; }
