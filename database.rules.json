@@ -17,6 +17,9 @@
           "$item_id": {
             "state": {
               ".write": true //Shouldn't this only be possible if user is member of game?
+            },
+            "location": {
+              ".write": true //Shouldn't this only be possible if user is member of game?
             }
           }
         },

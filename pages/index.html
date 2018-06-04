@@ -474,13 +474,15 @@
             templates = null,
             texts = null,
             fireDatabase = firebase.database(),
-            firebaseUser = { uid: null, values: null },
+            firebaseUser = { uid: null, values: null, lastTimestamp: null, lastLocation: { lat: 0, lng: 0 } },
             firebaseGame = { uid: null, values: null },
             firebaseUsers = {},
             firebaseFugitiveUser = null,
+            firebaseConnected = true;
             entities = { items: [], venues: [] },
             geoloc = { lat: 0, lng: 0 },
             serverTimeOffset = 0,
+            userMaxTimeout = 20 * 1000;
             map = null,
             mapMarkers = { me: null, items: [], venues: [], users: {} };
 
@@ -609,7 +611,7 @@
           if(firebaseUser.uid)
           {
             fireDatabase.ref('users/' + firebaseUser.uid).update({ location: coords });
-            if(firebaseGame.uid && firebaseGame.values.users[firebaseUser.uid])
+            if(firebaseGame.uid && firebaseGame.values.users[firebaseUser.uid] && firebaseConnected)
             {
               fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ timestamp: firebase.database.ServerValue.TIMESTAMP });
             }
@@ -855,14 +857,14 @@
                   {
                     newState = 'ready';
                   }
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ state: newState, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ state: newState }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                 }
                 else if($(this).hasClass('role') && firebaseUser.uid == firebaseGame.values.admin)
                 {
                   let newFugitive = $(this).closest('li').data('user-id');
                   $.each(firebaseGame.values.users, function(userID, user)
                   {
-                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID).update({ role: (userID == newFugitive ? 'fugitive' : 'hunter'), timestamp: firebase.database.ServerValue.TIMESTAMP });
+                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID).update($.extend({ role: (userID == newFugitive ? 'fugitive' : 'hunter') }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                   });
                 }
               });
@@ -1131,6 +1133,7 @@
             $('.distance .pin').remove();
             mapOptions.center = firebaseUser.values.location;
             mapOptions.zoom = 18;
+            firebaseUser.lastTimestamp = firebaseGame.values.users[firebaseUser.uid].timestamp;
 
             notify(texts.misc.notify_start_title, texts.misc.notify_start_body);
 
@@ -1140,6 +1143,11 @@
               {
                 resolve(gameStateSnapshot.val());
               }
+            });
+
+            fireDatabase.ref('.info/connected').on('value', function(connectedSnapshot)
+            {
+              firebaseConnected = connectedSnapshot.val();
             });
 
             fireDatabase.ref('games/' + firebaseGame.uid + '/shots').orderByChild('timestamp').startAt(Date.now() + serverTimeOffset).on('child_added', function(shotSnapshot)
@@ -1307,6 +1315,36 @@
                   // Put the player itself on the map:
                   mapMarkers.me = new PlayerMarker(firebaseUser.values.location, firebaseGame.values.users[firebaseUser.uid].role);
                   mapMarkers.me.setMap(map);
+
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/timestamp').on('value', function(userTimestampSnapshot)
+                  {
+                    if(userTimestampSnapshot.val() - firebaseUser.lastTimestamp > userMaxTimeout)
+                    {
+                      // TODO: Lose an item...
+                      if(firebaseGame.values.users[firebaseUser.uid].items)
+                      {
+                        if(firebaseGame.values.users[firebaseUser.uid].items.length > 0)
+                        {
+                          let items = firebaseGame.values.users[firebaseUser.uid].items;
+                          let item = items.splice(Math.floor(Math.random() * (firebaseGame.values.users[firebaseUser.uid].items.length - 0.000001)), 1);
+                          for(let i in firebaseGame.values.items)
+                          {
+                            if(firebaseGame.values.items[i].state == 'found' && firebaseGame.values.items[i].type == item)
+                            {
+                              fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
+                              fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + i).update({ state: 'lost', location: firebaseUser.lastLocation });
+                              mapMarkers.items[i].setPosition(firebaseUser.lastLocation);
+                              mapMarkers.items[i].show();
+                              notify(texts.misc.notify_lost_item_title, texts.misc.notify_lost_item_body.replace('$1', texts.items[item]));
+                              break;
+                            }
+                          }
+                        }
+                      }
+                    }
+                    firebaseUser.lastTimestamp = userTimestampSnapshot.val();
+                    firebaseUser.lastLocation = firebaseUser.values.location;
+                  });
                 }
                 else
                 {
@@ -1440,6 +1478,14 @@
                   {
                     $('button.fire').show();
                   }
+                  else
+                  {
+                    $('button.fire').hide();
+                  }
+                }
+                else
+                {
+                  $('button.fire').hide();
                 }
               });
 
@@ -1455,7 +1501,7 @@
 
                 if(resetsPassed > firebaseGame.values.users[firebaseUser.uid].resets)
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ resets: resetsPassed, location: firebaseUser.values.location, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ resets: resetsPassed, location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                 }
               }, 1000);
 
@@ -1488,7 +1534,7 @@
                     }
                     fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + i).update({ state: 'found' });
                     //fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
-                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ items: items, location: firebaseUser.values.location, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ items: items, location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                     //mapMarkers.items[i].hide();
                   }
                 }
@@ -1508,7 +1554,7 @@
                     {
                       let i = $('.battlefield .gmaps-venue').index(this);
                       fireDatabase.ref('games/' + firebaseGame.uid + '/venues/' + i).update({ state: 'robbed' });
-                      fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ location: firebaseUser.values.location, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                      fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                       // Recalculate amount of money the fugitive has stolen!
                       $(this).removeClass('glow-green');
                     }
