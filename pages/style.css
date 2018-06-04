@@ -107,7 +107,7 @@ button:focus, a:focus { outline: none; }
     .distance label[for="150"] { left: 25%; }
     .distance label[for="100"] { left: 50%; }
     .distance label[for="50"] { left: 75%; }
-    .distance .pin { position: absolute; top: -.8rem; width: 0; height: 0; overflow: visible; font-size: 1.5rem; color: #303f9f; transform: rotate(60deg); text-shadow: -.5px -.5px .5px #fff, .5px -.5px .5px #fff, -.5px .5px .5px #fff, .5px .5px .5px #fff; transition: right .2s; }
+    .distance .pin { position: absolute; top: -.8rem; width: 0; height: 0; overflow: visible; font-size: 1.5rem; color: #303f9f; transform: rotate(60deg) translate(.25rem, -.5rem); text-shadow: -.5px -.5px .5px #fff, .5px -.5px .5px #fff, -.5px .5px .5px #fff, .5px .5px .5px #fff; transition: right .2s; }
     .distance .pin:before { content: "\E808" !important; }
     .distance .pin.self { text-shadow: -1px -1px .5px #fff, 1px -1px .5px #fff, -1px 1px .5px #fff, 1px 1px .5px #fff; }
   .piggybank, .clock { background: #fff; border-radius: .5rem; text-align: center; color: #333; line-height: 1.5em; }
