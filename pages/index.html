@@ -612,9 +612,15 @@
           if(firebaseUser.uid)
           {
             fireDatabase.ref('users/' + firebaseUser.uid).update({ location: coords });
-            if(firebaseGame.uid && firebaseGame.values.users[firebaseUser.uid] && firebaseConnected)
+            if(firebaseGame.uid && firebaseConnected)
             {
-              fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ timestamp: firebase.database.ServerValue.TIMESTAMP });
+              if(firebaseGame.values)
+              {
+                if(firebaseGame.values.users[firebaseUser.uid])
+                {
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ timestamp: firebase.database.ServerValue.TIMESTAMP });
+                }
+              }
             }
 
             if(firebaseGame.values)
