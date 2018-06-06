@@ -19,6 +19,7 @@ button:focus, a:focus { outline: none; }
   .gmaps-player.hunter .name { color: #303f9f; }
   .gmaps-item .name { color: #424242; }
   .gmaps-venue .gain { top: 52px; }
+  .gmaps-venue.open, .gmaps-venue.open, .gmaps-player.open, .gmaps-item.open { z-index: 1; }
   .gmaps-venue.open .name, .gmaps-venue.open .gain, .gmaps-player.open .name, .gmaps-item.open .name { opacity: 1; }
   .gmaps-venue .requirements { position: absolute; left: -30px; top: 0px; width: 100px; padding: 0; margin: 0; border-radius: .8em; text-align: center; transition: top .4s; }
   .gmaps-venue.open .requirements { top: -30px; }
