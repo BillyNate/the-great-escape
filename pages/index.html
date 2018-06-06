@@ -886,7 +886,7 @@
               {
                 $('ul.players li[data-user-id="' + userSnapshot.key + '"] i.role').removeClass('fugitive').removeClass('hunter').addClass(userSnapshot.val().role).siblings('i.state').removeClass('biding').removeClass('ready').addClass(userSnapshot.val().state);
                 
-                if(firebaseUser.uid == firebaseGame.values.admin)
+                if(firebaseUser.uid == firebaseGame.values.admin && Object.keys(firebaseGame.values.users).length > 1)
                 {
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users').orderByChild('state').equalTo('ready').once('value').then(function(usersSnapshot)
                   {
