@@ -1066,9 +1066,12 @@
                 $('form.enter input[name="game"]').val(firebaseGame.uid);
               }
 
-              if(firebaseUser.values.name)
+              if(firebaseUser.values)
               {
-                $('form.enter input[name="username"]').val(firebaseUser.values.name);
+                if(firebaseUser.values.name)
+                {
+                  $('form.enter input[name="username"]').val(firebaseUser.values.name);
+                }
               }
 
               $('form.enter').show().one('submit', function(event)
