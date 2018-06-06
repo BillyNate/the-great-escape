@@ -1653,13 +1653,30 @@
         })
         .then(function(state)
         {
-          let modalText = texts.misc.notify_apprehended;
-          if(state == 'vanished')
+          let modalTitle,
+              modalBody;
+          if(state == 'vanished' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
           {
-            modalText = texts.misc.notify_escaped;
+            modalTitle = texts.misc.notify_win_title;
+            modalBody = texts.misc.notify_escaped_body;
           }
-          $(templates.gameover).clone().find('.modal').append($('<strong>').text(modalText)).find('h3').text(texts.misc.notify_game_over_title).closest('#gameover').appendTo('body');
-          notify(texts.misc.notify_game_over_title, modalText);
+          else if(state == 'vanished' && firebaseGame.values.users[firebaseUser.uid].role == 'hunter')
+          {
+            modalTitle = texts.misc.notify_lose_title;
+            modalBody = texts.misc.notify_escaped_body;
+          }
+          else if(state == 'apprehended' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+          {
+            modalTitle = texts.misc.notify_lose_title;
+            modalBody = texts.misc.notify_apprehended_body;
+          }
+          else if(state == 'apprehended' && firebaseGame.values.users[firebaseUser.uid].role == 'hunter')
+          {
+            modalTitle = texts.misc.notify_win_title;
+            modalBody = texts.misc.notify_apprehended_body;
+          }
+          $(templates.gameover).clone().find('.modal').append($('<strong>').text(modalBody)).find('h3').text(modalTitle).closest('#gameover').appendTo('body');
+          notify(modalTitle, modalBody);
         })
         .catch(function(error)
         {
