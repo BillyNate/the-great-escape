@@ -1,2 +1,3 @@
 .firebaserc
+firebase-debug.log
 functions/node_modules
