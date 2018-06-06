@@ -1301,13 +1301,17 @@
                   }
                   $('.piggybank').text(balance);
                   $('.gmaps-venue.' + venuesSnapshot.val().type).addClass('robbed');
-                  let fugitivename = 'The fugitive';
-                  if(firebaseUsers[firebaseFugitiveUser].name)
+                  let fugitivename = texts.misc.fugitive;
+                  if(firebaseFugitiveUser == firebaseUser.uid)
+                  {
+                    fugitivename = texts.misc.you;
+                  }
+                  else if(firebaseUsers[firebaseFugitiveUser].name)
                   {
                     fugitivename = firebaseUsers[firebaseFugitiveUser].name;
                   }
                   
-                  notify(texts.misc.notify_robbed_title.replace($1, texts.venues[venuesSnapshot.val().type]), notify_robbed_body.replace('$1', fugitivename).replace('$2', balance));
+                  notify(texts.misc.notify_robbed_title.replace('$1', texts.venues[venuesSnapshot.val().type]), texts.misc.notify_robbed_body.replace('$1', fugitivename).replace('$2', balance));
                 }
               });
 
