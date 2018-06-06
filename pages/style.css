@@ -88,7 +88,8 @@ button:focus, a:focus { outline: none; }
     form.controls button[name="whatsapp"] { float: left; background-color: #00bcd4; }
     form.controls input[type="submit"] { background-color: #00bcd4; }
 .battlefield { width: 100%; height: 100%; }
-  button.fullscreen { position: absolute; right: 14px; top: 10px; width: 24px; height: 24px; background-color: #fff; border: none; padding: 0; color: #000; }
+  button.fullscreen, button.info { position: absolute; right: 14px; top: 10px; width: 24px; height: 24px; background-color: #fff; border: none; padding: 0; color: #000; }
+  button.info { top: 45px; }
   ul.inventory, ul.pharmacy, .distance, .piggybank, .clock, button.fire, button.center { display: block; position: absolute; }
   ul.inventory, ul.pharmacy { padding: 0; margin: 0; overflow: auto; color: #fff; }
     ul.inventory li, ul.pharmacy li { display: block; position: relative; width: 2.5rem; height: 2.5rem; line-height: 2rem; text-align: center; padding: .2rem; background-color: #00bcd4; }
@@ -114,6 +115,8 @@ button:focus, a:focus { outline: none; }
   .piggybank { right: 55px; top: 10px; padding: 0 1rem; }
   .piggybank:before { content: "$ "; }
   .clock { right: 9px; bottom: 95px; width: 46px; height: 1.5em; }
+  div.info { display: none; position: absolute; top: 5vh; width: 90vw; max-width: 540px; max-height: 90vh; left: 50vw; transform: translate(-50%, 0); padding: 5vh 5vw; background: #00bcd4; border-radius: .5rem; color: #fff; overflow: auto; }
+    div.info button.close { position: absolute; right: 2vw; top: 2vh; padding: 0; border: none; margin: 0; }
   button.fire { display: none; right: 9px; bottom: 130px; width: 46px; height: 46px; line-height: 46px; }
     button.fire i { font-size: 2rem; color: #e91e63; }
   button.center { left: 58px; bottom: 70px; width: 2.5rem; height: 2.5rem; }

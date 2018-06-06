@@ -1142,6 +1142,11 @@
             $('.container').remove();
             $(templates.battlefield).children().clone().prependTo('body').filter('ul.inventory, ul.pharmacy').find('li').remove();
             $('.distance .pin').remove();
+            $('div.info').append(texts.misc['info_' + firebaseGame.values.users[firebaseUser.uid].role].replace(/\s{2}/g, '<br>'));
+            $('div.info i').not('.material-icons').each(function(index)
+            {
+              $(this).prop('class', 'game-icon game-icon-' + $(this).prop('class'));
+            });
             mapOptions.center = firebaseUser.values.location;
             mapOptions.zoom = 18;
             firebaseUser.lastTimestamp = firebaseGame.values.users[firebaseUser.uid].timestamp;
@@ -1602,6 +1607,20 @@
                   $('body').fullScreen(true);
                   $(this).find('i.material-icons').text('fullscreen_exit');
                 }
+              });
+
+              $('button.info').on('click', function(event)
+              {
+                event.preventDefault();
+
+                $('div.info').show();
+              });
+
+              $('div.info button.close').on('click', function(event)
+              {
+                event.preventDefault();
+
+                $(this).closest('div.info').hide();
               });
 
               $('button.fire').on('click', function(event)
