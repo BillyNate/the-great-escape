@@ -13,7 +13,7 @@ button:focus, a:focus { outline: none; }
   .gmaps-venue.exit > * { color: #f50057; }
   .gmaps-venue i { left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; font-size: 3em; }
   .gmaps-venue .name, .gmaps-venue .requirements, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { display: block; pointer-events: none; }
-  .gmaps-venue .name, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { position: absolute; left: -30px; top: 40px; width: 100px; text-align: center; font-weight: 700; text-transform: uppercase; opacity: 0; transition: opacity .4s; }
+  .gmaps-venue .name, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { position: absolute; left: -30px; top: 40px; width: 100px; text-align: center; font-weight: 700; text-transform: uppercase; text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff; opacity: 0; transition: opacity .4s; }
   .gmaps-player .name, .gmaps-item .name { left: -35px; top: 30px; }
   .gmaps-player.fugitive .name { color: #b71c1c; }
   .gmaps-player.hunter .name { color: #303f9f; }
