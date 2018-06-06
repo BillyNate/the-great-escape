@@ -1173,12 +1173,12 @@
             {
               if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && !shotSnapshot.val().hit)
               {
-                let shootername = texts.misc.someone;
+                let notificationTitle = texts.misc.notify_shot_at_title_default;
                 if(firebaseUsers[shotSnapshot.val().by].name)
                 {
-                  shootername = firebaseUsers[shotSnapshot.val().by].name;
+                  notificationTitle = texts.misc.notify_shot_at_title_name.replace('$1', firebaseUsers[shotSnapshot.val().by].name);
                 }
-                notify(texts.misc.notify_shot_at_title.replace('$1', shootername), texts.misc.notify_shot_at_body_miss);
+                notify(notificationTitle, texts.misc.notify_shot_at_body_miss);
               }
               else if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive') // && shotSnapshot.val().hit
               {
@@ -1194,13 +1194,13 @@
                   items.splice(indexOfLife, 1);
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
 
-                  let shootername = texts.misc.someone;
+                  let notificationTitle = texts.misc.notify_shot_at_title_default;
                   if(firebaseUsers[shotSnapshot.val().by].name)
                   {
-                    shootername = firebaseUsers[shotSnapshot.val().by].name;
+                    notificationTitle = texts.misc.notify_shot_at_title_name.replace('$1', firebaseUsers[shotSnapshot.val().by].name);
                   }
                   
-                  notify(texts.misc.notify_shot_at_title.replace('$1', shootername), texts.misc.notify_shot_at_body_hit);
+                  notify(notificationTitle, texts.misc.notify_shot_at_body_hit);
                 }
                 else
                 {
@@ -1210,16 +1210,16 @@
               }
               else if(!shotSnapshot.val().hit) // && firebaseGame.values.users[firebaseUser.uid].role == 'hunter'
               {
-                let shootername = texts.misc.someone;
+                let notificationTitle = texts.misc.notify_shot_to_title_default;
                 if(shotSnapshot.val().by == firebaseUser.uid)
                 {
-                  shootername = texts.misc.you;
+                  notificationTitle = texts.misc.notify_shot_to_title_self;
                 }
                 else if(firebaseUsers[shotSnapshot.val().by].name)
                 {
-                  shootername = firebaseUsers[shotSnapshot.val().by].name;
+                  notificationTitle = texts.misc.notify_shot_to_title_name.replace('$1', firebaseUsers[shotSnapshot.val().by].name);
                 }
-                notify(texts.misc.notify_shot_to_title.replace($1, shootername), texts.misc.notify_shot_to_body_miss);
+                notify(notificationTitle, texts.misc.notify_shot_to_body_miss);
               }
               else // shotSnapshot.val().hit && firebaseGame.values.users[firebaseUser.uid].role == 'hunter'
               {
@@ -1260,14 +1260,20 @@
                 {
                   $(mapMarkers.items[itemsSnapshot.key].div).removeClass('glow');
                   mapMarkers.items[itemsSnapshot.key].hide();
-                  if(itemsSnapshot.val().type == 'bullet')
+                  if(itemsSnapshot.val().type != 'bullet')
                   {
-                    notify(texts.misc.notify_found_bullet);
-                    // TODO: Should also say which player. So move this to an eventlistener on each player?
-                  }
-                  else
-                  {
-                    notify(texts.misc.notify_found_item.replace('$1', texts.items[itemsSnapshot.val().type]));
+                    let notificationTitle = texts.misc.notify_found_item_title_default;
+                    if(firebaseFugitiveUser == firebaseUser.uid)
+                    {
+                      notificationTitle = texts.misc.notify_found_item_title_self;
+                    }
+                    else if(firebaseUsers[firebaseFugitiveUser].name)
+                    {
+                      notificationTitle = texts.misc.notify_found_item_title_name.replace('$2', firebaseUsers[firebaseFugitiveUser].name);
+                    }
+                    notificationTitle = notificationTitle.replace('$1', texts.items[itemsSnapshot.val().type]);
+
+                    notify(notificationTitle);
                   }
                 }
               });
@@ -1301,17 +1307,19 @@
                   }
                   $('.piggybank').text(balance);
                   $('.gmaps-venue.' + venuesSnapshot.val().type).addClass('robbed');
-                  let fugitivename = texts.misc.fugitive;
+
+                  let notificationBody = texts.misc.notify_robbed_body_default;
                   if(firebaseFugitiveUser == firebaseUser.uid)
                   {
-                    fugitivename = texts.misc.you;
+                    notificationBody = texts.misc.notify_robbed_body_self;
                   }
                   else if(firebaseUsers[firebaseFugitiveUser].name)
                   {
-                    fugitivename = firebaseUsers[firebaseFugitiveUser].name;
+                    notificationBody = texts.misc.notify_robbed_body_name.replace('$2', firebaseUsers[firebaseFugitiveUser].name);
                   }
+                  notificationBody = notificationBody.replace('$1', balance);
                   
-                  notify(texts.misc.notify_robbed_title.replace('$1', texts.venues[venuesSnapshot.val().type]), texts.misc.notify_robbed_body.replace('$1', fugitivename).replace('$2', balance));
+                  notify(texts.misc.notify_robbed_title.replace('$1', texts.venues[venuesSnapshot.val().type]), notificationBody);
                 }
               });
 
@@ -1405,8 +1413,8 @@
                     if(useritemsSnapshot.val() == 'life')
                     {
                       let lastShot = null,
-                          shootername = 'Someone',
-                          fugitivename = 'The fugitive';
+                          notificationTitle = texts.misc.notify_shot_to_title_default,
+                          notificationBody = texts.misc.notify_shot_to_body_hit_default;
                       for(let shotID in firebaseGame.values.shots)
                       {
                         if(lastShot == null)
@@ -1422,19 +1430,44 @@
                       {
                         if(lastShot.by == firebaseUser.uid)
                         {
-                          shootername = 'You';
+                          notificationTitle = texts.misc.notify_shot_to_title_self;
                         }
                         else if(firebaseUsers[lastShot.by].name)
                         {
-                          shootername = firebaseUsers[lastShot.by].name;
+                          notificationTitle = texts.misc.notify_shot_to_title_name.replace('$1', firebaseUsers[lastShot.by].name);
                         }
                       }
                       if(firebaseUsers[firebaseFugitiveUser].name)
                       {
-                        fugitivename = firebaseUsers[firebaseFugitiveUser].name;
+                        notificationBody = texts.misc.notify_shot_to_body_hit_name.replace('$1', firebaseUsers[firebaseFugitiveUser].name);
                       }
-                      notify(texts.misc.notify_shot_to_title.replace($1, shootername), texts.misc.notify_shot_to_body_hit.replace($1, fugitivename));
+                      notify(notificationTitle, notificationBody);
                     }
+                  });
+                }
+
+                if(user.role == 'hunter')
+                {
+                  let initialUserItemsLoad = true;
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').on('value', function(useritemsSnapshot)
+                  {
+                    if(!initialUserItemsLoad && useritemsSnapshot.val())
+                    {
+                      if(useritemsSnapshot.val().indexOf('bullet') >= 0)
+                      {
+                        let notificationTitle = texts.misc.notify_found_bullet_title_default;
+                        if(userID == firebaseUser.uid)
+                        {
+                          notificationTitle = texts.misc.notify_found_bullet_title_self;
+                        }
+                        else if(firebaseUsers[userID].name)
+                        {
+                          notificationTitle = texts.misc.notify_found_bullet_title_name.replace('$1', firebaseUsers[userID].name);
+                        }
+                        notify(notificationTitle);
+                      }
+                    }
+                    initialUserItemsLoad = false;
                   });
                 }
 
