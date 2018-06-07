@@ -101,7 +101,7 @@
         "gasmask" : "Gasmasker",
         "ladder" : "Ladder",
         "life" : "EHBO-koffer",
-        "lockpicks" : "Lickpickset",
+        "lockpicks" : "Lockpickset",
         "poisongas" : "Rookgranaat",
         "rope" : "Touw"
       },
@@ -126,7 +126,7 @@
         "notify_found_bullet" : "Er is een kogel opgeraapt",
         "notify_found_item" : "De voortvluchtige heeft een $1 gestolen",
         "notify_lose_title" : "Helaas!",
-        "notify_lost_item_body" : "Je bent een $1 verloren",
+        "notify_lost_item_body" : "Je hebt een $1 verloren",
         "notify_lost_item_title" : "Je bent te lang onbereikbaar geweest",
         "notify_robbed_body" : "$1 heeft nu $ $2",
         "notify_robbed_title" : "$1 is beroofd",
