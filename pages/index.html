@@ -51,6 +51,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-fullscreen-plugin/1.1.4/jquery.fullscreen-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/push.js/1.0.5/push.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/slipjs/2.1.1/slip.min.js"></script>
     <script src="/loadtemplates.js"></script>
     <script src="/sleep-config.js"></script>
     <script>
@@ -850,6 +851,27 @@
                 });
               }).find('button[name="whatsapp"]').text(texts.misc.button_invite_whatsapp).siblings('input[type="submit"]').val(texts.misc.button_start);
               
+              if(firebaseUser.uid == firebaseGame.values.admin)
+              {
+                new Slip($('.container').find('ul.players').get()[0]);
+                $('.container').find('ul.players').on('slip:beforereorder', function(event)
+                {
+                  event.preventDefault();
+                })
+                .on('slip:beforeswipe', function(event)
+                {
+                  if($(event.target).attr('data-user-id') == firebaseUser.uid)
+                  {
+                    event.preventDefault();
+                  }
+                })
+                .on('slip:swipe', function(event)
+                {
+                  $(event.target).remove();
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + $(event.target).attr('data-user-id')).remove();
+                });
+              }
+              
               if(firebaseGame.values.admin == firebaseUser.uid)
               {
                 $('form.controls button[name="whatsapp"]').show();
@@ -900,6 +922,15 @@
                     }
                   });
                 }
+              });
+              fireDatabase.ref('games/' + firebaseGame.uid + '/users').on('child_removed', function(gameUserSnapshot)
+              {
+                if(gameUserSnapshot.key == firebaseUser.uid)
+                {
+                  fireDatabase.ref('users/' + firebaseUser.uid + '/game').remove();
+                  window.location.replace('/');
+                }
+                $('ul.players li[data-user-id="' + gameUserSnapshot.key + '"]').remove();
               });
               fireDatabase.ref('games/' + firebaseGame.uid + '/state').on('value', function(stateSnapshot)
               {

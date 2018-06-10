@@ -71,7 +71,7 @@ button:focus, a:focus { outline: none; }
     form.location { width: 100%; }
       form.location button, form.location input { display: block; position: relative; float: left; width: 100%; padding: .5rem 1rem; margin: .5rem 0; border: 1px solid #00bcd4; border-radius: .5rem; }
       form.location button, form.location input[type="submit"] { background-color: #00bcd4; }
-    ul.players { display: block; position: relative; width: 100%; max-width: 540px; margin: 10vh auto 0; padding: 0; border-radius: .5rem; max-height: 80vh; overflow: auto; }
+    ul.players { display: block; position: relative; width: 100%; max-width: 540px; margin: 10vh auto 0; padding: 0; border-radius: .5rem; max-height: 80vh; overflow-x: hidden; overflow-y: auto; }
       ul.players li { display: block; position: relative; width: 100%; padding: .5rem 1rem; overflow: hidden; background-color: #00bcd4; line-height: 2rem; }
         ul.players li > * { float: left; }
         ul.players li span { margin-left: 1rem; }
