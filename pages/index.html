@@ -1531,6 +1531,15 @@
                 if(resetsPassed > firebaseGame.values.users[firebaseUser.uid].resets)
                 {
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ resets: resetsPassed, location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
+
+                  if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+                  {
+                    notify(texts.misc.notify_clock_title, texts.misc.notify_clock_hunters_body);
+                  }
+                  else
+                  {
+                    notify(texts.misc.notify_clock_title, texts.misc.notify_clock_fugitive_body);
+                  }
                 }
               }, 1000);
 
