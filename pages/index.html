@@ -658,6 +658,72 @@
           return returnFunction;
         }
 
+        function reorient() // after a position change in the history stack
+        {
+            let state = history.state;
+            let direction; /* (-1, 0, 1) = (backward, reload, forward)
+              position of this entry vs. last entry (of ours) shown */
+            if( state === null ) // then this entry is new to the stack
+            {
+                const position = history.length - 1; // top of stack
+                direction = 1;
+
+                // (1) Stamp the entry with its own position in the stack
+                state = String( position );
+                history.replaceState( state, /*no title*/'' );
+            }
+            else // this entry was pre-existing
+            {
+                const position = Number( state );
+                const stateLastShown =
+                  sessionStorage.getItem( 'stateLastShown' );
+                const positionLastShown = Number( stateLastShown );
+                direction = Math.sign( position - positionLastShown );
+            }
+
+            // (2) Stamp the session with the last position shown
+            sessionStorage.setItem( 'stateLastShown', state );
+
+            // (3) Answer the question
+            console.log( 'travel direction was ' + direction );
+        }
+
+        $(window).bind('popstate load', function(event)
+        {
+          let direction = Math.sign(Number(window.history.state) - Number(sessionStorage.getItem('stateLastShown')));
+
+          sessionStorage.setItem('stateLastShown', window.history.state);
+
+          if(direction == -1 && firebaseGame.uid)
+          {
+            if(confirm(texts.misc.dialog_leave_game))
+            {
+              let gameUpdates = [];
+              if(firebaseGame.values.admin == firebaseUser.uid)
+              {
+                gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').remove());
+              }
+              else
+              {
+                gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).remove());
+              }
+              gameUpdates.push(fireDatabase.ref('/users/' + firebaseUser.uid + '/game').remove());
+              Promise.all(gameUpdates).then(function()
+              {
+                window.location.replace('/');
+              });
+            }
+            else
+            {
+              window.history.pushState(String(Number(window.history.state) + 1), null, window.location.pathname);
+              sessionStorage.setItem('stateLastShown', window.history.state);
+            }
+          }
+        });
+        window.history.replaceState(String(window.history.length - 1), null);
+        window.history.pushState(String(window.history.length), null, window.location.pathname);
+        sessionStorage.setItem('stateLastShown', String(window.history.length - 1));
+
         function pickLocation()
         {
           return new Promise(function(resolve, reject)
