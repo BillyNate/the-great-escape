@@ -368,12 +368,77 @@
       }
     </script>
     <script>
-      function randomLocations(latlng, radius, number)
+      function getRandomLocations(center, minDistance, maxDistance, number)
       {
         let returnArray = [];
         for(let i=0; i<number; i++)
         {
-          returnArray[i] = google.maps.geometry.spherical.computeOffset(latlng, Math.random() * radius, Math.random() * 360);
+          returnArray[i] = google.maps.geometry.spherical.computeOffset(center, Math.random() * (maxDistance - minDistance) + minDistance, Math.random() * 360);
+        }
+        return returnArray;
+      }
+
+      function findExtremeDistance(latlng, latlngs=[], extreme=-1)
+      {
+        if(latlngs.length <= 0)
+        {
+          return null;
+        }
+
+        let currentValue;
+        return latlngs.reduce(function(accumulator, currentElement, currentIndex)
+        {
+          currentValue = { index: currentIndex, distance: google.maps.geometry.spherical.computeDistanceBetween(latlng, currentElement) };
+          
+          if((currentValue.distance - accumulator.distance) / Math.abs(currentValue.distance - accumulator.distance) == extreme)
+          {
+            return currentValue;
+          }
+          return accumulator;
+        }, { index: 0, distance: google.maps.geometry.spherical.computeDistanceBetween(latlng, latlngs[0]) });
+      }
+
+      function findClosestBy(latlng, latlngs=[])
+      {
+        return findExtremeDistance(latlng, latlngs, -1);
+      }
+
+      function findFurthestAway(latlng, latlngs=[])
+      {
+        return findExtremeDistance(latlng, latlngs, 1);
+      }
+
+      function getEvenlyRandomLocations(center, minDistance, maxDistance, number, preExisting=[])
+      {
+        let returnArray = [],
+            sampleArray = preExisting,
+            randomLoc = null,
+            currentDistance;
+        
+        for(let i=0; i<number; i++)
+        {
+          randomLoc = getRandomLocations(center, minDistance, maxDistance, 10).reduce(function(accumulator, location, i, locations)
+          {
+            if(sampleArray.length > 0)
+            {
+              currentDistance = findClosestBy(location, sampleArray);
+            }
+            else
+            {
+              currentDistance = accumulator;
+              currentDistance.distance = 0;
+            }
+            
+            if(currentDistance.distance >= accumulator.distance)
+            {
+              currentDistance.index = i;
+              currentDistance.location = location;
+              return currentDistance;
+            }
+            return accumulator;
+          }, { index: -1, distance: -1, location: null });
+          returnArray.push(randomLoc.location);
+          sampleArray.push(randomLoc.location);
         }
         return returnArray;
       }
@@ -782,7 +847,7 @@
 
                     $('form.location').hide();
                     let gameUpdates = [],
-                        exitLocation = randomLocations(event.overlay.center, event.overlay.radius, 1)[0];
+                        exitLocation = getRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, 1)[0];
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/location').set(gameLocation));
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/exit').set({ location: { lat: exitLocation.lat(), lng: exitLocation.lng() } }));
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/items').set(items.map(function(item)
@@ -803,7 +868,8 @@
                   {
                     e.preventDefault();
 
-                    loadNearestRoads(randomLocations(event.overlay.center, event.overlay.radius, venues.length))
+                    Promise.resolve(getEvenlyRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, venues.length))
+                    .then(loadNearestRoads)
                     .then(function(venueLocations)
                     {
                       for(let i=0; i<venues.length; i++)
@@ -815,7 +881,7 @@
                         }
                         else if(!venues[i].marker)
                         {
-                          let randomLocation = randomLocations(event.overlay.center, event.overlay.radius, 1)[0];
+                          let randomLocation = getRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, 1)[0];
                           venues[i].location.lat = randomLocation.lat();
                           venues[i].location.lng = randomLocation.lng();
                         }
@@ -830,9 +896,16 @@
                           venues[i].marker.setPosition(venues[i].location);
                         }
                       }
-                    });
-
-                    loadNearestRoads(randomLocations(event.overlay.center, event.overlay.radius, items.length))
+                      return Promise.resolve(venues.map(function(venue)
+                      {
+                        return new google.maps.LatLng(venue.location.lat, venue.location.lng);
+                      }));
+                    })
+                    .then(function(locations)
+                    {
+                      return Promise.resolve(getEvenlyRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, items.length, locations));
+                    })
+                    .then(loadNearestRoads)
                     .then(function(itemLocations)
                     {
                       for(let i=0; i<items.length; i++)
@@ -844,7 +917,7 @@
                         }
                         else if(!items[i].marker)
                         {
-                          let randomLocation = randomLocations(event.overlay.center, event.overlay.radius, 1)[0];
+                          let randomLocation = getRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, 1)[0];
                           items[i].location.lat = randomLocation.lat();
                           items[i].location.lng = randomLocation.lng();
                         }
