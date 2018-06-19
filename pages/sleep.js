@@ -45,6 +45,9 @@ var sleep = {
         this._video = document.createElement('video');
         this._video.setAttribute('width', '10');
         this._video.setAttribute('height', '10');
+        this._video.setAttribute('playsinline', 'playsinline');
+        this._video.setAttribute('autoplay', 'autoplay');
+        this._video.setAttribute('muted', 'muted');
         this._video.style.position = 'absolute';
         this._video.style.top = '-10px';
         this._video.style.left = '-10px';
