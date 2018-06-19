@@ -1100,8 +1100,9 @@
               {
                 if(stateSnapshot.val() != 'assembling')
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/state').off('value');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users').off('child_added');
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users').off('child_changed');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users').off('child_removed');
                   resolve();
                 }
               });
@@ -1710,6 +1711,25 @@
                     mapMarkers.users[userID].setPosition(userLocationSnapshot.val());
                   }
                 });
+              });
+              
+              // Keep track of users leaving the game:
+              fireDatabase.ref('games/' + firebaseGame.uid + '/users').on('child_removed', function(gameUserSnapshot)
+              {
+                if(gameUserSnapshot.key != firebaseUser.uid)
+                {
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + gameUserSnapshot.key + '/location').off('value');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + gameUserSnapshot.key + '/items').off('child_removed');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + gameUserSnapshot.key + '/items').off('value');
+                  fireDatabase.ref('users/' + gameUserSnapshot.key + '/location').off('value');
+
+                  mapMarkers.users[gameUserSnapshot.key].hide();
+                  mapMarkers.users[gameUserSnapshot.key].setMap(null);
+
+                  $('.distance .pin[data-user-id="' + gameUserSnapshot.key + '"]').remove();
+
+                  notify(texts.misc.notify_user_left_title.replace('$1', firebaseUsers[gameUserSnapshot.key].name));
+                }
               });
 
               // Listen for changes on the user's items:
