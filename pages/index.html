@@ -800,7 +800,8 @@
             else // (!firebaseGame.location && firebaseGame.admin == firebaseUser.uid)
             {
               let items = [],
-                  venues = [];
+                  venues = [],
+                  exit = { location: { lat: 0, lng: 0 } };
 
               $('.container').empty();
               $(templates.locationpick).appendTo('.container').find('form.location').hide().find('button[name="scramble"]').text(texts.misc.button_place);
@@ -846,10 +847,9 @@
                     e.preventDefault();
 
                     $('form.location').hide();
-                    let gameUpdates = [],
-                        exitLocation = getRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, 1)[0];
+                    let gameUpdates = [];
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/location').set(gameLocation));
-                    gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/exit').set({ location: { lat: exitLocation.lat(), lng: exitLocation.lng() } }));
+                    gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/exit').set({ location: exit.location }));
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/items').set(items.map(function(item)
                     {
                       return { location: item.location, type: item.type, state: 'lost' };
@@ -868,34 +868,59 @@
                   {
                     e.preventDefault();
 
-                    Promise.resolve(getEvenlyRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, venues.length))
+                    Promise.resolve(getEvenlyRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius/2, 2))
+                    .then(loadNearestRoads)
+                    .then(function(exitLocations)
+                    {
+                      let i, j = 0;
+                      for(i=0; i<exitLocations.length; i++)
+                      {
+                        if(!exitLocations[i])
+                        {
+                          continue;
+                        }
+
+                        exit.location.lat = exitLocations[i].latitude;
+                        exit.location.lng = exitLocations[i].longitude;
+                        break;
+                      }
+
+                      // Pass the used exit location as Google LatLngs to the next function
+                      return Promise.resolve([new google.maps.LatLng(exit.location.lat, exit.location.lng)]);
+                    })
+                    .then(function(locations)
+                    {
+                      return Promise.resolve(getEvenlyRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, Math.floor(venues.length * 1.5), locations));
+                    })
                     .then(loadNearestRoads)
                     .then(function(venueLocations)
                     {
-                      for(let i=0; i<venues.length; i++)
+                      let i, j = 0;
+                      for(i=0; i<venueLocations.length&&j<venues.length; i++)
                       {
-                        if(venueLocations[i])
+                        // If there's actually no nearby road on venueLocations[i], continue to the next possible location. We got 1.5 times as much possible locations as we require, so it should do fine...
+                        if(!venueLocations[i])
                         {
-                          venues[i].location.lat = venueLocations[i].latitude;
-                          venues[i].location.lng = venueLocations[i].longitude;
-                        }
-                        else if(!venues[i].marker)
-                        {
-                          let randomLocation = getRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, 1)[0];
-                          venues[i].location.lat = randomLocation.lat();
-                          venues[i].location.lng = randomLocation.lng();
+                          continue;
                         }
 
-                        if(!venues[i].marker)
+                        venues[j].location.lat = venueLocations[i].latitude;
+                        venues[j].location.lng = venueLocations[i].longitude;
+
+                        if(!venues[j].marker)
                         {
-                          venues[i].marker = new VenueMarker(venues[i].location, venues[i].type);
-                          venues[i].marker.setMap(map);
+                          venues[j].marker = new VenueMarker(venues[j].location, venues[j].type);
+                          venues[j].marker.setMap(map);
                         }
                         else
                         {
-                          venues[i].marker.setPosition(venues[i].location);
+                          venues[j].marker.setPosition(venues[j].location);
                         }
+
+                        j ++;
                       }
+
+                      // Pass all used locations as Google LatLngs to the next function
                       return Promise.resolve(venues.map(function(venue)
                       {
                         return new google.maps.LatLng(venue.location.lat, venue.location.lng);
@@ -903,34 +928,34 @@
                     })
                     .then(function(locations)
                     {
-                      return Promise.resolve(getEvenlyRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, items.length, locations));
+                      return Promise.resolve(getEvenlyRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, Math.floor(items.length * 1.5), locations));
                     })
                     .then(loadNearestRoads)
                     .then(function(itemLocations)
                     {
-                      for(let i=0; i<items.length; i++)
+                      let i, j = 0;
+                      for(i=0; i<itemLocations.length&&j<items.length; i++)
                       {
-                        if(itemLocations[i])
+                        // If there's actually no nearby road on itemLocations[i], continue to the next possible location. We got 1.5 times as much possible locations as we require, so it should do fine...
+                        if(!itemLocations[i])
                         {
-                          items[i].location.lat = itemLocations[i].latitude;
-                          items[i].location.lng = itemLocations[i].longitude;
-                        }
-                        else if(!items[i].marker)
-                        {
-                          let randomLocation = getRandomLocations(event.overlay.center, event.overlay.radius/10, event.overlay.radius, 1)[0];
-                          items[i].location.lat = randomLocation.lat();
-                          items[i].location.lng = randomLocation.lng();
+                          continue;
                         }
 
-                        if(!items[i].marker)
+                        items[j].location.lat = itemLocations[i].latitude;
+                        items[j].location.lng = itemLocations[i].longitude;
+
+                        if(!items[j].marker)
                         {
-                          items[i].marker = new ItemMarker(items[i].location, items[i].type);
-                          items[i].marker.setMap(map);
+                          items[j].marker = new ItemMarker(items[j].location, items[j].type);
+                          items[j].marker.setMap(map);
                         }
                         else
                         {
-                          items[i].marker.setPosition(items[i].location);
+                          items[j].marker.setPosition(items[j].location);
                         }
+
+                        j ++;
                       }
                       $('form.location input[type="submit"]').show();
                     });
