@@ -32,22 +32,7 @@
         },
         "users": {
           "$user_id": {
-            ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || !data.exists())",
-            "items": {
-              ".write": "$user_id === auth.uid"
-            },
-            "state": {
-              ".write": "$user_id === auth.uid"
-            },
-            "location": {
-              ".write": "$user_id === auth.uid"
-            },
-            "resets": {
-              ".write": "$user_id === auth.uid"
-            },
-            "timestamp": {
-              ".write": "$user_id === auth.uid"
-            }
+            ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || $user_id === auth.uid || !data.exists())"
           }
         },
         "shots": {
