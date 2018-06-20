@@ -29,6 +29,70 @@
     <meta name="msapplication-wide310x150logo" content="mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="mstile-310x310.png" />
 
+    <script src="/bowser.min.js"></script>
+    <script src="/modernizr-custom.js"></script>
+    <script>
+      (function()
+      {
+        var modernizrChecks = ['cookies', 'eventlistener', 'geolocation', 'history', 'notification', 'websockets', 'localstorage', 'sessionstorage', 'promises', 'audio', 'video', 'hashchange', 'cssgradients', 'opacity', 'mediaqueries', 'cssanimations', 'bgsizecover', 'borderradius', 'boxsizing', 'flexbox', 'csstransitions'],
+            modernizrNos = ['no-batteryapi', 'no-battery-api'],
+            checksNotPassed = [],
+            i;
+
+        for(i in modernizrChecks)
+        {
+          if(!Modernizr[modernizrChecks[i]])
+          {
+            checksNotPassed.push(modernizrChecks[i]);
+          }
+        }
+        for(i in modernizrNos)
+        {
+          if(Modernizr[modernizrNos[i]])
+          {
+            checksNotPassed.push(modernizrNos[i]);
+          }
+        }
+        if(!bowser.check({ safari: '10.0' }))
+        {
+          checksNotPassed.push('Firebase');
+        }
+
+        var onDocumentReady = function()
+        {
+          var dialogEl = document.getElementsByClassName('outdated')[0];
+          if(checksNotPassed.length > 0)
+          {
+            dialogEl.style.display = 'block';
+            dialogEl.appendChild(document.createTextNode(' (including ' + checksNotPassed.join(', ') + ')'));
+            var containerEl = document.getElementsByClassName('container')[0];
+            containerEl.parentNode.removeChild(containerEl);
+
+          }
+          else
+          {
+            dialogEl.parentNode.removeChild(dialogEl);
+          }
+        };
+
+        if(document.readyState != 'loading')
+        {
+          onDocumentReady();
+        }
+        else if(document.addEventListener)
+        {
+          document.addEventListener('DOMContentLoaded', onDocumentReady);
+        }
+        else
+        {
+          document.attachEvent('onreadystatechange', function()
+          {
+            if(document.readyState == 'complete') onDocumentReady();
+          });
+        }
+      })();
+    </script>
+
     <script defer src="/__/firebase/4.13.0/firebase-app.js"></script>
     <script defer src="/__/firebase/4.13.0/firebase-auth.js"></script>
     <script defer src="/__/firebase/4.13.0/firebase-database.js"></script>
@@ -535,6 +599,11 @@
     <script>
       $(function()
       {
+        if(!bowser.check({ safari: '10.0' }))
+        {
+          return;
+        }
+
         // "global" vars:
         var mapOptions = { zoom: 16, gestureHandling: 'greedy', mapTypeId: google.maps.MapTypeId.ROADMAP, streetViewControl: false, mapTypeControl: false, fullscreenControl: false, styles: [{ featureType: 'poi', stylers: [{visibility: 'off'}] }, { featureType: 'transit', elementType: 'labels.icon', stylers: [{visibility: 'off'}] }] },
             templates = null,
@@ -1965,6 +2034,12 @@
         <input type="submit" vale="Join game" />
         <input type="hidden" name="game" value="" />
       </form>
+    </div>
+    <div class="outdated" style="display: none;">
+      <p>
+        Your browser is outdated and cannot display this webpage.<br />
+        Please update your browser, or install a browser supporting the latest features.
+      </p>
     </div>
   </body>
 </html>
