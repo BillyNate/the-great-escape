@@ -168,7 +168,7 @@
         console.log('checkGeolocation()');
         return new Promise(function(resolve, reject)
         {
-          let resolved = false;
+          var resolved = false;
           if(!navigator.geolocation)
           {
             reject();
@@ -261,7 +261,7 @@
             var panes = this.getPanes();
             if(!this.div)
             {
-              let nameEl = document.createElement('span');
+              var nameEl = document.createElement('span');
               nameEl.className = 'name';
               this.div = document.createElement('div');
               this.div.innerHTML = '<i class="game-icon"></i>';
@@ -341,13 +341,13 @@
           VenueMarker.prototype.onAdd = function()
           {
             HTMLMarker.prototype.onAdd.call(this);
-            let gainEl = document.createElement('b'),
+            var gainEl = document.createElement('b'),
                 reqEl = document.createElement('ul'),
                 liEls = '';
             gainEl.className = 'gain';
             reqEl.className = 'requirements';
             gainEl.innerHTML = '&#36; ' + this.worth;
-            for(let i=0; i<this.requirements.length; i++)
+            for(var i=0; i<this.requirements.length; i++)
             {
               liEls += '<li class="game-icon ' + this.requirements[i] + '"></li>';
             }
@@ -370,8 +370,8 @@
     <script>
       function getRandomLocations(center, minDistance, maxDistance, number)
       {
-        let returnArray = [];
-        for(let i=0; i<number; i++)
+        var returnArray = [];
+        for(var i=0; i<number; i++)
         {
           returnArray[i] = google.maps.geometry.spherical.computeOffset(center, Math.random() * (maxDistance - minDistance) + minDistance, Math.random() * 360);
         }
@@ -385,7 +385,7 @@
           return null;
         }
 
-        let currentValue;
+        var currentValue;
         return latlngs.reduce(function(accumulator, currentElement, currentIndex)
         {
           currentValue = { index: currentIndex, distance: google.maps.geometry.spherical.computeDistanceBetween(latlng, currentElement) };
@@ -410,12 +410,12 @@
 
       function getEvenlyRandomLocations(center, minDistance, maxDistance, number, preExisting=[])
       {
-        let returnArray = [],
+        var returnArray = [],
             sampleArray = preExisting,
             randomLoc = null,
             currentDistance;
         
-        for(let i=0; i<number; i++)
+        for(var i=0; i<number; i++)
         {
           randomLoc = getRandomLocations(center, minDistance, maxDistance, 10).reduce(function(accumulator, location, i, locations)
           {
@@ -447,15 +447,15 @@
       {
         return new Promise(function(resolve, reject)
         {
-          let locationsString = locations.map(function(location)
+          var locationsString = locations.map(function(location)
           {
             return location.lat() + ',' + location.lng();
           }).join('|');
 
           $.get('//roads.googleapis.com/v1/nearestRoads', { points: locationsString, key: 'AIzaSyDj1NcE7259YziwZBoxXaVGaNtnmA4uBVI' }).done(function(data)
           {
-            let nearestRoads = [];
-            for(let i=0; i<data.snappedPoints.length; i++)
+            var nearestRoads = [];
+            for(var i=0; i<data.snappedPoints.length; i++)
             {
               nearestRoads[data.snappedPoints[i].originalIndex] = data.snappedPoints[i].location;
             }
@@ -494,8 +494,8 @@
         console.log('showLocationMap()');
         return new Promise(function(resolve, reject)
         {
-          let map = new google.maps.Map(mapElement, mapOptions);
-          let drawingManager = new google.maps.drawing.DrawingManager({
+          var map = new google.maps.Map(mapElement, mapOptions);
+          var drawingManager = new google.maps.drawing.DrawingManager({
               drawingMode: google.maps.drawing.OverlayType.CIRCLE,
               drawingControl: false,
               drawingControlOptions: {
@@ -515,7 +515,7 @@
         console.log('showGameMap()');
         return new Promise(function(resolve, reject)
         {
-          let map = new google.maps.Map(mapElement, mapOptions);
+          var map = new google.maps.Map(mapElement, mapOptions);
           resolve({ map: map });
         });
       }
@@ -523,7 +523,7 @@
     <script>
       function notify(title, body)
       {
-        let options = { icon: '/favicon-196x196.png', timeout: 30000 };
+        var options = { icon: '/favicon-196x196.png', timeout: 30000 };
         if(body)
         {
           options['body'] = body;
@@ -544,20 +544,20 @@
             firebaseGame = { uid: null, values: null },
             firebaseUsers = {},
             firebaseFugitiveUser = null,
-            firebaseConnected = true;
+            firebaseConnected = true,
             entities = { items: [], venues: [] },
             geoloc = { lat: 0, lng: 0 },
             serverTimeOffset = 0,
-            userMaxTimeout = 20 * 1000;
+            userMaxTimeout = 20 * 1000,
             map = null,
             centerMapOnPlayer = true,
             mapMarkers = { me: null, items: [], venues: [], users: {} };
-
+        
         function loadLanguageTexts()
         {
           return new Promise(function(resolve, reject)
           {
-            let language = 'en',
+            var language = 'en',
                 languageOptions = ['en', 'nl'];
             if(navigator.language)
             {
@@ -671,7 +671,7 @@
 
         function onLocationChange(location)
         {
-          let coords = { lat: location.coords.latitude, lng: location.coords.longitude };
+          var coords = { lat: location.coords.latitude, lng: location.coords.longitude };
           coords.lat += locationOffset.lat;
           coords.lng += locationOffset.lng;
 
@@ -704,7 +704,7 @@
 
         function updateVisualLoader(finished, resolved=true)
         {
-          let returnFunction = function(returnValue)
+          var returnFunction = function(returnValue)
           {
             return new Promise(function(resolve, reject)
             {
@@ -725,12 +725,12 @@
 
         function reorient() // after a position change in the history stack
         {
-            let state = history.state;
-            let direction; /* (-1, 0, 1) = (backward, reload, forward)
+            var state = history.state;
+            var direction; /* (-1, 0, 1) = (backward, reload, forward)
               position of this entry vs. last entry (of ours) shown */
             if( state === null ) // then this entry is new to the stack
             {
-                const position = history.length - 1; // top of stack
+                var position = history.length - 1; // top of stack
                 direction = 1;
 
                 // (1) Stamp the entry with its own position in the stack
@@ -739,10 +739,10 @@
             }
             else // this entry was pre-existing
             {
-                const position = Number( state );
-                const stateLastShown =
+                var position = Number( state );
+                var stateLastShown =
                   sessionStorage.getItem( 'stateLastShown' );
-                const positionLastShown = Number( stateLastShown );
+                var positionLastShown = Number( stateLastShown );
                 direction = Math.sign( position - positionLastShown );
             }
 
@@ -755,7 +755,7 @@
 
         $(window).bind('popstate load', function(event)
         {
-          let direction = Math.sign(Number(window.history.state) - Number(sessionStorage.getItem('stateLastShown')));
+          var direction = Math.sign(Number(window.history.state) - Number(sessionStorage.getItem('stateLastShown')));
 
           sessionStorage.setItem('stateLastShown', window.history.state);
 
@@ -763,7 +763,7 @@
           {
             if(confirm(texts.misc.dialog_leave_game))
             {
-              let gameUpdates = [];
+              var gameUpdates = [];
               if(firebaseGame.values.admin == firebaseUser.uid)
               {
                 gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').remove());
@@ -799,7 +799,7 @@
             }
             else // (!firebaseGame.location && firebaseGame.admin == firebaseUser.uid)
             {
-              let items = [],
+              var items = [],
                   venues = [],
                   exit = { location: { lat: 0, lng: 0 } };
 
@@ -809,16 +809,16 @@
 
               mapOptions.center = firebaseUser.values.location;
 
-              let chain = new Promise(function(resolve, reject)
+              var chain = new Promise(function(resolve, reject)
               {
-                let i;
+                var i;
                 for(i in entities.venues)
                 {
                   venues.push({ type: entities.venues[i].type, location: { lat: 0, lng: 0 }, marker: null });
                 }
                 for(i in entities.items)
                 {
-                  for(let j=0; j<entities.items[i].amount; j++)
+                  for(var j=0; j<entities.items[i].amount; j++)
                   {
                     items.push({ type: entities.items[i].type, location: { lat: 0, lng: 0 }, marker: null });
                   }
@@ -834,20 +834,20 @@
               .then(function(returnValues)
               {
                 map = returnValues.map;
-                let drawingManager = returnValues.dm;
+                var drawingManager = returnValues.dm;
                 var eventListener = google.maps.event.addListener(drawingManager, 'overlaycomplete', function(event)
                 {
                   // Switch back to non-drawing mode after drawing a shape.
                   drawingManager.setDrawingMode(null);
 
-                  let gameLocation = { lat: event.overlay.center.lat(), lng: event.overlay.center.lng(), radius: event.overlay.radius };
+                  var gameLocation = { lat: event.overlay.center.lat(), lng: event.overlay.center.lng(), radius: event.overlay.radius };
 
                   $('form.location').on('submit', function(e)
                   {
                     e.preventDefault();
 
                     $('form.location').hide();
-                    let gameUpdates = [];
+                    var gameUpdates = [];
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/location').set(gameLocation));
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/exit').set({ location: exit.location }));
                     gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/items').set(items.map(function(item)
@@ -872,7 +872,7 @@
                     .then(loadNearestRoads)
                     .then(function(exitLocations)
                     {
-                      let i, j = 0;
+                      var i, j = 0;
                       for(i=0; i<exitLocations.length; i++)
                       {
                         if(!exitLocations[i])
@@ -895,7 +895,7 @@
                     .then(loadNearestRoads)
                     .then(function(venueLocations)
                     {
-                      let i, j = 0;
+                      var i, j = 0;
                       for(i=0; i<venueLocations.length&&j<venues.length; i++)
                       {
                         // If there's actually no nearby road on venueLocations[i], continue to the next possible location. We got 1.5 times as much possible locations as we require, so it should do fine...
@@ -933,7 +933,7 @@
                     .then(loadNearestRoads)
                     .then(function(itemLocations)
                     {
-                      let i, j = 0;
+                      var i, j = 0;
                       for(i=0; i<itemLocations.length&&j<items.length; i++)
                       {
                         // If there's actually no nearby road on itemLocations[i], continue to the next possible location. We got 1.5 times as much possible locations as we require, so it should do fine...
@@ -992,7 +992,7 @@
 
                   $('form.controls input[type="submit"]').hide();
 
-                  let userStateUpdates = [];
+                  var userStateUpdates = [];
                   $.each(usersSnapshot.val(), function(userID, user)
                   {
                     userStateUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID).update({ state: 'biding' }));
@@ -1045,7 +1045,7 @@
               {
                 if($(this).hasClass('state') && $(this).closest('li').data('user-id') == firebaseUser.uid)
                 {
-                  let newState = 'biding';
+                  var newState = 'biding';
                   if($(this).hasClass('biding'))
                   {
                     newState = 'ready';
@@ -1054,7 +1054,7 @@
                 }
                 else if($(this).hasClass('role') && firebaseUser.uid == firebaseGame.values.admin)
                 {
-                  let newFugitive = $(this).closest('li').data('user-id');
+                  var newFugitive = $(this).closest('li').data('user-id');
                   $.each(firebaseGame.values.users, function(userID, user)
                   {
                     fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID).update($.extend({ role: (userID == newFugitive ? 'fugitive' : 'hunter') }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
@@ -1124,9 +1124,9 @@
             map.setCenter(new google.maps.LatLng(location.lat, location.lng));
           }
 
-          let distance = 0;
+          var distance = 0;
 
-          for(let i in firebaseGame.values.items)
+          for(var i in firebaseGame.values.items)
           {
             if(firebaseGame.values.items[i].state == 'lost' && ((firebaseGame.values.items[i].type == 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'hunter') || (firebaseGame.values.items[i].type != 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')))
             {
@@ -1141,19 +1141,19 @@
               }
             }
           }
-          for(let i in firebaseGame.values.venues)
+          for(var i in firebaseGame.values.venues)
           {
             if(firebaseGame.values.venues[i].state == 'ordinary' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
             {
               distance = Math.sqrt(Math.pow(firebaseGame.values.venues[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.venues[i].location.lng - location.lng, 2));
               if(distance < 0.0001)
               {
-                let classToAdd = 'glow-red',
+                var classToAdd = 'glow-red',
                     hasAllItems = true;
 
                 if(firebaseGame.values.users[firebaseUser.uid].items)
                 {
-                  for(let itemI in entities.venues[i].needs)
+                  for(var itemI in entities.venues[i].needs)
                   {
                     if(firebaseGame.values.users[firebaseUser.uid].items.indexOf(entities.venues[i].needs[itemI]) == -1)
                     {
@@ -1180,9 +1180,9 @@
             distance = Math.sqrt(Math.pow(firebaseGame.values.exit.location.lat - location.lat, 2) + Math.pow(firebaseGame.values.exit.location.lng - location.lng, 2));
             if(distance < 0.0001)
             {
-              let classToAdd = 'glow-red',
+              var classToAdd = 'glow-red',
                   balance = 0;
-              for(let i in firebaseGame.values.venues)
+              for(var i in firebaseGame.values.venues)
               {
                 if(firebaseGame.values.venues[i].state == 'robbed')
                 {
@@ -1277,13 +1277,13 @@
                 {
                   $(this).hide();
 
-                  let updates = [];
+                  var updates = [];
 
                   updates.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ name: $.trim($(this).find('input[name="username"]').val()) }));
 
                   if($(this).find('input[name="game"]').val().length <= 0)
                   {
-                    let gameSettings = { state: 'assembling', users: {} };
+                    var gameSettings = { state: 'assembling', users: {} };
                     gameSettings.users[firebaseUser.uid] = { role: 'fugitive', state: 'biding', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
                     gameSettings.admin = firebaseUser.uid;
 
@@ -1316,11 +1316,11 @@
         // Game determined, do some postprocessing and attach an eventlistener:
         .then(function()
         {
-          let queries = [];
+          var queries = [];
           queries.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ game: firebaseGame.uid }));
           if(!firebaseGame.values.users[firebaseUser.uid])
           {
-            let users = {};
+            var users = {};
             users[firebaseUser.uid] = { state: 'biding', role: 'hunter', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
             queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').update(users));
           }
@@ -1369,7 +1369,7 @@
             {
               if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && !shotSnapshot.val().hit)
               {
-                let notificationTitle = texts.misc.notify_shot_at_title_default;
+                var notificationTitle = texts.misc.notify_shot_at_title_default;
                 if(firebaseUsers[shotSnapshot.val().by].name)
                 {
                   notificationTitle = texts.misc.notify_shot_at_title_name.replace('$1', firebaseUsers[shotSnapshot.val().by].name);
@@ -1378,7 +1378,7 @@
               }
               else if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive') // && shotSnapshot.val().hit
               {
-                let indexOfLife = -1;
+                var indexOfLife = -1;
                 if(firebaseGame.values.users[firebaseUser.uid].items)
                 {
                   indexOfLife = firebaseGame.values.users[firebaseUser.uid].items.indexOf('life');
@@ -1386,11 +1386,11 @@
 
                 if(indexOfLife >= 0)
                 {
-                  let items = firebaseGame.values.users[firebaseUser.uid].items;
+                  var items = firebaseGame.values.users[firebaseUser.uid].items;
                   items.splice(indexOfLife, 1);
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
 
-                  let notificationTitle = texts.misc.notify_shot_at_title_default;
+                  var notificationTitle = texts.misc.notify_shot_at_title_default;
                   if(firebaseUsers[shotSnapshot.val().by].name)
                   {
                     notificationTitle = texts.misc.notify_shot_at_title_name.replace('$1', firebaseUsers[shotSnapshot.val().by].name);
@@ -1406,7 +1406,7 @@
               }
               else if(!shotSnapshot.val().hit) // && firebaseGame.values.users[firebaseUser.uid].role == 'hunter'
               {
-                let notificationTitle = texts.misc.notify_shot_to_title_default;
+                var notificationTitle = texts.misc.notify_shot_to_title_default;
                 if(shotSnapshot.val().by == firebaseUser.uid)
                 {
                   notificationTitle = texts.misc.notify_shot_to_title_self;
@@ -1427,6 +1427,7 @@
             .then(function(returnValues)
             {
               map = returnValues.map;
+              var i = 0;
 
               google.maps.event.addListener(map, 'dragstart', function(event)
               {
@@ -1435,7 +1436,7 @@
               });
 
               // Put items on the map:
-              for(let i in firebaseGame.values.items)
+              for(i in firebaseGame.values.items)
               {
                 mapMarkers.items[i] = new ItemMarker(firebaseGame.values.items[i].location, firebaseGame.values.items[i].type, texts.items[firebaseGame.values.items[i].type]);
                 mapMarkers.items[i].setMap(map);
@@ -1458,7 +1459,7 @@
                   mapMarkers.items[itemsSnapshot.key].hide();
                   if(itemsSnapshot.val().type != 'bullet')
                   {
-                    let notificationTitle = texts.misc.notify_found_item_title_default;
+                    var notificationTitle = texts.misc.notify_found_item_title_default;
                     if(firebaseFugitiveUser == firebaseUser.uid)
                     {
                       notificationTitle = texts.misc.notify_found_item_title_self;
@@ -1475,8 +1476,8 @@
               });
 
               // Put venues on the map:
-              let balance = 0;
-              for(let i in firebaseGame.values.venues)
+              var balance = 0;
+              for(i in firebaseGame.values.venues)
               {
                 mapMarkers.venues[i] = new VenueMarker(firebaseGame.values.venues[i].location, firebaseGame.values.venues[i].type, texts.venues[firebaseGame.values.venues[i].type], entities.venues[i].needs, entities.venues[i].needs.length * 1000, firebaseGame.values.venues[i].state);
                 mapMarkers.venues[i].setMap(map);
@@ -1494,7 +1495,7 @@
                 if(venuesSnapshot.val().state == 'robbed')
                 {
                   balance = 0;
-                  for(let j in firebaseGame.values.venues)
+                  for(var j in firebaseGame.values.venues)
                   {
                     if(firebaseGame.values.venues[j].state == 'robbed' || j == venuesSnapshot.key)
                     {
@@ -1504,7 +1505,7 @@
                   $('.piggybank').text(balance);
                   $('.gmaps-venue.' + venuesSnapshot.val().type).addClass('robbed');
 
-                  let notificationBody = texts.misc.notify_robbed_body_default;
+                  var notificationBody = texts.misc.notify_robbed_body_default;
                   if(firebaseFugitiveUser == firebaseUser.uid)
                   {
                     notificationBody = texts.misc.notify_robbed_body_self;
@@ -1521,7 +1522,7 @@
 
               if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && firebaseGame.values.exit)
               {
-                let exitMarker = new VenueMarker(firebaseGame.values.exit.location, 'exit', texts.misc.exit, [], -5000);
+                var exitMarker = new VenueMarker(firebaseGame.values.exit.location, 'exit', texts.misc.exit, [], -5000);
                 exitMarker.setMap(map);
               }
 
@@ -1558,16 +1559,16 @@
                       {
                         if(firebaseGame.values.users[firebaseUser.uid].items.length > 0)
                         {
-                          let items = firebaseGame.values.users[firebaseUser.uid].items;
-                          let item = items.splice(Math.floor(Math.random() * (firebaseGame.values.users[firebaseUser.uid].items.length - 0.000001)), 1);
-                          for(let i in firebaseGame.values.items)
+                          var items = firebaseGame.values.users[firebaseUser.uid].items;
+                          var item = items.splice(Math.floor(Math.random() * (firebaseGame.values.users[firebaseUser.uid].items.length - 0.000001)), 1);
+                          for(var k in firebaseGame.values.items)
                           {
-                            if(firebaseGame.values.items[i].state == 'found' && firebaseGame.values.items[i].type == item)
+                            if(firebaseGame.values.items[k].state == 'found' && firebaseGame.values.items[k].type == item)
                             {
                               fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
                               fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + i).update({ state: 'lost', location: firebaseUser.lastLocation });
-                              mapMarkers.items[i].setPosition(firebaseUser.lastLocation);
-                              mapMarkers.items[i].show();
+                              mapMarkers.items[k].setPosition(firebaseUser.lastLocation);
+                              mapMarkers.items[k].show();
                               notify(texts.misc.notify_lost_item_title, texts.misc.notify_lost_item_body.replace('$1', texts.items[item]));
                               break;
                             }
@@ -1608,10 +1609,10 @@
                   {
                     if(useritemsSnapshot.val() == 'life')
                     {
-                      let lastShot = null,
+                      var lastShot = null,
                           notificationTitle = texts.misc.notify_shot_to_title_default,
                           notificationBody = texts.misc.notify_shot_to_body_hit_default;
-                      for(let shotID in firebaseGame.values.shots)
+                      for(var shotID in firebaseGame.values.shots)
                       {
                         if(lastShot == null)
                         {
@@ -1644,14 +1645,14 @@
 
                 if(user.role == 'hunter')
                 {
-                  let initialUserItemsLoad = true;
+                  var initialUserItemsLoad = true;
                   fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').on('value', function(useritemsSnapshot)
                   {
                     if(!initialUserItemsLoad && useritemsSnapshot.val())
                     {
                       if(useritemsSnapshot.val().indexOf('bullet') >= 0)
                       {
-                        let notificationTitle = texts.misc.notify_found_bullet_title_default;
+                        var notificationTitle = texts.misc.notify_found_bullet_title_default;
                         if(userID == firebaseUser.uid)
                         {
                           notificationTitle = texts.misc.notify_found_bullet_title_self;
@@ -1669,7 +1670,7 @@
 
                 fireDatabase.ref('users/' + userID + '/location').on('value', function(userLocationSnapshot)
                 {
-                  let distance = 0,
+                  var distance = 0,
                       pinsToUpdate = [];
 
                   firebaseUsers[userID].location = userLocationSnapshot.val();
@@ -1688,7 +1689,7 @@
 
                   if(firebaseFugitiveUser != null)
                   {
-                    for(let i in pinsToUpdate)
+                    for(var i in pinsToUpdate)
                     {
                       distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[pinsToUpdate[i]].location.lat, firebaseUsers[pinsToUpdate[i]].location.lng), new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng));
                       if(distance < 200)
@@ -1735,21 +1736,21 @@
               // Listen for changes on the user's items:
               fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').on('value', function(useritemsSnapshot)
               {
-                let items = useritemsSnapshot.val(),
+                var items = useritemsSnapshot.val(),
                     itemContainer = '';
 
                 $('ul.inventory, ul.pharmacy').empty();
 
                 if(items) // can be null...
                 {
-                  for(let i in items)
+                  for(var k in items)
                   {
                     itemContainer = 'inventory';
-                    if(items[i] == 'life')
+                    if(items[k] == 'life')
                     {
                       itemContainer = 'pharmacy';
                     }
-                    $(templates.battlefield).find('ul.' + itemContainer + ' li').clone().appendTo('ul.' + itemContainer).find('i').addClass(items[i]);
+                    $(templates.battlefield).find('ul.' + itemContainer + ' li').clone().appendTo('ul.' + itemContainer).find('i').addClass(items[k]);
                   }
                   if(firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && items.indexOf('bullet') >= 0)
                   {
@@ -1768,9 +1769,9 @@
 
               clockInterval = setInterval(function()
               {
-                let secondsPassed = (Date.now() + serverTimeOffset - firebaseGame.values.timestamp) / 1000;
-                let resetsPassed = Math.floor(secondsPassed / 60 / 4);
-                let date = new Date(null);
+                var secondsPassed = (Date.now() + serverTimeOffset - firebaseGame.values.timestamp) / 1000;
+                var resetsPassed = Math.floor(secondsPassed / 60 / 4);
+                var date = new Date(null);
 
                 date.setSeconds((60 * 4) - (secondsPassed - (resetsPassed * 60 * 4)));
 
@@ -1794,7 +1795,7 @@
               // Listen for clicks on the items, venues and players:
               $('.battlefield').on('click', '.gmaps-item, .gmaps-venue, .gmaps-player', function()
               {
-                let thisEL = $(this).get();
+                var thisEL = $(this).get();
                 $(thisEL).addClass('open');
                 setTimeout(function()
                 {
@@ -1807,21 +1808,21 @@
                   // Assume item only glows when nearby:
                   if($(this).hasClass('glow') && ((firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && !$(this).hasClass('bullet')) || (firebaseGame.values.users[firebaseUser.uid].role == 'hunter' && $(this).hasClass('bullet'))))
                   {
-                    let i = $('.battlefield .gmaps-item').index(this),
+                    var k = $('.battlefield .gmaps-item').index(this),
                         items = [];
                     if(firebaseGame.values.users[firebaseUser.uid].items)
                     {
                       items = firebaseGame.values.users[firebaseUser.uid].items;
                     }
                     // Check if item of this type is not already added to the inventory:
-                    if(items.indexOf(firebaseGame.values.items[i].type) < 0 || firebaseGame.values.items[i].type == 'life')
+                    if(items.indexOf(firebaseGame.values.items[k].type) < 0 || firebaseGame.values.items[k].type == 'life')
                     {
-                      items.push(firebaseGame.values.items[i].type);
+                      items.push(firebaseGame.values.items[k].type);
                     }
-                    fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + i).update({ state: 'found' });
+                    fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + k).update({ state: 'found' });
                     //fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
                     fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ items: items, location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
-                    //mapMarkers.items[i].hide();
+                    //mapMarkers.items[k].hide();
                   }
                 }
                 // Concerns a venue:
@@ -1838,8 +1839,8 @@
                     }
                     else
                     {
-                      let i = $('.battlefield .gmaps-venue').index(this);
-                      fireDatabase.ref('games/' + firebaseGame.uid + '/venues/' + i).update({ state: 'robbed' });
+                      var k = $('.battlefield .gmaps-venue').index(this);
+                      fireDatabase.ref('games/' + firebaseGame.uid + '/venues/' + k).update({ state: 'robbed' });
                       fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                       // Recalculate amount of money the fugitive has stolen!
                       $(this).removeClass('glow-green');
@@ -1895,7 +1896,7 @@
                 $(this).hide();
 
                 // Calculate range:
-                let distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng), new google.maps.LatLng(firebaseUsers[firebaseUser.uid].location.lat, firebaseUsers[firebaseUser.uid].location.lng));
+                var distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng), new google.maps.LatLng(firebaseUsers[firebaseUser.uid].location.lat, firebaseUsers[firebaseUser.uid].location.lng));
                 
                 fireDatabase.ref('games/' + firebaseGame.uid + '/shots').push({ by: firebaseUser.uid, hit: (distance < 50), timestamp: firebase.database.ServerValue.TIMESTAMP });
                 
@@ -1917,7 +1918,7 @@
         })
         .then(function(state)
         {
-          let modalTitle,
+          var modalTitle,
               modalBody;
           if(state == 'vanished' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
           {

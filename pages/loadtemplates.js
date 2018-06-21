@@ -2,7 +2,7 @@ function loadTemplates(url)
 {
     return new Promise(function(resolve, reject)
     {
-        let templates = {};
+        var templates = {};
 
         jQuery.ajax({ url: url })
         .done(function(data, textStatus, jqXHR)
