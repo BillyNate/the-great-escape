@@ -91,6 +91,7 @@ button:focus, a:focus { outline: none; }
 .battlefield { width: 100%; height: 100%; }
   button.fullscreen, button.info { position: absolute; right: 14px; top: 10px; width: 24px; height: 24px; background-color: #fff; border: none; padding: 0; color: #000; }
   button.info { top: 45px; }
+  html.fullscreen button.fullscreen { display: block !important; }
   ul.inventory, ul.pharmacy, .distance, .piggybank, .clock, button.fire, button.center { display: block; position: absolute; }
   ul.inventory, ul.pharmacy { padding: 0; margin: 0; overflow: auto; color: #fff; }
     ul.inventory li, ul.pharmacy li { display: block; position: relative; width: 2.5rem; height: 2.5rem; line-height: 2rem; text-align: center; padding: .2rem; background-color: #00bcd4; }
