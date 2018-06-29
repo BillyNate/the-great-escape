@@ -234,6 +234,39 @@
       }
     </script>
     <script>
+      checkBattery = function()
+      {
+        console.log('checkBattery()');
+        return new Promise(function(resolve, reject)
+        {
+          function readBattery(battery)
+          {
+            if(battery.level <= .5)
+            {
+              reject(battery.level);
+            }
+            else
+            {
+              resolve(battery.level);
+            }
+          }
+
+          if(navigator.battery)
+          {
+            readBattery(navigator.battery);
+          }
+          else if(navigator.getBattery)
+          {
+            navigator.getBattery().then(readBattery);
+          }
+          else
+          {
+            reject(null);
+          }
+        });
+      }
+    </script>
+    <script>
       checkGeolocation = function(locationEventCallback)
       {
         console.log('checkGeolocation()');
@@ -662,6 +695,7 @@
         {
           $('li.locationaccess span').text(texts.misc.access_loc);
           $('li.notificationaccess span').text(texts.misc.access_notify);
+          $('li.battery span').text(texts.misc.battery_level);
           $('li.userdata span').text(texts.misc.load_data_user);
           $('li.gamedata span').text(texts.misc.load_data_game);
           $('li.maps span').text(texts.misc.load_map);
@@ -787,6 +821,11 @@
               if(resolved)
               {
                 $('ul.loading .' + finished + ' > i').text('check_circle').removeClass('rotating');
+                resolve(returnValue);
+              }
+              else if(resolved === null)
+              {
+                $('ul.loading .' + finished + ' > i').text('remove_circle').removeClass('rotating');
                 resolve(returnValue);
               }
               else
@@ -1298,6 +1337,7 @@
           readyGoogleMaps().then(createCustomMarker).then(updateVisualLoader('maps')),
           checkGeolocation(onLocationChange).then(updateVisualLoader('locationaccess')),
           loadTemplates('/templates.html'),
+          checkBattery().then(updateVisualLoader('battery')).catch(updateVisualLoader('battery', null)),
           loadLanguageTexts().then(storeLanguageTexts).then(replaceLoadingTexts),
           checkNotifications().then(updateVisualLoader('notificationaccess')).catch(updateVisualLoader('notificationaccess', false))
         ])
@@ -1313,6 +1353,8 @@
           }
 
           templates = returnValues[3];
+
+          var batteryLevel = returnValues[4];
 
           if(!firebaseGame.uid)
           {
@@ -2032,6 +2074,7 @@
       <ul class="loading">
         <li class="locationaccess"><i class="material-icons rotating">swap_vertical_circle</i><span>Get location access</span></li>
         <li class="notificationaccess"><i class="material-icons rotating">swap_vertical_circle</i><span>Get notification permission</span></li>
+        <li class="battery"><i class="material-icons rotating">swap_vertical_circle</i><span>Check battery level</span></li>
         <li class="userdata"><i class="material-icons rotating">swap_vertical_circle</i><span>Load user data</span></li>
         <li class="gamedata"><i class="material-icons rotating">swap_vertical_circle</i><span>Load game data</span></li>
         <li class="maps"><i class="material-icons rotating">swap_vertical_circle</i><span>Load map</span></li>

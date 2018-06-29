@@ -79,6 +79,7 @@
       "misc" : {
         "access_loc" : "Get location access",
         "access_notify" : "Get notification permission",
+        "battery_level" : "Check battery level",
         "button_invite_whatsapp" : "Invite",
         "button_place" : "Place items",
         "button_save" : "Save",
@@ -230,6 +231,7 @@
       "misc" : {
         "access_loc" : "Toegang tot locatie",
         "access_notify" : "Toegang tot meldingen",
+        "battery_level" : "Accu check",
         "button_invite_whatsapp" : "Uitnodigen",
         "button_place" : "Plaats onderdelen",
         "button_save" : "Opslaan",
