@@ -29,16 +29,52 @@
   } ],
   "languages" : {
     "en" : {
+      "articles" : {
+        "definite": {
+          "the" : "the"
+        },
+        "indefinite" : {
+          "a" : "a",
+          "an" : "an"
+        }
+      },
       "items" : {
-        "bullet" : "Bullet",
-        "crowbar" : "Crowbar",
-        "flashlight" : "Flashlight",
-        "gasmask" : "Gas mask",
-        "ladder" : "Ladder",
-        "life" : "Med kit",
-        "lockpicks" : "Lockpicks",
-        "poisongas" : "Smoke grenade",
-        "rope" : "Rope"
+        "bullet" : {
+          "ia" : "a",
+          "word" : "bullet"
+        },
+        "crowbar" : {
+          "ia" : "a",
+          "word": "crowbar"
+        },
+        "flashlight" : {
+          "ia" : "a",
+          "word": "flashlight"
+        },
+        "gasmask" : {
+          "ia" : "a",
+          "word": "gas mask"
+        },
+        "ladder" : {
+          "ia" : "a",
+          "word": "ladder"
+        },
+        "life" : {
+          "ia" : "a",
+          "word": "med kit"
+        },
+        "lockpicks" : {
+          "ia" : "a",
+          "word": "lockpicks"
+        },
+        "poisongas" : {
+          "ia" : "a",
+          "word": "smoke grenade"
+        },
+        "rope" : {
+          "ia" : "a",
+          "word": "rope"
+        }
       },
       "misc" : {
         "access_loc" : "Get location access",
@@ -65,16 +101,16 @@
         "notify_found_bullet_title_default" : "A bullet has been picked up",
         "notify_found_bullet_title_name" : "$1 picked up a bullet",
         "notify_found_bullet_title_self" : "You picked up a bullet",
-        "notify_found_item_title_default" : "The fugitive stole a $1",
-        "notify_found_item_title_name" : "$2 stole a $1",
-        "notify_found_item_title_self" : "You stole a $1",
+        "notify_found_item_title_default" : "The fugitive stole &1*indefinite#ia% $1",
+        "notify_found_item_title_name" : "$2 stole &1*indefinite#ia% $1",
+        "notify_found_item_title_self" : "You stole &1*indefinite#ia% $1",
         "notify_lose_title" : "Oh no!",
-        "notify_lost_item_body" : "You lost a $1",
+        "notify_lost_item_body" : "You lost &1*indefinite#ia% $1",
         "notify_lost_item_title" : "You've been disconnected for too long",
         "notify_robbed_body_default" : "The fugitive now has $ $1",
         "notify_robbed_body_name" : "$2 now has $ $1",
         "notify_robbed_body_self" : "You now got $ $1",
-        "notify_robbed_title" : "$1 has been robbed",
+        "notify_robbed_title" : "&1*definite*the% $1 has been robbed",
         "notify_shot_at_body_hit" : "You got hit and used up one medkit",
         "notify_shot_at_body_miss" : "Luckily it did not hit you",
         "notify_shot_at_title_default" : "There's been shot at you!",
@@ -96,29 +132,100 @@
         "you" : "You"
       },
       "venues" : {
-        "bank" : "The bank",
-        "bookies" : "The bookies",
-        "candyshop" : "Candy shop",
-        "casino" : "Casino",
-        "club" : "Club Ragnarock",
-        "gasstation" : "Gas station",
-        "jewelrystore" : "Jewelry store",
-        "mint" : "The mint",
-        "museum" : "Art museum",
-        "penthouse" : "Penthouse"
+        "bank" : {
+          "ia" : "a",
+          "word": "bank"
+        },
+        "bookies" : {
+          "ia" : "a",
+          "word": "bookies"
+        },
+        "candyshop" : {
+          "ia" : "a",
+          "word": "candy shop"
+        },
+        "casino" : {
+          "ia" : "a",
+          "word": "casino"
+        },
+        "club" : {
+          "ia" : "a",
+          "word": "club Ragnarock"
+        },
+        "gasstation" : {
+          "ia" : "a",
+          "word": "gas station"
+        },
+        "jewelrystore" : {
+          "ia" : "a",
+          "word": "jewelry store"
+        },
+        "mint" : {
+          "ia" : "a",
+          "word": "mint"
+        },
+        "museum" : {
+          "ia" : "an",
+          "word": "art museum"
+        },
+        "penthouse" : {
+          "ia" : "a",
+          "word": "penthouse"
+        }
       }
     },
     "nl" : {
+      "articles" : {
+        "definite" : {
+          "f": "de",
+          "m": "de",
+          "n": "het",
+          "p": "de"
+        },
+        "indefinite" : {
+          "f": "een",
+          "m": "een",
+          "n": "een",
+          "p": "de"
+        }
+      },
       "items" : {
-        "bullet" : "Kogel",
-        "crowbar" : "Breekijzer",
-        "flashlight" : "Zaklamp",
-        "gasmask" : "Gasmasker",
-        "ladder" : "Ladder",
-        "life" : "EHBO-koffer",
-        "lockpicks" : "Lockpickset",
-        "poisongas" : "Rookgranaat",
-        "rope" : "Touw"
+        "bullet" : {
+          "gender" : "m",
+          "word" : "kogel"
+        },
+        "crowbar" : {
+          "gender" : "n",
+          "word" : "breekijzer"
+        },
+        "flashlight" : {
+          "gender" : "f",
+          "word" : "zaklamp"
+        },
+        "gasmask" : {
+          "gender" : "n",
+          "word" : "gasmasker"
+        },
+        "ladder" : {
+          "gender" : "f",
+          "word" : "ladder"
+        },
+        "life" : {
+          "gender" : "m",
+          "word" : "EHBO-koffer"
+        },
+        "lockpicks" : {
+          "gender" : "m",
+          "word" : "lockpickset"
+        },
+        "poisongas" : {
+          "gender" : "m",
+          "word" : "rookgranaat"
+        },
+        "rope" : {
+          "gender" : "n",
+          "word" : "touw"
+        }
       },
       "misc" : {
         "access_loc" : "Toegang tot locatie",
@@ -145,16 +252,16 @@
         "notify_found_bullet_title_default" : "Er is een kogel opgeraapt",
         "notify_found_bullet_title_name" : "$1 heeft een kogel opgeraapt",
         "notify_found_bullet_title_self" : "Je hebt een kogel opgeraapt",
-        "notify_found_item_title_default" : "De voortvluchtige heeft een $1 gestolen",
-        "notify_found_item_title_name" : "$2 heeft een $1 gestolen",
-        "notify_found_item_title_self" : "Je hebt een $1 gestolen",
+        "notify_found_item_title_default" : "De voortvluchtige heeft &1*indefinite#gender% $1 gestolen",
+        "notify_found_item_title_name" : "$2 heeft &1*indefinite#gender% $1 gestolen",
+        "notify_found_item_title_self" : "Je hebt &1*indefinite#gender% $1 gestolen",
         "notify_lose_title" : "Helaas!",
-        "notify_lost_item_body" : "Je hebt een $1 verloren",
+        "notify_lost_item_body" : "Je hebt &1*indefinite#gender% $1 verloren",
         "notify_lost_item_title" : "Je bent te lang onbereikbaar geweest",
-        "notify_robbed_body_default" : "De voortvluchtige heeft nu $1",
+        "notify_robbed_body_default" : "De voortvluchtige heeft nu $ $1",
         "notify_robbed_body_name" : "$2 heeft nu $ $1",
         "notify_robbed_body_self" : "Je hebt nu $ $1",
-        "notify_robbed_title" : "$1 is beroofd",
+        "notify_robbed_title" : "&1*definite#gender% $1 is beroofd",
         "notify_shot_at_body_hit" : "Je bent geraakt en hebt een EHBO-koffer gebruikt",
         "notify_shot_at_body_miss" : "Gelukking ben je niet geraakt",
         "notify_shot_at_title_default" : "Er is op je geschoten!",
@@ -176,16 +283,46 @@
         "you" : "Jij"
       },
       "venues" : {
-        "bank" : "De bank",
-        "bookies" : "Wedkantoor",
-        "candyshop" : "Snoepwinkel",
-        "casino" : "Casino",
-        "club" : "Club soda",
-        "gasstation" : "Tankstation",
-        "jewelrystore" : "Juwelier",
-        "mint" : "De munt",
-        "museum" : "Kunstmuseum",
-        "penthouse" : "Penthouse"
+        "bank" : {
+          "gender" : "f",
+          "word" : "bank"
+        },
+        "bookies" : {
+          "gender" : "n",
+          "word" : "wedkantoor"
+        },
+        "candyshop" : {
+          "gender" : "m",
+          "word" : "snoepwinkel"
+        },
+        "casino" : {
+          "gender" : "n",
+          "word" : "casino"
+        },
+        "club" : {
+          "gender" : "m",
+          "word" : "club soda"
+        },
+        "gasstation" : {
+          "gender" : "n",
+          "word" : "tankstation"
+        },
+        "jewelrystore" : {
+          "gender" : "m",
+          "word" : "juwelier"
+        },
+        "mint" : {
+          "gender" : "f",
+          "word" : "munt"
+        },
+        "museum" : {
+          "gender" : "n",
+          "word" : "kunstmuseum"
+        },
+        "penthouse" : {
+          "gender" : "n",
+          "word" : "penthouse"
+        }
       }
     }
   },

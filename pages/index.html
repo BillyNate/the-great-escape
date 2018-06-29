@@ -118,6 +118,13 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/slipjs/2.1.1/slip.min.js"></script>
     <script src="/loadtemplates.js"></script>
     <script src="/sleep-config.js"></script>
+    <script src="/langarticleset.js"></script>
+    <script>
+      function capitalizeFirst(string)
+      {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+    </script>
     <script>
       function authFirebaseUser()
       {
@@ -1507,7 +1514,7 @@
               // Put items on the map:
               for(i in firebaseGame.values.items)
               {
-                mapMarkers.items[i] = new ItemMarker(firebaseGame.values.items[i].location, firebaseGame.values.items[i].type, texts.items[firebaseGame.values.items[i].type]);
+                mapMarkers.items[i] = new ItemMarker(firebaseGame.values.items[i].location, firebaseGame.values.items[i].type, texts.items[firebaseGame.values.items[i].type].word);
                 mapMarkers.items[i].setMap(map);
 
                 if(firebaseGame.values.items[i].state == 'found')
@@ -1537,7 +1544,7 @@
                     {
                       notificationTitle = texts.misc.notify_found_item_title_name.replace('$2', firebaseUsers[firebaseFugitiveUser].name);
                     }
-                    notificationTitle = notificationTitle.replace('$1', texts.items[itemsSnapshot.val().type]);
+                    notificationTitle = langArticleSet(notificationTitle, texts.articles, texts.items[itemsSnapshot.val().type], '1');
 
                     notify(notificationTitle);
                   }
@@ -1548,7 +1555,7 @@
               var balance = 0;
               for(i in firebaseGame.values.venues)
               {
-                mapMarkers.venues[i] = new VenueMarker(firebaseGame.values.venues[i].location, firebaseGame.values.venues[i].type, texts.venues[firebaseGame.values.venues[i].type], entities.venues[i].needs, entities.venues[i].needs.length * 1000, firebaseGame.values.venues[i].state);
+                mapMarkers.venues[i] = new VenueMarker(firebaseGame.values.venues[i].location, firebaseGame.values.venues[i].type, texts.venues[firebaseGame.values.venues[i].type].word, entities.venues[i].needs, entities.venues[i].needs.length * 1000, firebaseGame.values.venues[i].state);
                 mapMarkers.venues[i].setMap(map);
 
                 if(firebaseGame.values.venues[i].state == 'robbed')
@@ -1585,7 +1592,7 @@
                   }
                   notificationBody = notificationBody.replace('$1', balance);
                   
-                  notify(texts.misc.notify_robbed_title.replace('$1', texts.venues[venuesSnapshot.val().type]), notificationBody);
+                  notify(capitalizeFirst(langArticleSet(texts.misc.notify_robbed_title, texts.articles, texts.venues[venuesSnapshot.val().type], '1')), notificationBody);
                 }
               });
 
@@ -1638,7 +1645,7 @@
                               fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + i).update({ state: 'lost', location: firebaseUser.lastLocation });
                               mapMarkers.items[k].setPosition(firebaseUser.lastLocation);
                               mapMarkers.items[k].show();
-                              notify(texts.misc.notify_lost_item_title, texts.misc.notify_lost_item_body.replace('$1', texts.items[item]));
+                              notify(texts.misc.notify_lost_item_title, langArticleSet(texts.misc.notify_lost_item_body, texts.articles, texts.items[item], '1'));
                               break;
                             }
                           }
