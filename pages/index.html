@@ -841,7 +841,7 @@
               }
               else
               {
-                $('ul.loading .' + finished + ' > i').text('add_circle').removeClass('rotating').css({ transform: 'rotate(45deg)' });
+                $('ul.loading .' + finished + ' > i').text('cancel').removeClass('rotating');
                 $('ul.loading .' + finished + ' .note').show();
                 reject(returnValue);
               }
