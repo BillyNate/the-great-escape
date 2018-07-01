@@ -303,7 +303,7 @@
         {
           if(!('Notification' in window))
           {
-            reject();
+            reject('no-support');
           }
           else if(Notification.permission === 'granted') // Let's check whether notification permissions have already been granted
           {
@@ -317,11 +317,15 @@
               {
                 resolve();
               }
+              else
+              {
+                reject('denied');
+              }
             });
           }
           else
           {
-            reject();
+            reject('no-support');
           }
         });
       };
@@ -699,6 +703,12 @@
           $('li.userdata span').text(texts.misc.load_data_user);
           $('li.gamedata span').text(texts.misc.load_data_game);
           $('li.maps span').text(texts.misc.load_map);
+          $('li.locationaccess .note').text(texts.misc.note_location_access);
+          $('li.notificationaccess .note').text(texts.misc.note_notifications);
+          $('li.battery .note').text(texts.misc.note_battery);
+          $('li.userdata .note').text(texts.misc.note_user_data);
+          $('li.gamedata .note').text(texts.misc.note_game_data);
+          $('li.maps .note').text(texts.misc.note_map);
           $('input[name="username"]').prop('placeholder', texts.misc.placeholder_name);
           $('input[type="submit"]').val(texts.misc.submit_join);
           return Promise.resolve();
@@ -826,11 +836,13 @@
               else if(resolved === null)
               {
                 $('ul.loading .' + finished + ' > i').text('remove_circle').removeClass('rotating');
+                $('ul.loading .' + finished + ' .note').show();
                 resolve(returnValue);
               }
               else
               {
                 $('ul.loading .' + finished + ' > i').text('add_circle').removeClass('rotating').css({ transform: 'rotate(45deg)' });
+                $('ul.loading .' + finished + ' .note').show();
                 reject(returnValue);
               }
             });
@@ -1335,11 +1347,11 @@
         [
           loadUserGame().then(updateVisualLoader('userdata')).then(determineGame).then(updateVisualLoader('gamedata')),
           readyGoogleMaps().then(createCustomMarker).then(updateVisualLoader('maps')),
-          checkGeolocation(onLocationChange).then(updateVisualLoader('locationaccess')),
+          checkGeolocation(onLocationChange).then(updateVisualLoader('locationaccess')).catch(updateVisualLoader('locationaccess', false)),
           loadTemplates('/templates.html'),
           checkBattery().then(updateVisualLoader('battery')).catch(updateVisualLoader('battery', null)),
           loadLanguageTexts().then(storeLanguageTexts).then(replaceLoadingTexts),
-          checkNotifications().then(updateVisualLoader('notificationaccess')).catch(updateVisualLoader('notificationaccess', false))
+          checkNotifications().then(updateVisualLoader('notificationaccess')).catch(updateVisualLoader('notificationaccess', null))
         ])
         .then(function(returnValues)
         {
@@ -1354,20 +1366,38 @@
 
           templates = returnValues[3];
 
-          var batteryLevel = returnValues[4];
-
           if(!firebaseGame.uid)
           {
             $('ul.loading .gamedata > i').text('remove_circle');
           }
 
-          Promise.resolve();
+          if(returnValues[4] !== null && returnValues[4] < .25)
+          {
+            return Promise.reject();
+          }
+          else if((returnValues[4] !== null && returnValues[4] < .5) || returnValues[6])
+          {
+            if(returnValues[6] == 'no-support')
+            {
+              var chromeURL = 'https://play.google.com/store/apps/details?id=com.android.chrome';
+              if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
+              {
+                chromeURL = 'https://itunes.apple.com/us/app/google-chrome/id535886823';
+              }
+              $('li.notificationaccess .note').append('<br>' + texts.misc.note_notifications_support.replace('$1', chromeURL));
+            }
+            return Promise.resolve('pause');
+          }
+          else
+          {
+            return Promise.resolve();
+          }
         })
         //=====================================
         // Game determined (or null):
-        .then(function()
+        .then(function(optionalParameter)
         {
-          if(!firebaseGame.uid || !firebaseUser.values.name)
+          if(!firebaseGame.uid || !firebaseUser.values.name || optionalParameter == 'pause')
           {
             return new Promise(function(resolve, reject)
             {
@@ -2072,12 +2102,12 @@
   <body>
     <div class="container">
       <ul class="loading">
-        <li class="locationaccess"><i class="material-icons rotating">swap_vertical_circle</i><span>Get location access</span></li>
-        <li class="notificationaccess"><i class="material-icons rotating">swap_vertical_circle</i><span>Get notification permission</span></li>
-        <li class="battery"><i class="material-icons rotating">swap_vertical_circle</i><span>Check battery level</span></li>
-        <li class="userdata"><i class="material-icons rotating">swap_vertical_circle</i><span>Load user data</span></li>
-        <li class="gamedata"><i class="material-icons rotating">swap_vertical_circle</i><span>Load game data</span></li>
-        <li class="maps"><i class="material-icons rotating">swap_vertical_circle</i><span>Load map</span></li>
+        <li class="locationaccess"><i class="material-icons rotating">swap_vertical_circle</i><span>Get location access</span><em class="note" style="display: none;">This game cannot be played without location access</em></li>
+        <li class="notificationaccess"><i class="material-icons rotating">swap_vertical_circle</i><span>Get notification permission</span><em class="note" style="display: none;">Notifications are highly recommended</em></li>
+        <li class="battery"><i class="material-icons rotating">swap_vertical_circle</i><span>Check battery level</span><em class="note" style="display: none;">Please make sure your battery will last long enough</em></li>
+        <li class="userdata"><i class="material-icons rotating">swap_vertical_circle</i><span>Load user data</span><em class="note" style="display: none;">Could not load your user data</em></li>
+        <li class="gamedata"><i class="material-icons rotating">swap_vertical_circle</i><span>Load game data</span><em class="note" style="display: none;">No existing game found for you</em></li>
+        <li class="maps"><i class="material-icons rotating">swap_vertical_circle</i><span>Load map</span><em class="note" style="display: none;">Could not load the map</em></li>
       </ul>
       <form action="#" method="post" class="enter" style="display: none;">
         <input type="text" name="username" placeholder="Enter your name" />

@@ -2,6 +2,7 @@ html, body { width: 100%; height: 100%; }
 body { background: #000 url("/background01.jpg") no-repeat center center fixed; background-size: cover; color: rgba(0, 0, 0, 0.87); font-family: Roboto, Helvetica, Arial, sans-serif; color: #fff; }
 button, input[type="submit"] { cursor: pointer; }
 button:focus, a:focus { outline: none; }
+a { color: #fff; }
 
 /* Replace drag handle in Google Maps */
 .gmaps-player, .gmaps-item, .gmaps-venue { position: absolute; width: 30px; height: 30px; border-radius: 30%; cursor: pointer; transform: translate(-50%, -50%); }
@@ -62,6 +63,7 @@ button:focus, a:focus { outline: none; }
     ul.loading li { display: block; position: relative; width: 100%; padding: .5rem 1rem; overflow: hidden; background-color: #00bcd4; line-height: 24px; }
       ul.loading li > * { display: block; position: relative; float: left; }
       ul.loading li > :first-child { margin-right: 1rem; }
+      ul.loading li .note { display: block; position: relative; font-style: normal; width: 100%; font-size: .8em; line-height: 1.2em; padding-left: 3rem; }
   form.enter { display: block; position: relative; width: 100%; max-width: 540px; margin: 2vh auto 0; }
   	form.enter input { display: block; position: relative; float: left; width: 100%; padding: .5rem 1rem; margin: .5rem; border: 1px solid #00bcd4; border-radius: .5rem; }
   	form.enter input[type="text"]::placeholder { color: inherit; }
