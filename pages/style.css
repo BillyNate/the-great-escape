@@ -3,6 +3,7 @@ body { background: #000 url("/background01.jpg") no-repeat center center fixed; 
 button, input[type="submit"] { cursor: pointer; }
 button:focus, a:focus { outline: none; }
 a { color: #fff; }
+video::-internal-media-controls-overlay-cast-button { display: none; }
 
 /* Replace drag handle in Google Maps */
 .gmaps-player, .gmaps-item, .gmaps-venue { position: absolute; width: 30px; height: 30px; border-radius: 30%; cursor: pointer; transform: translate(-50%, -50%); }
