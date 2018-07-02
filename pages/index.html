@@ -267,12 +267,14 @@
       }
     </script>
     <script>
-      checkGeolocation = function(locationEventCallback)
+      checkGeolocation = function(locationEventCallback, inaccurateCallback)
       {
         console.log('checkGeolocation()');
         return new Promise(function(resolve, reject)
         {
-          var resolved = false;
+          var resolved = false,
+              startedAccuracyChecksOn = Date.now(),
+              lastInacurateOn = Date.now();
           if(!navigator.geolocation)
           {
             reject();
@@ -281,16 +283,31 @@
           {
             navigator.geolocation.watchPosition(function(location)
             {
+              accuracy = location.coords.accuracy;
               if(!resolved)
               {
-                resolve();
-                resolved = true;
+                if(location.coords.accuracy < 15)
+                {
+                  if(Date.now() - lastInacurateOn > 5000)
+                  {
+                    resolve();
+                    resolved = true;
+                  }
+                }
+                else
+                {
+                  lastInacurateOn = Date.now();
+                  if(Date.now() - startedAccuracyChecksOn > 15000)
+                  {
+                    inaccurateCallback();
+                  }
+                }
               }
               locationEventCallback(location);
             }, function(error)
             {
               reject(error);
-            }, { enableHighAccuracy: true });
+            }, { enableHighAccuracy: true, maximumAge: 500 });
           }
         });
       }
@@ -822,6 +839,11 @@
           }
         }
 
+        function onInaccurateLocation()
+        {
+          $('li.locationaccess .note').text(texts.misc.note_location_accuracy).show();
+        }
+
         function updateVisualLoader(finished, resolved=true)
         {
           var returnFunction = function(returnValue)
@@ -1347,7 +1369,7 @@
         [
           loadUserGame().then(updateVisualLoader('userdata')).then(determineGame).then(updateVisualLoader('gamedata')),
           readyGoogleMaps().then(createCustomMarker).then(updateVisualLoader('maps')),
-          checkGeolocation(onLocationChange).then(updateVisualLoader('locationaccess')).catch(updateVisualLoader('locationaccess', false)),
+          checkGeolocation(onLocationChange, onInaccurateLocation).then(updateVisualLoader('locationaccess')).catch(updateVisualLoader('locationaccess', false)),
           loadTemplates('/templates.html'),
           checkBattery().then(updateVisualLoader('battery')).catch(updateVisualLoader('battery', null)),
           loadLanguageTexts().then(storeLanguageTexts).then(replaceLoadingTexts),
