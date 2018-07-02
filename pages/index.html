@@ -34,8 +34,7 @@
     <script>
       (function()
       {
-        var modernizrChecks = ['cookies', 'eventlistener', 'geolocation', 'history', 'notification', 'websockets', 'localstorage', 'sessionstorage', 'promises', 'audio', 'video', 'hashchange', 'cssgradients', 'opacity', 'mediaqueries', 'cssanimations', 'bgsizecover', 'borderradius', 'boxsizing', 'flexbox', 'csstransitions'],
-            modernizrNos = ['no-batteryapi', 'no-battery-api'],
+        var modernizrChecks = ['cookies', 'eventlistener', 'geolocation', 'history', 'websockets', 'localstorage', 'sessionstorage', 'promises', 'audio', 'video', 'hashchange', 'cssgradients', 'opacity', 'mediaqueries', 'cssanimations', 'bgsizecover', 'borderradius', 'boxsizing', 'flexbox', 'csstransitions'],
             checksNotPassed = [],
             i;
 
@@ -46,14 +45,8 @@
             checksNotPassed.push(modernizrChecks[i]);
           }
         }
-        for(i in modernizrNos)
-        {
-          if(Modernizr[modernizrNos[i]])
-          {
-            checksNotPassed.push(modernizrNos[i]);
-          }
-        }
-        if(!bowser.check({ safari: '10.0' }))
+
+        if(!bowser.check({ safari: '10.0' })) // Safari 9 will not work...
         {
           checksNotPassed.push('Firebase');
         }
@@ -64,7 +57,7 @@
           if(checksNotPassed.length > 0)
           {
             dialogEl.style.display = 'block';
-            dialogEl.appendChild(document.createTextNode(' (including ' + checksNotPassed.join(', ') + ')'));
+            dialogEl.getElementsByTagName('p')[0].appendChild(document.createTextNode(' (including ' + checksNotPassed.join(', ') + ')'));
             var containerEl = document.getElementsByClassName('container')[0];
             containerEl.parentNode.removeChild(containerEl);
 
