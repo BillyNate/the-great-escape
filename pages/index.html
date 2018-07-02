@@ -1463,16 +1463,19 @@
                   Promise.all(updates)
                   .then(function(returnValues)
                   {
-                    firebaseGame.uid = returnValues[0].key;
+                    if(returnValues.length > 1)
+                    {
+                      firebaseGame.uid = returnValues[0].key;
+                    }
                     return fireDatabase.ref('games/' + firebaseGame.uid).once('value');
                   })
                   .then(function(gameSnapshot)
                   {
                     firebaseGame.values = gameSnapshot.val();
                     resolve();
-                  }).catch(function()
+                  }).catch(function(error)
                   {
-                    reject();
+                    reject(error);
                   });
                 }
               });
