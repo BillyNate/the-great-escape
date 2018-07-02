@@ -1511,7 +1511,10 @@
             $('.container').remove();
             $(templates.battlefield).children().clone().prependTo('body').filter('ul.inventory, ul.pharmacy').find('li').remove();
             $('.distance .pin').remove();
-            $('div.info').append(texts.misc['info_' + firebaseGame.values.users[firebaseUser.uid].role].replace(/\s{2}/g, '<br>'));
+            $('div.info section.explanation').append(texts.misc['info_' + firebaseGame.values.users[firebaseUser.uid].role].replace(/\s{2}/g, '<br>')).siblings('section.tips').append($('<ul>').append(texts.misc.info_tips.map(function(string)
+            {
+              return '<li>' + string + '</li>';
+            })));
             $('div.info i').not('.material-icons').each(function(index)
             {
               $(this).prop('class', 'game-icon game-icon-' + $(this).prop('class'));

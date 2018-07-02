@@ -120,8 +120,18 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   .piggybank { right: 55px; top: 10px; padding: 0 1rem; }
   .piggybank:before { content: "$ "; }
   .clock { right: 9px; bottom: 95px; width: 46px; height: 1.5em; }
-  div.info { display: none; position: absolute; top: 5vh; width: 90vw; max-width: 540px; max-height: 90vh; left: 50vw; transform: translate(-50%, 0); padding: 5vh 5vw; background: #00bcd4; border-radius: .5rem; color: #fff; overflow: auto; }
-    div.info button.close { position: absolute; right: 2vw; top: 2vh; padding: 0; border: none; margin: 0; }
+  div.info { display: none; position: absolute; top: 5vh; width: 90vw; max-width: 540px; max-height: 90vh; left: 50vw; transform: translate(-50%, 0); padding: 5vh 24px; background: #00bcd4; border-radius: .5rem; color: #fff; overflow: visible; }
+    div.info button { position: absolute; top: 2vh; padding: 0; border: none; margin: 0; }
+    div.info button.close { right: 12px; }
+    div.info label { display: block; position: absolute; top: -2vh; padding: 5px 10px; background: #00bcd4; border-radius: .5rem; cursor: pointer; }
+    div.info label.explanation { left: 24px; }
+    div.info label.tips { left: 80px; }
+    div.info label.tips i { transform: rotate(180deg); }
+    div.info input[name="info-tab"] { position: absolute; left: -999999px; top: -999999px; visibility: hidden; }
+    div.info section { position: relative; float: left; width: 0; height: auto; max-height: 100%; overflow: auto; transition: width .4s; }
+    div.info input:checked + section { width: 99%; }
+      div.info ul { padding-left:  10px; }
+        div.info li { padding-bottom: 10px; list-style-type: "- "; }
   button.fire { display: none; right: 9px; bottom: 130px; width: 46px; height: 46px; line-height: 46px; }
     button.fire i { font-size: 2rem; color: #e91e63; }
   button.center { left: 58px; bottom: 70px; width: 2.5rem; height: 2.5rem; }
