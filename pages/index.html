@@ -1257,259 +1257,7 @@
           });
         }
 
-        function gameLoop(location) //gets called on location change if game is in 'ongoing' state
-        {
-          // Update location of player
-          mapMarkers.me.setPosition({ lat: location.lat, lng: location.lng });
-          if(centerMapOnPlayer)
-          {
-            map.setCenter(new google.maps.LatLng(location.lat, location.lng));
-          }
-
-          var distance = 0;
-
-          for(var i in firebaseGame.values.items)
-          {
-            if(firebaseGame.values.items[i].state == 'lost' && ((firebaseGame.values.items[i].type == 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'hunter') || (firebaseGame.values.items[i].type != 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')))
-            {
-              distance = Math.sqrt(Math.pow(firebaseGame.values.items[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.items[i].location.lng - location.lng, 2));
-              if(distance < 0.0001)
-              {
-                $('.battlefield .gmaps-item:eq(' + i + ')').addClass('glow');
-              }
-              else
-              {
-                $('.battlefield .gmaps-item:eq(' + i + ')').removeClass('glow');
-              }
-            }
-          }
-          for(var i in firebaseGame.values.venues)
-          {
-            if(firebaseGame.values.venues[i].state == 'ordinary' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
-            {
-              distance = Math.sqrt(Math.pow(firebaseGame.values.venues[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.venues[i].location.lng - location.lng, 2));
-              if(distance < 0.0001)
-              {
-                var classToAdd = 'glow-red',
-                    hasAllItems = true;
-
-                if(firebaseGame.values.users[firebaseUser.uid].items)
-                {
-                  for(var itemI in entities.venues[i].needs)
-                  {
-                    if(firebaseGame.values.users[firebaseUser.uid].items.indexOf(entities.venues[i].needs[itemI]) == -1)
-                    {
-                      hasAllItems = false;
-                      break;
-                    }
-                  }
-                  if(hasAllItems)
-                  {
-                    classToAdd = 'glow-green';
-                  }
-                }
-                $('.battlefield .gmaps-venue:eq(' + i + ')').addClass(classToAdd);
-              }
-              else
-              {
-                $('.battlefield .gmaps-venue:eq(' + i + ')').removeClass('glow-red').removeClass('glow-green');
-              }
-            }
-          }
-          
-          if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && firebaseGame.values.exit)
-          {
-            distance = Math.sqrt(Math.pow(firebaseGame.values.exit.location.lat - location.lat, 2) + Math.pow(firebaseGame.values.exit.location.lng - location.lng, 2));
-            if(distance < 0.0001)
-            {
-              var classToAdd = 'glow-red',
-                  balance = 0;
-              for(var i in firebaseGame.values.venues)
-              {
-                if(firebaseGame.values.venues[i].state == 'robbed')
-                {
-                  balance += entities.venues[i].needs.length * 1000;
-                }
-              }
-              if(balance >= 5000)
-              {
-                classToAdd = 'glow-green';
-              }
-              $('.battlefield .gmaps-venue.exit').addClass(classToAdd);
-            }
-            else
-            {
-              $('.battlefield .gmaps-venue.exit').removeClass('glow-red').removeClass('glow-green');
-            }
-          }
-
-          if($('.battlefield .gmaps-item.glow').length > 0 || $('.battlefield .gmaps-venue.glow-red').length > 0 || $('.battlefield .gmaps-venue.glow-green').length > 0)
-          {
-            $(mapMarkers.me.div).addClass('clickthrough');
-          }
-          else if($(mapMarkers.me.div).hasClass('clickthrough'))
-          {
-            $(mapMarkers.me.div).removeClass('clickthrough')
-          }
-        }
-
-        firebase.database().ref('/.info/serverTimeOffset').once('value').then(function(snapshot)
-        {
-          serverTimeOffset = snapshot.val();
-        });
-
-        Promise.all(
-        [
-          loadUserGame().then(updateVisualLoader('userdata')).then(determineGame).then(updateVisualLoader('gamedata')),
-          readyGoogleMaps().then(createCustomMarker).then(updateVisualLoader('maps')),
-          checkGeolocation(onLocationChange, onInaccurateLocation).then(updateVisualLoader('locationaccess')).catch(updateVisualLoader('locationaccess', false)),
-          loadTemplates('/templates.html'),
-          checkBattery().then(updateVisualLoader('battery')).catch(updateVisualLoader('battery', null)),
-          loadLanguageTexts().then(storeLanguageTexts).then(replaceLoadingTexts),
-          checkNotifications().then(updateVisualLoader('notificationaccess')).catch(updateVisualLoader('notificationaccess', null))
-        ])
-        .then(function(returnValues)
-        {
-          console.log('All primary promises have been resolved!');
-
-          // Set firebaseGame if found (from url or database:)
-          if(returnValues[0])
-          {
-            firebaseGame.uid = returnValues[0].uid;
-            firebaseGame.values = returnValues[0].values;
-          }
-
-          templates = returnValues[3];
-
-          if(!firebaseGame.uid)
-          {
-            $('ul.loading .gamedata > i').text('remove_circle');
-          }
-
-          if(returnValues[4] !== null && returnValues[4] < .25)
-          {
-            return Promise.reject();
-          }
-          else if((returnValues[4] !== null && returnValues[4] < .5) || returnValues[6])
-          {
-            if(returnValues[6] == 'no-support')
-            {
-              var chromeURL = 'https://play.google.com/store/apps/details?id=com.android.chrome';
-              if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
-              {
-                chromeURL = 'https://itunes.apple.com/us/app/google-chrome/id535886823';
-              }
-              $('li.notificationaccess .note').append('<br>' + texts.misc.note_notifications_support.replace('$1', chromeURL));
-            }
-            return Promise.resolve('pause');
-          }
-          else
-          {
-            return Promise.resolve();
-          }
-        })
-        //=====================================
-        // Game determined (or null):
-        .then(function(optionalParameter)
-        {
-          var username = null;
-          if(firebaseUser.values)
-          {
-            if(firebaseUser.values.name)
-            {
-              username = firebaseUser.values.name;
-            }
-          }
-
-          if(!firebaseGame.uid || !username || optionalParameter == 'pause')
-          {
-            return new Promise(function(resolve, reject)
-            {
-              if(!firebaseGame.uid)
-              {
-                $('form.enter input[type="submit"]').val(texts.misc.submit_new_game);
-              }
-              else
-              {
-                $('form.enter input[name="game"]').val(firebaseGame.uid);
-              }
-
-              if(firebaseUser.values)
-              {
-                if(firebaseUser.values.name)
-                {
-                  $('form.enter input[name="username"]').val(firebaseUser.values.name);
-                }
-              }
-
-              $('form.enter').show().one('submit', function(event)
-              {
-                event.preventDefault();
-                if($.trim($(this).find('input[name="username"]').val()).length > 0)
-                {
-                  $(this).hide();
-
-                  var updates = [];
-
-                  updates.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ name: $.trim($(this).find('input[name="username"]').val()) }));
-
-                  if($(this).find('input[name="game"]').val().length <= 0)
-                  {
-                    var gameSettings = { state: 'assembling', users: {} };
-                    gameSettings.users[firebaseUser.uid] = { role: 'fugitive', state: 'biding', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
-                    gameSettings.admin = firebaseUser.uid;
-
-                    updates.unshift(fireDatabase.ref('games').push(gameSettings));
-                  }
-                  
-                  Promise.all(updates)
-                  .then(function(returnValues)
-                  {
-                    if(returnValues.length > 1)
-                    {
-                      firebaseGame.uid = returnValues[0].key;
-                    }
-                    return fireDatabase.ref('games/' + firebaseGame.uid).once('value');
-                  })
-                  .then(function(gameSnapshot)
-                  {
-                    firebaseGame.values = gameSnapshot.val();
-                    resolve();
-                  }).catch(function(error)
-                  {
-                    reject(error);
-                  });
-                }
-              });
-            });
-          }
-          else
-          {
-            Promise.resolve();
-          }
-        })
-        // Game determined, do some postprocessing and attach an eventlistener:
-        .then(function()
-        {
-          var queries = [];
-          queries.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ game: firebaseGame.uid }));
-          if(!firebaseGame.values.users[firebaseUser.uid])
-          {
-            var users = {};
-            users[firebaseUser.uid] = { state: 'biding', role: 'hunter', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
-            queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').update(users));
-          }
-          fireDatabase.ref('games/' + firebaseGame.uid).on('value', function(gameSnapshot)
-          {
-            firebaseGame.values = gameSnapshot.val();
-          });
-
-          return Promise.all(queries);
-        })
-        // Everything save! Continue to next phase
-        .then(pickLocation)
-        .then(manageUsers)
-        .then(function()
+        function battle()
         {
           return new Promise(function(resolve, reject)
           {
@@ -2101,8 +1849,9 @@
               }).hide();
             });
           });
-        })
-        .then(function(state)
+        }
+
+        function wrapUp(state)
         {
           var modalTitle,
               modalBody;
@@ -2128,7 +1877,262 @@
           }
           $(templates.gameover).clone().find('.modal').append($('<strong>').text(modalBody)).find('h3').text(modalTitle).closest('#gameover').appendTo('body');
           notify(modalTitle, modalBody);
+        }
+
+        function gameLoop(location) //gets called on location change if game is in 'ongoing' state
+        {
+          // Update location of player
+          mapMarkers.me.setPosition({ lat: location.lat, lng: location.lng });
+          if(centerMapOnPlayer)
+          {
+            map.setCenter(new google.maps.LatLng(location.lat, location.lng));
+          }
+
+          var distance = 0;
+
+          for(var i in firebaseGame.values.items)
+          {
+            if(firebaseGame.values.items[i].state == 'lost' && ((firebaseGame.values.items[i].type == 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'hunter') || (firebaseGame.values.items[i].type != 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')))
+            {
+              distance = Math.sqrt(Math.pow(firebaseGame.values.items[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.items[i].location.lng - location.lng, 2));
+              if(distance < 0.0001)
+              {
+                $('.battlefield .gmaps-item:eq(' + i + ')').addClass('glow');
+              }
+              else
+              {
+                $('.battlefield .gmaps-item:eq(' + i + ')').removeClass('glow');
+              }
+            }
+          }
+          for(var i in firebaseGame.values.venues)
+          {
+            if(firebaseGame.values.venues[i].state == 'ordinary' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
+            {
+              distance = Math.sqrt(Math.pow(firebaseGame.values.venues[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.venues[i].location.lng - location.lng, 2));
+              if(distance < 0.0001)
+              {
+                var classToAdd = 'glow-red',
+                    hasAllItems = true;
+
+                if(firebaseGame.values.users[firebaseUser.uid].items)
+                {
+                  for(var itemI in entities.venues[i].needs)
+                  {
+                    if(firebaseGame.values.users[firebaseUser.uid].items.indexOf(entities.venues[i].needs[itemI]) == -1)
+                    {
+                      hasAllItems = false;
+                      break;
+                    }
+                  }
+                  if(hasAllItems)
+                  {
+                    classToAdd = 'glow-green';
+                  }
+                }
+                $('.battlefield .gmaps-venue:eq(' + i + ')').addClass(classToAdd);
+              }
+              else
+              {
+                $('.battlefield .gmaps-venue:eq(' + i + ')').removeClass('glow-red').removeClass('glow-green');
+              }
+            }
+          }
+          
+          if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && firebaseGame.values.exit)
+          {
+            distance = Math.sqrt(Math.pow(firebaseGame.values.exit.location.lat - location.lat, 2) + Math.pow(firebaseGame.values.exit.location.lng - location.lng, 2));
+            if(distance < 0.0001)
+            {
+              var classToAdd = 'glow-red',
+                  balance = 0;
+              for(var i in firebaseGame.values.venues)
+              {
+                if(firebaseGame.values.venues[i].state == 'robbed')
+                {
+                  balance += entities.venues[i].needs.length * 1000;
+                }
+              }
+              if(balance >= 5000)
+              {
+                classToAdd = 'glow-green';
+              }
+              $('.battlefield .gmaps-venue.exit').addClass(classToAdd);
+            }
+            else
+            {
+              $('.battlefield .gmaps-venue.exit').removeClass('glow-red').removeClass('glow-green');
+            }
+          }
+
+          if($('.battlefield .gmaps-item.glow').length > 0 || $('.battlefield .gmaps-venue.glow-red').length > 0 || $('.battlefield .gmaps-venue.glow-green').length > 0)
+          {
+            $(mapMarkers.me.div).addClass('clickthrough');
+          }
+          else if($(mapMarkers.me.div).hasClass('clickthrough'))
+          {
+            $(mapMarkers.me.div).removeClass('clickthrough')
+          }
+        }
+
+        firebase.database().ref('/.info/serverTimeOffset').once('value').then(function(snapshot)
+        {
+          serverTimeOffset = snapshot.val();
+        });
+
+        Promise.all(
+        [
+          loadUserGame().then(updateVisualLoader('userdata')).then(determineGame).then(updateVisualLoader('gamedata')),
+          readyGoogleMaps().then(createCustomMarker).then(updateVisualLoader('maps')),
+          checkGeolocation(onLocationChange, onInaccurateLocation).then(updateVisualLoader('locationaccess')).catch(updateVisualLoader('locationaccess', false)),
+          loadTemplates('/templates.html'),
+          checkBattery().then(updateVisualLoader('battery')).catch(updateVisualLoader('battery', null)),
+          loadLanguageTexts().then(storeLanguageTexts).then(replaceLoadingTexts),
+          checkNotifications().then(updateVisualLoader('notificationaccess')).catch(updateVisualLoader('notificationaccess', null))
+        ])
+        .then(function(returnValues)
+        {
+          console.log('All primary promises have been resolved!');
+
+          // Set firebaseGame if found (from url or database:)
+          if(returnValues[0])
+          {
+            firebaseGame.uid = returnValues[0].uid;
+            firebaseGame.values = returnValues[0].values;
+          }
+
+          templates = returnValues[3];
+
+          if(!firebaseGame.uid)
+          {
+            $('ul.loading .gamedata > i').text('remove_circle');
+          }
+
+          if(returnValues[4] !== null && returnValues[4] < .25)
+          {
+            return Promise.reject();
+          }
+          else if((returnValues[4] !== null && returnValues[4] < .5) || returnValues[6])
+          {
+            if(returnValues[6] == 'no-support')
+            {
+              var chromeURL = 'https://play.google.com/store/apps/details?id=com.android.chrome';
+              if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
+              {
+                chromeURL = 'https://itunes.apple.com/us/app/google-chrome/id535886823';
+              }
+              $('li.notificationaccess .note').append('<br>' + texts.misc.note_notifications_support.replace('$1', chromeURL));
+            }
+            return Promise.resolve('pause');
+          }
+          else
+          {
+            return Promise.resolve();
+          }
         })
+        //=====================================
+        // Game determined (or null):
+        .then(function(optionalParameter)
+        {
+          var username = null;
+          if(firebaseUser.values)
+          {
+            if(firebaseUser.values.name)
+            {
+              username = firebaseUser.values.name;
+            }
+          }
+
+          if(!firebaseGame.uid || !username || optionalParameter == 'pause')
+          {
+            return new Promise(function(resolve, reject)
+            {
+              if(!firebaseGame.uid)
+              {
+                $('form.enter input[type="submit"]').val(texts.misc.submit_new_game);
+              }
+              else
+              {
+                $('form.enter input[name="game"]').val(firebaseGame.uid);
+              }
+
+              if(firebaseUser.values)
+              {
+                if(firebaseUser.values.name)
+                {
+                  $('form.enter input[name="username"]').val(firebaseUser.values.name);
+                }
+              }
+
+              $('form.enter').show().one('submit', function(event)
+              {
+                event.preventDefault();
+                if($.trim($(this).find('input[name="username"]').val()).length > 0)
+                {
+                  $(this).hide();
+
+                  var updates = [];
+
+                  updates.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ name: $.trim($(this).find('input[name="username"]').val()) }));
+
+                  if($(this).find('input[name="game"]').val().length <= 0)
+                  {
+                    var gameSettings = { state: 'assembling', users: {} };
+                    gameSettings.users[firebaseUser.uid] = { role: 'fugitive', state: 'biding', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
+                    gameSettings.admin = firebaseUser.uid;
+
+                    updates.unshift(fireDatabase.ref('games').push(gameSettings));
+                  }
+                  
+                  Promise.all(updates)
+                  .then(function(returnValues)
+                  {
+                    if(returnValues.length > 1)
+                    {
+                      firebaseGame.uid = returnValues[0].key;
+                    }
+                    return fireDatabase.ref('games/' + firebaseGame.uid).once('value');
+                  })
+                  .then(function(gameSnapshot)
+                  {
+                    firebaseGame.values = gameSnapshot.val();
+                    resolve();
+                  }).catch(function(error)
+                  {
+                    reject(error);
+                  });
+                }
+              });
+            });
+          }
+          else
+          {
+            Promise.resolve();
+          }
+        })
+        // Game determined, do some postprocessing and attach an eventlistener:
+        .then(function()
+        {
+          var queries = [];
+          queries.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ game: firebaseGame.uid }));
+          if(!firebaseGame.values.users[firebaseUser.uid])
+          {
+            var users = {};
+            users[firebaseUser.uid] = { state: 'biding', role: 'hunter', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
+            queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').update(users));
+          }
+          fireDatabase.ref('games/' + firebaseGame.uid).on('value', function(gameSnapshot)
+          {
+            firebaseGame.values = gameSnapshot.val();
+          });
+
+          return Promise.all(queries);
+        })
+        // Everything save! Continue to next phase
+        .then(pickLocation)
+        .then(manageUsers)
+        .then(battle)
+        .then(wrapUp)
         .catch(function(error)
         {
           console.warn(error);
