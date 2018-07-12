@@ -1412,7 +1412,16 @@
         // Game determined (or null):
         .then(function(optionalParameter)
         {
-          if(!firebaseGame.uid || !firebaseUser.values.name || optionalParameter == 'pause')
+          var username = null;
+          if(firebaseUser.values)
+          {
+            if(firebaseUser.values.name)
+            {
+              username = firebaseUser.values.name;
+            }
+          }
+
+          if(!firebaseGame.uid || !username || optionalParameter == 'pause')
           {
             return new Promise(function(resolve, reject)
             {
@@ -1515,7 +1524,15 @@
             {
               $(this).prop('class', 'game-icon game-icon-' + $(this).prop('class'));
             });
-            mapOptions.center = firebaseUser.values.location;
+
+            if(firebaseUser.values.location)
+            {
+              mapOptions.center = firebaseUser.values.location;
+            }
+            else
+            {
+              mapOptions.center = { lat: firebaseGame.values.location.lat, lng: firebaseGame.values.location.lng };
+            }
             mapOptions.zoom = 18;
             firebaseUser.lastTimestamp = firebaseGame.values.users[firebaseUser.uid].timestamp;
 
