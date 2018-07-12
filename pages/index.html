@@ -1853,6 +1853,26 @@
 
         function wrapUp(state)
         {
+          // Start by removing all potentially created listeners. This should also prevent notification from popping up:
+          fireDatabase.ref('games/' + firebaseGame.uid + '/items').off('child_changed');
+          fireDatabase.ref('games/' + firebaseGame.uid + '/shots').off('child_added');
+          fireDatabase.ref('games/' + firebaseGame.uid + '/state').off('value');
+          fireDatabase.ref('games/' + firebaseGame.uid + '/users').off('child_removed');
+          fireDatabase.ref('games/' + firebaseGame.uid + '/venues').off('child_changed');
+          fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').off('value');
+          fireDatabase.ref('.info/connected').off('value');
+
+          $.each(firebaseGame.values.users, function(userID, user)
+          {
+            fireDatabase.ref('users/' + userID + '/location').off('value');
+            fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').off('child_removed');
+            fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').off('value');
+            fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/location').off('value');
+            fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/timestamp').off('value');
+          });
+
+          clearInterval(clockInterval);
+
           var modalTitle,
               modalBody;
           if(state == 'vanished' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
