@@ -2054,7 +2054,8 @@
         // Game determined (or null):
         .then(function(optionalParameter)
         {
-          var username = null;
+          var username = null,
+              gameState = null;
           if(firebaseUser.values)
           {
             if(firebaseUser.values.name)
@@ -2062,8 +2063,15 @@
               username = firebaseUser.values.name;
             }
           }
+          if(firebaseGame.values)
+          {
+            if(firebaseGame.values.state)
+            {
+              gameState = firebaseGame.values.state;
+            }
+          }
 
-          if(!firebaseGame.uid || !username || optionalParameter == 'pause')
+          if(!firebaseGame.uid || !username || gameState == 'assembling' || optionalParameter == 'pause')
           {
             return new Promise(function(resolve, reject)
             {
