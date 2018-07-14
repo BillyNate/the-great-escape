@@ -931,6 +931,167 @@
         window.history.pushState(String(window.history.length), null, window.location.pathname);
         sessionStorage.setItem('stateLastShown', String(window.history.length - 1));
 
+        function evaluateChecks(returnValues)
+        {
+          console.log('All primary promises have been resolved!');
+
+          // Set firebaseGame if found (from url or database):
+          if(returnValues[0])
+          {
+            firebaseGame.uid = returnValues[0].uid;
+            firebaseGame.values = returnValues[0].values;
+          }
+
+          templates = returnValues[3];
+
+          if(!firebaseGame.uid)
+          {
+            $('ul.loading .gamedata > i').text('remove_circle');
+          }
+
+          if(returnValues[4] !== null && returnValues[4] < .25)
+          {
+            return Promise.reject();
+          }
+          else if((returnValues[4] !== null && returnValues[4] < .5) || returnValues[6])
+          {
+            if(returnValues[6] == 'no-support')
+            {
+              var chromeURL = 'https://play.google.com/store/apps/details?id=com.android.chrome';
+              if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
+              {
+                chromeURL = 'https://itunes.apple.com/us/app/google-chrome/id535886823';
+              }
+              $('li.notificationaccess .note').append('<br>' + texts.misc.note_notifications_support.replace('$1', chromeURL));
+            }
+            return Promise.resolve('pause');
+          }
+          else
+          {
+            return Promise.resolve();
+          }
+        }
+
+        function enterGame(optionalParameter)
+        {
+          var username = null,
+              gameState = null;
+          
+          if(firebaseUser.values)
+          {
+            if(firebaseUser.values.name)
+            {
+              username = firebaseUser.values.name;
+            }
+          }
+
+          if(firebaseGame.values)
+          {
+            if(firebaseGame.values.state)
+            {
+              gameState = firebaseGame.values.state;
+            }
+          }
+
+          if(!firebaseGame.uid || !username || gameState == 'assembling' || optionalParameter == 'pause')
+          {
+            return new Promise(function(resolve, reject)
+            {
+              if(!firebaseGame.uid)
+              {
+                $('form.enter input[type="submit"]').val(texts.misc.submit_new_game);
+              }
+              else
+              {
+                $('form.enter input[name="game"]').val(firebaseGame.uid);
+              }
+
+              if(firebaseUser.values)
+              {
+                if(firebaseUser.values.name)
+                {
+                  $('form.enter input[name="username"]').val(firebaseUser.values.name);
+                }
+              }
+
+              $('form.enter').show().one('submit', function(event)
+              {
+                event.preventDefault();
+                if($.trim($(this).find('input[name="username"]').val()).length > 0)
+                {
+                  $(this).hide();
+
+                  var updates = [];
+
+                  updates.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ name: $.trim($(this).find('input[name="username"]').val()) }));
+
+                  if($(this).find('input[name="game"]').val().length <= 0)
+                  {
+                    var gameSettings = { state: 'assembling', users: {} };
+                    gameSettings.users[firebaseUser.uid] = { role: 'fugitive', state: 'biding', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
+                    gameSettings.admin = firebaseUser.uid;
+
+                    updates.unshift(fireDatabase.ref('games').push(gameSettings));
+                  }
+                  
+                  Promise.all(updates)
+                  .then(function(returnValues)
+                  {
+                    if(returnValues.length > 1)
+                    {
+                      firebaseGame.uid = returnValues[0].key;
+                    }
+                    return fireDatabase.ref('games/' + firebaseGame.uid).once('value');
+                  })
+                  .then(function(gameSnapshot)
+                  {
+                    firebaseGame.values = gameSnapshot.val();
+                    resolve();
+                  }).catch(function(error)
+                  {
+                    reject(error);
+                  });
+                }
+              });
+            });
+          }
+          else
+          {
+            return Promise.resolve();
+          }
+        }
+
+        function registerToGame()
+        {
+          var queries = [],
+              addUser = false;
+
+          queries.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ game: firebaseGame.uid }));
+          
+          if(!firebaseGame.values.users)
+          {
+            addUser = true;
+          }
+          else if(!firebaseGame.values.users[firebaseUser.uid])
+          {
+            addUser = true;
+          }
+
+          if(addUser)
+          {
+            var users = {};
+            users[firebaseUser.uid] = { state: 'biding', role: 'hunter', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
+            queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').update(users));
+          }
+
+          fireDatabase.ref('games/' + firebaseGame.uid).on('value', function(gameSnapshot)
+          {
+            firebaseGame.values = gameSnapshot.val();
+          });
+
+          return Promise.all(queries);
+        }
+
         function pickLocation()
         {
           return new Promise(function(resolve, reject)
@@ -2010,152 +2171,11 @@
           loadLanguageTexts().then(storeLanguageTexts).then(replaceLoadingTexts),
           checkNotifications().then(updateVisualLoader('notificationaccess')).catch(updateVisualLoader('notificationaccess', null))
         ])
-        .then(function(returnValues)
-        {
-          console.log('All primary promises have been resolved!');
-
-          // Set firebaseGame if found (from url or database:)
-          if(returnValues[0])
-          {
-            firebaseGame.uid = returnValues[0].uid;
-            firebaseGame.values = returnValues[0].values;
-          }
-
-          templates = returnValues[3];
-
-          if(!firebaseGame.uid)
-          {
-            $('ul.loading .gamedata > i').text('remove_circle');
-          }
-
-          if(returnValues[4] !== null && returnValues[4] < .25)
-          {
-            return Promise.reject();
-          }
-          else if((returnValues[4] !== null && returnValues[4] < .5) || returnValues[6])
-          {
-            if(returnValues[6] == 'no-support')
-            {
-              var chromeURL = 'https://play.google.com/store/apps/details?id=com.android.chrome';
-              if(/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream)
-              {
-                chromeURL = 'https://itunes.apple.com/us/app/google-chrome/id535886823';
-              }
-              $('li.notificationaccess .note').append('<br>' + texts.misc.note_notifications_support.replace('$1', chromeURL));
-            }
-            return Promise.resolve('pause');
-          }
-          else
-          {
-            return Promise.resolve();
-          }
-        })
-        //=====================================
+        .then(evaluateChecks)
         // Game determined (or null):
-        .then(function(optionalParameter)
-        {
-          var username = null,
-              gameState = null;
-          if(firebaseUser.values)
-          {
-            if(firebaseUser.values.name)
-            {
-              username = firebaseUser.values.name;
-            }
-          }
-          if(firebaseGame.values)
-          {
-            if(firebaseGame.values.state)
-            {
-              gameState = firebaseGame.values.state;
-            }
-          }
-
-          if(!firebaseGame.uid || !username || gameState == 'assembling' || optionalParameter == 'pause')
-          {
-            return new Promise(function(resolve, reject)
-            {
-              if(!firebaseGame.uid)
-              {
-                $('form.enter input[type="submit"]').val(texts.misc.submit_new_game);
-              }
-              else
-              {
-                $('form.enter input[name="game"]').val(firebaseGame.uid);
-              }
-
-              if(firebaseUser.values)
-              {
-                if(firebaseUser.values.name)
-                {
-                  $('form.enter input[name="username"]').val(firebaseUser.values.name);
-                }
-              }
-
-              $('form.enter').show().one('submit', function(event)
-              {
-                event.preventDefault();
-                if($.trim($(this).find('input[name="username"]').val()).length > 0)
-                {
-                  $(this).hide();
-
-                  var updates = [];
-
-                  updates.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ name: $.trim($(this).find('input[name="username"]').val()) }));
-
-                  if($(this).find('input[name="game"]').val().length <= 0)
-                  {
-                    var gameSettings = { state: 'assembling', users: {} };
-                    gameSettings.users[firebaseUser.uid] = { role: 'fugitive', state: 'biding', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
-                    gameSettings.admin = firebaseUser.uid;
-
-                    updates.unshift(fireDatabase.ref('games').push(gameSettings));
-                  }
-                  
-                  Promise.all(updates)
-                  .then(function(returnValues)
-                  {
-                    if(returnValues.length > 1)
-                    {
-                      firebaseGame.uid = returnValues[0].key;
-                    }
-                    return fireDatabase.ref('games/' + firebaseGame.uid).once('value');
-                  })
-                  .then(function(gameSnapshot)
-                  {
-                    firebaseGame.values = gameSnapshot.val();
-                    resolve();
-                  }).catch(function(error)
-                  {
-                    reject(error);
-                  });
-                }
-              });
-            });
-          }
-          else
-          {
-            Promise.resolve();
-          }
-        })
+        .then(enterGame)
         // Game determined, do some postprocessing and attach an eventlistener:
-        .then(function()
-        {
-          var queries = [];
-          queries.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ game: firebaseGame.uid }));
-          if(!firebaseGame.values.users[firebaseUser.uid])
-          {
-            var users = {};
-            users[firebaseUser.uid] = { state: 'biding', role: 'hunter', resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
-            queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').update(users));
-          }
-          fireDatabase.ref('games/' + firebaseGame.uid).on('value', function(gameSnapshot)
-          {
-            firebaseGame.values = gameSnapshot.val();
-          });
-
-          return Promise.all(queries);
-        })
+        .then(registerToGame)
         // Everything save! Continue to next phase
         .then(pickLocation)
         .then(manageUsers)
