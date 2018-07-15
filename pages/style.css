@@ -30,21 +30,19 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
     .gmaps-venue .requirements li:before, .gmaps-player .items li:before { font-size: 1.5em; }
     .gmaps-venue.open .requirements li, .gmaps-player.open .items li { margin: 0 .1em; opacity: 1; }  
   
-  .gmaps-player i.fugitive:before     { content: "\E629" !important; }
-  .gmaps-player i.hunter:before       { content: "\E63D" !important; }
-  .gmaps-player i.fugitive:before     { color: #b71c1c; }
-  .gmaps-player i.hunter:before       { color: #303f9f; }
-  .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before,   ul.pharmacy i.bullet:before,   .gmaps-player .items li.bullet:before    { content: "\E248" !important; }
-  .gmaps-item   i.life:before,     ul.inventory i.life:before,     ul.pharmacy i.life:before      { content: "\EBAE" !important; }
+  .gmaps-player i.fugitive:before     { content: "\E629" !important; color: #b71c1c; }
+  .gmaps-player i.hunter:before       { content: "\E63D" !important; color: #303f9f; }
+  .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before,   .gmaps-player .items li.bullet:before    { content: "\E248" !important; }
+  .gmaps-item   i.life:before,     ul.pharmacy i.life:before      { content: "\EBAE" !important; }
   .gmaps-item   i.bullet:before       { color: #03a9f4; }
   .gmaps-item   i.life:before         { color: #e91e63; }
-  .gmaps-item   i.ladder:before,      .gmaps-venue .requirements li.ladder:before,      .gmaps-player .items li.ladder:before,      ul.inventory i.ladder:before,      ul.pharmacy i.ladder:before       { content: "\E6AD" !important; }
-  .gmaps-item   i.crowbar:before,     .gmaps-venue .requirements li.crowbar:before,     .gmaps-player .items li.crowbar:before,     ul.inventory i.crowbar:before,     ul.pharmacy i.crowbar:before      { content: "\E214" !important; }
-  .gmaps-item   i.flashlight:before,  .gmaps-venue .requirements li.flashlight:before,  .gmaps-player .items li.flashlight:before,  ul.inventory i.flashlight:before,  ul.pharmacy i.flashlight:before   { content: "\E5B0" !important; }
-  .gmaps-item   i.poisongas:before,   .gmaps-venue .requirements li.poisongas:before,   .gmaps-player .items li.poisongas:before,   ul.inventory i.poisongas:before,   ul.pharmacy i.poisongas:before    { content: "\E55F" !important; }
-  .gmaps-item   i.gasmask:before,     .gmaps-venue .requirements li.gasmask:before,     .gmaps-player .items li.gasmask:before,     ul.inventory i.gasmask:before,     ul.pharmacy i.gasmask:before      { content: "\E55C" !important; }
-  .gmaps-item   i.lockpicks:before,   .gmaps-venue .requirements li.lockpicks:before,   .gmaps-player .items li.lockpicks:before,   ul.inventory i.lockpicks:before,   ul.pharmacy i.lockpicks:before    { content: "\EAB8" !important; }
-  .gmaps-item   i.rope:before,        .gmaps-venue .requirements li.rope:before,        .gmaps-player .items li.rope:before,        ul.inventory i.rope:before,        ul.pharmacy i.rope:before         { content: "\E45F" !important; }
+  .gmaps-item   i.ladder:before,      .gmaps-venue .requirements li.ladder:before,      .gmaps-player .items li.ladder:before,      ul.inventory i.ladder:before       { content: "\E6AD" !important; }
+  .gmaps-item   i.crowbar:before,     .gmaps-venue .requirements li.crowbar:before,     .gmaps-player .items li.crowbar:before,     ul.inventory i.crowbar:before      { content: "\E214" !important; }
+  .gmaps-item   i.flashlight:before,  .gmaps-venue .requirements li.flashlight:before,  .gmaps-player .items li.flashlight:before,  ul.inventory i.flashlight:before   { content: "\E5B0" !important; }
+  .gmaps-item   i.poisongas:before,   .gmaps-venue .requirements li.poisongas:before,   .gmaps-player .items li.poisongas:before,   ul.inventory i.poisongas:before    { content: "\E55F" !important; }
+  .gmaps-item   i.gasmask:before,     .gmaps-venue .requirements li.gasmask:before,     .gmaps-player .items li.gasmask:before,     ul.inventory i.gasmask:before      { content: "\E55C" !important; }
+  .gmaps-item   i.lockpicks:before,   .gmaps-venue .requirements li.lockpicks:before,   .gmaps-player .items li.lockpicks:before,   ul.inventory i.lockpicks:before    { content: "\EAB8" !important; }
+  .gmaps-item   i.rope:before,        .gmaps-venue .requirements li.rope:before,        .gmaps-player .items li.rope:before,        ul.inventory i.rope:before         { content: "\E45F" !important; }
   .gmaps-item.glow   i:before          { animation: glow-blue 1s ease-in-out infinite alternate; }
   .gmaps-venue  i.club:before          { content: "\E6F3" !important; }
   .gmaps-venue  i.gasstation:before    { content: "\E49B" !important; }
@@ -83,8 +81,7 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
         ul.players li i:last-child { float: right; }
         ul.players li i.role.hunter:before { content: "\E63D" !important; }
         ul.players li i.role.fugitive:before { content: "\E629" !important; }
-        ul.players li i.state { width: 2rem; height: 2rem; text-align: center; border-radius: 50%; }
-        ul.players li i.state { background-color: #f44336; }
+        ul.players li i.state { width: 2rem; height: 2rem; text-align: center; border-radius: 50%; background-color: #f44336; }
         ul.players li i.state.ready { background-color: #4caf50; }
         ul.players li i.state.ready:before { content: "\E4BB" !important; }
         ul.players li i.state.biding:before { content: "\E4BE" !important; }
@@ -100,11 +97,10 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   ul.inventory, ul.pharmacy { padding: 0; margin: 0; overflow: auto; color: #fff; }
     ul.inventory li, ul.pharmacy li { display: block; position: relative; width: 2.5rem; height: 2.5rem; line-height: 2rem; text-align: center; padding: .2rem; background-color: #00bcd4; }
   ul.inventory { left: 9px; top: 5vh; width: 3rem; max-height: 90vh; }
-    ul.inventory li:first-child { border-top-left-radius: .5rem; /*border-top-right-radius: .5rem;*/ }
+    ul.inventory li:first-child { border-top-left-radius: .5rem; }
     ul.inventory li:last-child { border-bottom-left-radius: .5rem; border-bottom-right-radius: .5rem; }
   ul.pharmacy { left: 58px; top: 5vh; }
     ul.pharmacy li { float: left; }
-    /*ul.pharmacy li:first-child { border-top-left-radius: .5rem; border-bottom-left-radius: .5rem; }*/
     ul.pharmacy li:last-child { border-top-right-radius: .5rem; border-bottom-right-radius: .5rem; }
   .distance { left: 58px; right: 55px; bottom: 5vh; height: 2rem; border: 1px solid #00bcd4; border-radius: .5rem; overflow: visible; background-image: linear-gradient(90deg, #4caf50 0%, #4caf50 40%, #ffeb3b 60%, #ffeb3b 65%, #f44336 85%, #f44336 100%); }
   .distance:before { content: ""; display: block; position: absolute; top: 0; right: 0; bottom: 0; left: 0; border-radius: inherit; overflow: hidden; background-size: 25% 50%, 25% 25%, 2.5% 12.5%; background-position: 0 100%, 12.5% 100%, 0 100%; background-repeat: repeat-x; background-image: linear-gradient(90deg, #424242 0, #424242 1%, transparent 1%, transparent 99%, #424242 99%, #424242 100%), linear-gradient(90deg, #424242 0, #424242 1%, transparent 1%, transparent 99%, #424242 99%, #424242 100%), linear-gradient(90deg, #424242 0, #424242 10%, transparent 10%, transparent 90%, #424242 90%, #424242 100%); }
