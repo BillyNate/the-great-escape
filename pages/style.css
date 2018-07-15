@@ -43,7 +43,8 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   .gmaps-item   i.gasmask:before,     .gmaps-venue .requirements li.gasmask:before,     .gmaps-player .items li.gasmask:before,     ul.inventory i.gasmask:before      { content: "\E55C" !important; }
   .gmaps-item   i.lockpicks:before,   .gmaps-venue .requirements li.lockpicks:before,   .gmaps-player .items li.lockpicks:before,   ul.inventory i.lockpicks:before    { content: "\EAB8" !important; }
   .gmaps-item   i.rope:before,        .gmaps-venue .requirements li.rope:before,        .gmaps-player .items li.rope:before,        ul.inventory i.rope:before         { content: "\E45F" !important; }
-  .gmaps-item.glow   i:before          { animation: glow-blue 1s ease-in-out infinite alternate; }
+  .gmaps-item.glow-blue   i:before     { animation: glow-blue 1s ease-in-out infinite alternate; }
+  .gmaps-item.glow-orange i:before     { animation: glow-orange 1s ease-in-out infinite alternate; }
   .gmaps-venue  i.club:before          { content: "\E6F3" !important; }
   .gmaps-venue  i.gasstation:before    { content: "\E49B" !important; }
   .gmaps-venue  i.bookies:before       { content: "\E87F" !important; }
@@ -55,8 +56,8 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   .gmaps-venue  i.bank:before          { content: "\E680" !important; }
   .gmaps-venue  i.mint:before          { content: "\EA51" !important; }
   .gmaps-venue  i.exit:before          { content: "\E69A" !important; }
-  .gmaps-venue.glow-red  i:before      { animation: glow-red 1s ease-in-out infinite alternate; }
-  .gmaps-venue.glow-green  i:before    { animation: glow-green 1s ease-in-out infinite alternate; }
+  .gmaps-venue.glow-red   i:before     { animation: glow-red 1s ease-in-out infinite alternate; }
+  .gmaps-venue.glow-green i:before     { animation: glow-green 1s ease-in-out infinite alternate; }
 
 .container { position: relative; width: 90%; min-width: 240px; margin: auto; }
   ul.loading { display: block; position: relative; width: 100%; max-width: 540px; margin: 10vh auto 0; padding: 0; border-radius: .5rem; max-height: 80vh; overflow: auto; }
@@ -183,6 +184,11 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
 @keyframes glow-blue {
   from  { text-shadow: 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #00bcd4, 0 0 0 #00bcd4, 0 0 0 #00bcd4, 0 0 0 #00bcd4, 0 0 0 #00bcd4; }
   to    { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #00bcd4, 0 0 35px #00bcd4, 0 0 40px #00bcd4, 0 0 50px #00bcd4, 0 0 75px #00bcd4; }
+}
+
+@keyframes glow-orange {
+  from  { text-shadow: 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #fff, 0 0 0 #ff3d00, 0 0 0 #ff3d00, 0 0 0 #ff3d00, 0 0 0 #ff3d00, 0 0 0 #ff3d00; }
+  to    { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #ff3d00, 0 0 35px #ff3d00, 0 0 40px #ff3d00, 0 0 50px #ff3d00, 0 0 75px #ff3d00; }
 }
 
 @keyframes glow-green {
