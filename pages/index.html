@@ -672,7 +672,6 @@
         {
           options['body'] = body;
         }
-        // TODO: Add icon, badge and image
         Push.create(title, options);
       }
     </script>
@@ -775,7 +774,6 @@
                   entities.items = returnValues[1].val()
                   entities.venues = returnValues[2].val();
                   _resolve(firebaseUser);
-                  //resolveLoadUserGame(firebaseUser);
                 });
 
                 // Keep track of changes to the user:
@@ -821,7 +819,6 @@
               locationOffset.lng -= 0.0001;
               break;
           }
-          //onLocationChange({ coords: { latitude: firebaseUser.values.location.lat, longitude: firebaseUser.values.location.lng } });
         };
         // DEBUG! }
 
@@ -1675,7 +1672,6 @@
                   {
                     if(userTimestampSnapshot.val() - firebaseUser.lastTimestamp > userMaxTimeout)
                     {
-                      // TODO: Lose an item...
                       if(firebaseGame.values.users[firebaseUser.uid].items)
                       {
                         if(firebaseGame.values.users[firebaseUser.uid].items.length > 0)
@@ -1947,9 +1943,7 @@
                       items.push(firebaseGame.values.items[k].type);
                     }
                     fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + k).update({ state: 'found' });
-                    //fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
                     fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ items: items, location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
-                    //mapMarkers.items[k].hide();
                   }
                 }
                 // Concerns a venue:
@@ -2227,7 +2221,6 @@
         {
           console.warn(error);
         });
-        //=====================================
       });
     </script>
   </head>
