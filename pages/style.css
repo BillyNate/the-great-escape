@@ -14,7 +14,7 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   .gmaps-venue.robbed > * { color: #a1887f; }
   .gmaps-venue.exit > * { color: #f50057; }
   .gmaps-venue i { left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; font-size: 3em; }
-  .gmaps-venue .name, .gmaps-venue .requirements, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { display: block; pointer-events: none; }
+  .gmaps-venue .name, .gmaps-venue .requirements, .gmaps-venue .gain, .gmaps-player .name, .gmaps-player .items, .gmaps-item .name { display: block; pointer-events: none; }
   .gmaps-venue .name, .gmaps-venue .gain, .gmaps-player .name, .gmaps-item .name { position: absolute; left: -30px; top: 40px; width: 100px; text-align: center; font-weight: 700; text-transform: uppercase; text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff; opacity: 0; transition: opacity .4s; }
   .gmaps-player .name, .gmaps-item .name { left: -35px; top: 30px; }
   .gmaps-player.fugitive .name { color: #b71c1c; }
@@ -23,27 +23,28 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   .gmaps-venue .gain { top: 52px; }
   .gmaps-venue.open, .gmaps-venue.open, .gmaps-player.open, .gmaps-item.open { z-index: 1; }
   .gmaps-venue.open .name, .gmaps-venue.open .gain, .gmaps-player.open .name, .gmaps-item.open .name { opacity: 1; }
-  .gmaps-venue .requirements { position: absolute; left: -30px; top: 0px; width: 100px; padding: 0; margin: 0; border-radius: .8em; text-align: center; transition: top .4s; }
-  .gmaps-venue.open .requirements { top: -30px; }
-    .gmaps-venue .requirements li { display: inline-block; background-color: #fff; border-radius: 50%; padding: .3em; margin: 0 -1.1em; color: #333; opacity: 0; transition: margin .4s, opacity .4s; }
-    .gmaps-venue .requirements li:before { font-size: 1.5em; }
-    .gmaps-venue.open .requirements li { margin: 0 .1em; opacity: 1; }  
+  .gmaps-venue .requirements, .gmaps-player .items { position: absolute; left: -30px; top: 0px; width: 100px; padding: 0; margin: 0; border-radius: .8em; text-align: center; transition: top .4s; }
+  .gmaps-player .items { width: 140px; left: -57px; }
+  .gmaps-venue.open .requirements, .gmaps-player.open .items { top: -30px; }
+    .gmaps-venue .requirements li, .gmaps-player .items li { display: inline-block; background-color: #fff; border-radius: 50%; padding: .3em; margin: 0 -1.1em; color: #333; opacity: 0; transition: margin .4s, opacity .4s; }
+    .gmaps-venue .requirements li:before, .gmaps-player .items li:before { font-size: 1.5em; }
+    .gmaps-venue.open .requirements li, .gmaps-player.open .items li { margin: 0 .1em; opacity: 1; }  
   
   .gmaps-player i.fugitive:before     { content: "\E629" !important; }
   .gmaps-player i.hunter:before       { content: "\E63D" !important; }
   .gmaps-player i.fugitive:before     { color: #b71c1c; }
   .gmaps-player i.hunter:before       { color: #303f9f; }
-  .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before,   ul.pharmacy i.bullet:before    { content: "\E248" !important; }
+  .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before,   ul.pharmacy i.bullet:before,   .gmaps-player .items li.bullet:before    { content: "\E248" !important; }
   .gmaps-item   i.life:before,     ul.inventory i.life:before,     ul.pharmacy i.life:before      { content: "\EBAE" !important; }
   .gmaps-item   i.bullet:before       { color: #03a9f4; }
   .gmaps-item   i.life:before         { color: #e91e63; }
-  .gmaps-item   i.ladder:before,      .gmaps-venue .requirements li.ladder:before,      ul.inventory i.ladder:before,      ul.pharmacy i.ladder:before       { content: "\E6AD" !important; }
-  .gmaps-item   i.crowbar:before,     .gmaps-venue .requirements li.crowbar:before,     ul.inventory i.crowbar:before,     ul.pharmacy i.crowbar:before      { content: "\E214" !important; }
-  .gmaps-item   i.flashlight:before,  .gmaps-venue .requirements li.flashlight:before,  ul.inventory i.flashlight:before,  ul.pharmacy i.flashlight:before   { content: "\E5B0" !important; }
-  .gmaps-item   i.poisongas:before,   .gmaps-venue .requirements li.poisongas:before,   ul.inventory i.poisongas:before,   ul.pharmacy i.poisongas:before    { content: "\E55F" !important; }
-  .gmaps-item   i.gasmask:before,     .gmaps-venue .requirements li.gasmask:before,     ul.inventory i.gasmask:before,     ul.pharmacy i.gasmask:before      { content: "\E55C" !important; }
-  .gmaps-item   i.lockpicks:before,   .gmaps-venue .requirements li.lockpicks:before,   ul.inventory i.lockpicks:before,   ul.pharmacy i.lockpicks:before    { content: "\EAB8" !important; }
-  .gmaps-item   i.rope:before,        .gmaps-venue .requirements li.rope:before,        ul.inventory i.rope:before,        ul.pharmacy i.rope:before         { content: "\E45F" !important; }
+  .gmaps-item   i.ladder:before,      .gmaps-venue .requirements li.ladder:before,      .gmaps-player .items li.ladder:before,      ul.inventory i.ladder:before,      ul.pharmacy i.ladder:before       { content: "\E6AD" !important; }
+  .gmaps-item   i.crowbar:before,     .gmaps-venue .requirements li.crowbar:before,     .gmaps-player .items li.crowbar:before,     ul.inventory i.crowbar:before,     ul.pharmacy i.crowbar:before      { content: "\E214" !important; }
+  .gmaps-item   i.flashlight:before,  .gmaps-venue .requirements li.flashlight:before,  .gmaps-player .items li.flashlight:before,  ul.inventory i.flashlight:before,  ul.pharmacy i.flashlight:before   { content: "\E5B0" !important; }
+  .gmaps-item   i.poisongas:before,   .gmaps-venue .requirements li.poisongas:before,   .gmaps-player .items li.poisongas:before,   ul.inventory i.poisongas:before,   ul.pharmacy i.poisongas:before    { content: "\E55F" !important; }
+  .gmaps-item   i.gasmask:before,     .gmaps-venue .requirements li.gasmask:before,     .gmaps-player .items li.gasmask:before,     ul.inventory i.gasmask:before,     ul.pharmacy i.gasmask:before      { content: "\E55C" !important; }
+  .gmaps-item   i.lockpicks:before,   .gmaps-venue .requirements li.lockpicks:before,   .gmaps-player .items li.lockpicks:before,   ul.inventory i.lockpicks:before,   ul.pharmacy i.lockpicks:before    { content: "\EAB8" !important; }
+  .gmaps-item   i.rope:before,        .gmaps-venue .requirements li.rope:before,        .gmaps-player .items li.rope:before,        ul.inventory i.rope:before,        ul.pharmacy i.rope:before         { content: "\E45F" !important; }
   .gmaps-item.glow   i:before          { animation: glow-blue 1s ease-in-out infinite alternate; }
   .gmaps-venue  i.club:before          { content: "\E6F3" !important; }
   .gmaps-venue  i.gasstation:before    { content: "\E49B" !important; }

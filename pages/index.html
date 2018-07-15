@@ -438,6 +438,7 @@
           PlayerMarker = function(latlng, iconname, name='')
           {
             this.classToAdd = 'gmaps-player';
+            this.items = [];
             this.init(latlng, iconname, name);
           }
           PlayerMarker.prototype = new HTMLMarker();
@@ -445,6 +446,31 @@
           {
             this.name = name;
             HTMLMarker.prototype.setDetails.call(this);
+          };
+          PlayerMarker.prototype.onAdd = function()
+          {
+            HTMLMarker.prototype.onAdd.call(this);
+            var itemsEl = document.createElement('ul');
+            itemsEl.className = 'items';
+            this.div.appendChild(itemsEl);
+            this.setItems(this.items);
+          };
+          PlayerMarker.prototype.setItems = function(items)
+          {
+            this.items = items;
+
+            if(this.div)
+            {
+              var liEls = '';
+              if(this.items)
+              {
+                for(var i=0; i<this.items.length; i++)
+                {
+                  liEls += '<li class="game-icon ' + this.items[i] + '"></li>';
+                }
+              }
+              this.div.getElementsByClassName('items')[0].innerHTML = liEls;
+            }
           };
 
           VenueMarker = function(latlng, iconname, name, requirements=[], worth=1000, state='')
@@ -1067,7 +1093,7 @@
               addUser = false;
 
           queries.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ game: firebaseGame.uid }));
-          
+
           if(!firebaseGame.values.users)
           {
             addUser = true;
@@ -1679,6 +1705,10 @@
                 {
                   // Put the other players on the map:
                   mapMarkers.users[userID] = new PlayerMarker(firebaseUsers[userID].location, user.role);
+                  if(user.items)
+                  {
+                    mapMarkers.users[userID].setItems(user.items);
+                  }
                   mapMarkers.users[userID].setMap(map);
                   mapMarkers.users[userID].hide();
 
@@ -1738,30 +1768,32 @@
                   });
                 }
 
-                if(user.role == 'hunter')
+                var initialUserItemsLoad = true;
+                fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').on('value', function(useritemsSnapshot)
                 {
-                  var initialUserItemsLoad = true;
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').on('value', function(useritemsSnapshot)
+                  if(user.role == 'hunter' && !initialUserItemsLoad && useritemsSnapshot.val())
                   {
-                    if(!initialUserItemsLoad && useritemsSnapshot.val())
+                    if(useritemsSnapshot.val().indexOf('bullet') >= 0)
                     {
-                      if(useritemsSnapshot.val().indexOf('bullet') >= 0)
+                      var notificationTitle = texts.misc.notify_found_bullet_title_default;
+                      if(userID == firebaseUser.uid)
                       {
-                        var notificationTitle = texts.misc.notify_found_bullet_title_default;
-                        if(userID == firebaseUser.uid)
-                        {
-                          notificationTitle = texts.misc.notify_found_bullet_title_self;
-                        }
-                        else if(firebaseUsers[userID].name)
-                        {
-                          notificationTitle = texts.misc.notify_found_bullet_title_name.replace('$1', firebaseUsers[userID].name);
-                        }
-                        notify(notificationTitle);
+                        notificationTitle = texts.misc.notify_found_bullet_title_self;
                       }
+                      else if(firebaseUsers[userID].name)
+                      {
+                        notificationTitle = texts.misc.notify_found_bullet_title_name.replace('$1', firebaseUsers[userID].name);
+                      }
+                      notify(notificationTitle);
                     }
-                    initialUserItemsLoad = false;
-                  });
-                }
+                  }
+                  initialUserItemsLoad = false;
+
+                  if(userID != firebaseUser.uid && useritemsSnapshot.val())
+                  {
+                    mapMarkers.users[userID].setItems(useritemsSnapshot.val());
+                  }
+                });
 
                 fireDatabase.ref('users/' + userID + '/location').on('value', function(userLocationSnapshot)
                 {
