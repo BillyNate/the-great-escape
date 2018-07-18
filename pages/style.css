@@ -138,7 +138,10 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   #gameover .modal { width: 100%; max-width: 540px; padding: 5vh 0; margin: 10vh auto 0; background-color: #00bcd4; border-radius: .5rem; text-align: center; }
     #gameover .modal > :first-child { margin-top: 0; }
     #gameover h3 { text-transform: uppercase; }
-    #gameover strong { font-weight: normal; }
+    #gameover strong, #gameover em { font-weight: normal; font-style: normal; }
+      #gameover .modal p { width: 90%; max-width: 320px; margin: 1.5em auto; overflow: hidden; }
+      #gameover .modal p em { float: left; clear: left; }
+      #gameover .modal p strong { float: right; clear: right; }
 .outdated { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
   .outdated:before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, .75); }
   .outdated p { display: block; position: relative; width: 100%; max-width: 540px; padding: 5vh 5vw; margin: 10vh auto 0; background-color: #00bcd4; border-radius: .5rem; text-align: center; }
