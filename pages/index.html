@@ -1683,7 +1683,7 @@
                             if(firebaseGame.values.items[k].state == 'found' && firebaseGame.values.items[k].type == item)
                             {
                               fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
-                              fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + i).update({ state: 'lost', location: firebaseUser.lastLocation });
+                              fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + k).update({ state: 'lost', location: firebaseUser.lastLocation });
                               mapMarkers.items[k].setPosition(firebaseUser.lastLocation);
                               mapMarkers.items[k].show();
                               notify(texts.misc.notify_lost_item_title, langArticleSet(texts.misc.notify_lost_item_body, texts.articles, texts.items[item], '1'));
