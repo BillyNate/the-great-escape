@@ -2173,8 +2173,8 @@
           {
             if(firebaseGame.values.items[i].state == 'lost' && ((firebaseGame.values.items[i].type == 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'hunter') || (firebaseGame.values.items[i].type != 'bullet' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')))
             {
-              distance = Math.sqrt(Math.pow(firebaseGame.values.items[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.items[i].location.lng - location.lng, 2));
-              if(distance < 0.0001)
+              distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(location.lat, location.lng), new google.maps.LatLng(firebaseGame.values.items[i].location.lat, firebaseGame.values.items[i].location.lng));
+              if(distance < 10)
               {
                 glow = 'glow-blue';
                 if(firebaseGame.values.users[firebaseUser.uid].items)
@@ -2197,8 +2197,8 @@
           {
             if(firebaseGame.values.venues[i].state == 'ordinary' && firebaseGame.values.users[firebaseUser.uid].role == 'fugitive')
             {
-              distance = Math.sqrt(Math.pow(firebaseGame.values.venues[i].location.lat - location.lat, 2) + Math.pow(firebaseGame.values.venues[i].location.lng - location.lng, 2));
-              if(distance < 0.0001)
+              distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(location.lat, location.lng), new google.maps.LatLng(firebaseGame.values.venues[i].location.lat, firebaseGame.values.venues[i].location.lng));
+              if(distance < 10)
               {
                 var classToAdd = 'glow-red',
                     hasAllItems = true;
@@ -2229,8 +2229,8 @@
           
           if(firebaseGame.values.users[firebaseUser.uid].role == 'fugitive' && firebaseGame.values.exit)
           {
-            distance = Math.sqrt(Math.pow(firebaseGame.values.exit.location.lat - location.lat, 2) + Math.pow(firebaseGame.values.exit.location.lng - location.lng, 2));
-            if(distance < 0.0001)
+            distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(location.lat, location.lng), new google.maps.LatLng(firebaseGame.values.exit.location.lat, firebaseGame.values.exit.location.lng));
+            if(distance < 10)
             {
               var classToAdd = 'glow-red',
                   balance = 0;
