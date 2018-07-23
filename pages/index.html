@@ -2179,7 +2179,7 @@
                 glow = 'glow-blue';
                 if(firebaseGame.values.users[firebaseUser.uid].items)
                 {
-                  if(firebaseGame.values.users[firebaseUser.uid].items.indexOf(firebaseGame.values.items[i].type) >= 0)
+                  if(firebaseGame.values.items[i].type != 'life' && firebaseGame.values.users[firebaseUser.uid].items.indexOf(firebaseGame.values.items[i].type) >= 0)
                   {
                     glow = 'glow-orange';
                   }
