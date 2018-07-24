@@ -944,10 +944,10 @@
               {
                 gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).remove());
               }
-              gameUpdates.push(fireDatabase.ref('/users/' + firebaseUser.uid + '/game').remove());
+              gameUpdates.push(fireDatabase.ref('users/' + firebaseUser.uid + '/game').remove());
               Promise.all(gameUpdates).then(function()
               {
-                window.location.replace('/');
+                window.location.assign('/');
               });
             }
             else
@@ -957,9 +957,16 @@
             }
           }
         });
-        window.history.replaceState(String(window.history.length - 1), null);
-        window.history.pushState(String(window.history.length), null, window.location.pathname);
-        sessionStorage.setItem('stateLastShown', String(window.history.length - 1));
+        if(!window.history.state)
+        {
+          if(!sessionStorage.getItem('stateLastShown'))
+          {
+            sessionStorage.setItem('stateLastShown', '0');
+          }
+          window.history.replaceState(String(Number(sessionStorage.getItem('stateLastShown')) + 1), null);
+          window.history.pushState(String(Number(window.history.state) + 1), null, window.location.pathname);
+          sessionStorage.setItem('stateLastShown', window.history.state);
+        }
 
         function evaluateChecks(returnValues)
         {
