@@ -11,37 +11,33 @@
     "games": {
       "$game_id": {
         ".read": true,
-//        ".write": "auth !== null && ((!data.exists() && data.child('state').val() == 'assembling') || data.child('admin').val() === auth.uid)",
         ".write": "auth !== null && (data.child('admin').val() === auth.uid || !data.exists())",
         "items": {
           "$item_id": {
-            "state": {
-              ".write": true //Shouldn't this only be possible if user is member of game?
-            },
-            "location": {
-              ".write": true //Shouldn't this only be possible if user is member of game?
-            }
+            ".write": "root.child('games').child($game_id).child('users').child(auth.uid).exists()"
           }
         },
         "venues": {
           "$venue_id": {
             "state": {
-              ".write": true //Shouldn't this only be possible if user is member of game?
+              ".write": "root.child('games').child($game_id).child('users').child(auth.uid).exists()"
             }
           }
         },
         "users": {
           "$user_id": {
-            ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || $user_id === auth.uid || !data.exists())"
+            ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || $user_id === auth.uid || (!data.exists() && root.child('games').child($game_id).child('state').val() == 'assembling'))",
+            ".indexOn": ["state", "timestamp"]
           }
         },
         "shots": {
           "$shot_id": {
-            ".write": "!data.exists()"
+            ".write": "!data.exists() && root.child('games').child($game_id).child('users').child(auth.uid).exists()",
+            ".indexOn": ["timestamp"]
           }
         },
         "state": {
-          ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || (newData.val() == 'apprehended' || newData.val() == 'vanished'))"
+          ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || ((newData.val() == 'apprehended' || newData.val() == 'vanished') && root.child('games').child($game_id).child('users').child(auth.uid).exists()))"
         }
       }
     },
