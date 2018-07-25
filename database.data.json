@@ -25,7 +25,7 @@
     "type" : "rope"
   }, {
     "amount" : 5,
-    "type" : "life"
+    "type" : "medkit"
   } ],
   "languages" : {
     "en" : {
@@ -59,7 +59,7 @@
           "ia" : "a",
           "word": "ladder"
         },
-        "life" : {
+        "medkit" : {
           "ia" : "a",
           "word": "med kit"
         },
@@ -234,7 +234,7 @@
           "gender" : "f",
           "word" : "ladder"
         },
-        "life" : {
+        "medkit" : {
           "gender" : "m",
           "word" : "EHBO-koffer"
         },

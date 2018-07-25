@@ -1,43 +1,43 @@
 {
   "rules": {
-    "users": {
-      "$user_id": {
+    "players": {
+      "$player_id": {
         ".read": true,
         // grants write access to the owner of this user account
-        // whose uid must exactly match the key ($user_id)
-        ".write": "$user_id === auth.uid"
+        // whose uid must exactly match the key ($player_id)
+        ".write": "$player_id === auth.uid"
       }
     },
     "games": {
       "$game_id": {
         ".read": true,
-        ".write": "auth !== null && (data.child('admin').val() === auth.uid || !data.exists())",
+        ".write": "auth !== null && (data.child('host').val() === auth.uid || !data.exists())",
         "items": {
           "$item_id": {
-            ".write": "root.child('games').child($game_id).child('users').child(auth.uid).exists()"
+            ".write": "root.child('games').child($game_id).child('players').child(auth.uid).exists()"
           }
         },
         "venues": {
           "$venue_id": {
             "state": {
-              ".write": "root.child('games').child($game_id).child('users').child(auth.uid).exists()"
+              ".write": "root.child('games').child($game_id).child('players').child(auth.uid).exists()"
             }
           }
         },
-        "users": {
-          "$user_id": {
-            ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || $user_id === auth.uid || (!data.exists() && root.child('games').child($game_id).child('state').val() == 'assembling'))",
+        "players": {
+          "$player_id": {
+            ".write": "auth !== null && (root.child('games').child($game_id).child('host').val() == auth.uid || $player_id === auth.uid || (!data.exists() && root.child('games').child($game_id).child('state').val() == 'assembling'))",
             ".indexOn": ["state", "timestamp"]
           }
         },
         "shots": {
           "$shot_id": {
-            ".write": "!data.exists() && root.child('games').child($game_id).child('users').child(auth.uid).exists()",
+            ".write": "!data.exists() && root.child('games').child($game_id).child('players').child(auth.uid).exists()",
             ".indexOn": ["timestamp"]
           }
         },
         "state": {
-          ".write": "auth !== null && (root.child('games').child($game_id).child('admin').val() == auth.uid || ((newData.val() == 'apprehended' || newData.val() == 'vanished') && root.child('games').child($game_id).child('users').child(auth.uid).exists()))"
+          ".write": "auth !== null && (root.child('games').child($game_id).child('host').val() == auth.uid || ((newData.val() == 'apprehended' || newData.val() == 'vanished') && root.child('games').child($game_id).child('players').child(auth.uid).exists()))"
         }
       }
     },

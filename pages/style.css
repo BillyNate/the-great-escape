@@ -33,9 +33,9 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   .gmaps-player i.fugitive:before     { content: "\E629" !important; color: #b71c1c; }
   .gmaps-player i.hunter:before       { content: "\E63D" !important; color: #303f9f; }
   .gmaps-item   i.bullet:before,   ul.inventory i.bullet:before,   .gmaps-player .items li.bullet:before    { content: "\E248" !important; }
-  .gmaps-item   i.life:before,     ul.pharmacy i.life:before      { content: "\EBAE" !important; }
+  .gmaps-item   i.medkit:before,     ul.pharmacy i.medkit:before      { content: "\EBAE" !important; }
   .gmaps-item   i.bullet:before       { color: #03a9f4; }
-  .gmaps-item   i.life:before         { color: #e91e63; }
+  .gmaps-item   i.medkit:before         { color: #e91e63; }
   .gmaps-item   i.ladder:before,      .gmaps-venue .requirements li.ladder:before,      .gmaps-player .items li.ladder:before,      ul.inventory i.ladder:before       { content: "\E6AD" !important; }
   .gmaps-item   i.crowbar:before,     .gmaps-venue .requirements li.crowbar:before,     .gmaps-player .items li.crowbar:before,     ul.inventory i.crowbar:before      { content: "\E214" !important; }
   .gmaps-item   i.flashlight:before,  .gmaps-venue .requirements li.flashlight:before,  .gmaps-player .items li.flashlight:before,  ul.inventory i.flashlight:before   { content: "\E5B0" !important; }

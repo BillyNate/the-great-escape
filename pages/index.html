@@ -120,7 +120,7 @@
     </script>
     <script>
       var EXIT = 'exit',
-          ITEM = { STATE: { FOUND: 'found', LOST: 'lost' }, TYPE: { BULLET: 'bullet', MEDKIT: 'life' } },
+          ITEM = { STATE: { FOUND: 'found', LOST: 'lost' }, TYPE: { BULLET: 'bullet', MEDKIT: 'medkit' } },
           GAME = { STATE: { APPREHENDED: 'apprehended', ASSEMBLING: 'assembling', ONGOING: 'ongoing', VANISHED: 'vanished' } },
           PLAYER = { ROLE: { FUGITIVE: 'fugitive', HUNTER: 'hunter' }, STATE: { BIDING: 'biding', READY: 'ready' } },
           VENUE = { STATE: { ORDINARY: 'ordinary', ROBBED: 'robbed' } };
@@ -695,18 +695,18 @@
             templates = null,
             texts = null,
             fireDatabase = firebase.database(),
-            firebaseUser = { uid: null, values: null, lastTimestamp: null, lastLocation: { lat: 0, lng: 0 } },
+            firebasePlayer = { uid: null, values: null, lastTimestamp: null, lastLocation: { lat: 0, lng: 0 } },
             firebaseGame = { uid: null, values: null },
-            firebaseUsers = {},
-            firebaseFugitiveUser = null,
+            firebasePlayers = {},
+            firebaseFugitivePlayer = null,
             firebaseConnected = true,
             entities = { items: [], venues: [] },
             geoloc = { lat: 0, lng: 0 },
             serverTimeOffset = 0,
-            userMaxTimeout = 20 * 1000,
+            playerMaxTimeout = 20 * 1000,
             map = null,
             centerMapOnPlayer = true,
-            mapMarkers = { me: null, items: [], venues: [], users: {} };
+            mapMarkers = { me: null, items: [], venues: [], players: {} };
         
         function loadLanguageTexts()
         {
@@ -764,39 +764,39 @@
             // Load/authenticate user:
             authFirebaseUser()
             // User authenticated:
-            .then(function(user)
+            .then(function(player)
             {
               return new Promise(function(_resolve, _reject)
               {
-                firebaseUser.uid = user.uid;
+                firebasePlayer.uid = player.uid;
 
                 Promise.all(
                 [
-                  fireDatabase.ref('users/' + user.uid).once('value'),
+                  fireDatabase.ref('players/' + player.uid).once('value'),
                   fireDatabase.ref('items').once('value'),
                   fireDatabase.ref('venues').once('value')
                 ]).then(function(returnValues)
                 {
-                  firebaseUser.values = returnValues[0].val();
+                  firebasePlayer.values = returnValues[0].val();
                   entities.items = returnValues[1].val()
                   entities.venues = returnValues[2].val();
-                  _resolve(firebaseUser);
+                  _resolve(firebasePlayer);
                 });
 
-                // Keep track of changes to the user:
-                fireDatabase.ref('users/' + user.uid).on('child_changed', function(changedUserSnapshot)
+                // Keep track of changes to the player:
+                fireDatabase.ref('players/' + player.uid).on('child_changed', function(changedPlayerSnapshot)
                 {
-                  if(!firebaseUser.values)
+                  if(!firebasePlayer.values)
                   {
-                    firebaseUser.values = {};
+                    firebasePlayer.values = {};
                   }
-                  firebaseUser.values[changedUserSnapshot.key] = changedUserSnapshot.val();
+                  firebasePlayer.values[changedPlayerSnapshot.key] = changedPlayerSnapshot.val();
                 });
               });
             })
-            .then(function(firebaseUser)
+            .then(function(firebasePlayer)
             {
-              resolveLoadUserGame(firebaseUser);
+              resolveLoadUserGame(firebasePlayer);
             })
             .catch(function(error)
             {
@@ -835,16 +835,16 @@
           coords.lat += locationOffset.lat;
           coords.lng += locationOffset.lng;
 
-          if(firebaseUser.uid)
+          if(firebasePlayer.uid)
           {
-            fireDatabase.ref('users/' + firebaseUser.uid).update({ location: coords });
+            fireDatabase.ref('players/' + firebasePlayer.uid).update({ location: coords });
             if(firebaseGame.uid && firebaseConnected)
             {
               if(firebaseGame.values)
               {
-                if(firebaseGame.values.users[firebaseUser.uid])
+                if(firebaseGame.values.players[firebasePlayer.uid])
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update({ timestamp: firebase.database.ServerValue.TIMESTAMP });
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid).update({ timestamp: firebase.database.ServerValue.TIMESTAMP });
                 }
               }
             }
@@ -936,15 +936,15 @@
             if(confirm(texts.misc.dialog_leave_game))
             {
               var gameUpdates = [];
-              if(firebaseGame.values.admin == firebaseUser.uid)
+              if(firebaseGame.values.host == firebasePlayer.uid)
               {
-                gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').remove());
+                gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/players').remove());
               }
               else
               {
-                gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).remove());
+                gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid).remove());
               }
-              gameUpdates.push(fireDatabase.ref('users/' + firebaseUser.uid + '/game').remove());
+              gameUpdates.push(fireDatabase.ref('players/' + firebasePlayer.uid + '/game').remove());
               Promise.all(gameUpdates).then(function()
               {
                 window.location.assign('/');
@@ -1014,11 +1014,11 @@
           var username = null,
               gameState = null;
           
-          if(firebaseUser.values)
+          if(firebasePlayer.values)
           {
-            if(firebaseUser.values.name)
+            if(firebasePlayer.values.name)
             {
-              username = firebaseUser.values.name;
+              username = firebasePlayer.values.name;
             }
           }
 
@@ -1043,11 +1043,11 @@
                 $('form.enter input[name="game"]').val(firebaseGame.uid);
               }
 
-              if(firebaseUser.values)
+              if(firebasePlayer.values)
               {
-                if(firebaseUser.values.name)
+                if(firebasePlayer.values.name)
                 {
-                  $('form.enter input[name="username"]').val(firebaseUser.values.name);
+                  $('form.enter input[name="username"]').val(firebasePlayer.values.name);
                 }
               }
 
@@ -1060,13 +1060,13 @@
 
                   var updates = [];
 
-                  updates.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ name: $.trim($(this).find('input[name="username"]').val()) }));
+                  updates.push(fireDatabase.ref('players/' + firebasePlayer.uid).update({ name: $.trim($(this).find('input[name="username"]').val()) }));
 
                   if($(this).find('input[name="game"]').val().length <= 0)
                   {
-                    var gameSettings = { state: GAME.STATE.ASSEMBLING, users: {} };
-                    gameSettings.users[firebaseUser.uid] = { role: PLAYER.ROLE.FUGITIVE, state: PLAYER.STATE.BIDING, resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
-                    gameSettings.admin = firebaseUser.uid;
+                    var gameSettings = { state: GAME.STATE.ASSEMBLING, players: {} };
+                    gameSettings.players[firebasePlayer.uid] = { role: PLAYER.ROLE.FUGITIVE, state: PLAYER.STATE.BIDING, resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
+                    gameSettings.host = firebasePlayer.uid;
 
                     updates.unshift(fireDatabase.ref('games').push(gameSettings));
                   }
@@ -1101,24 +1101,24 @@
         function registerToGame()
         {
           var queries = [],
-              addUser = false;
+              addPlayer = false;
 
-          queries.push(fireDatabase.ref('users/' + firebaseUser.uid).update({ game: firebaseGame.uid }));
+          queries.push(fireDatabase.ref('players/' + firebasePlayer.uid).update({ game: firebaseGame.uid }));
 
-          if(!firebaseGame.values.users)
+          if(!firebaseGame.values.players)
           {
-            addUser = true;
+            addPlayer = true;
           }
-          else if(!firebaseGame.values.users[firebaseUser.uid])
+          else if(!firebaseGame.values.players[firebasePlayer.uid])
           {
-            addUser = true;
+            addPlayer = true;
           }
 
-          if(addUser)
+          if(addPlayer)
           {
-            var users = {};
-            users[firebaseUser.uid] = { state: PLAYER.STATE.BIDING, role: PLAYER.ROLE.HUNTER, resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
-            queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users').update(users));
+            var players = {};
+            players[firebasePlayer.uid] = { state: PLAYER.STATE.BIDING, role: PLAYER.ROLE.HUNTER, resets: 0, timestamp: firebase.database.ServerValue.TIMESTAMP };
+            queries.push(fireDatabase.ref('games/' + firebaseGame.uid + '/players').update(players));
           }
 
           fireDatabase.ref('games/' + firebaseGame.uid).on('value', function(gameSnapshot)
@@ -1133,11 +1133,11 @@
         {
           return new Promise(function(resolve, reject)
           {
-            if((firebaseGame.values.location && firebaseGame.values.items) || firebaseGame.values.admin != firebaseUser.uid)
+            if((firebaseGame.values.location && firebaseGame.values.items) || firebaseGame.values.host != firebasePlayer.uid)
             {
               resolve();
             }
-            else // (!firebaseGame.location && firebaseGame.admin == firebaseUser.uid)
+            else // (!firebaseGame.location && firebaseGame.host == firebasePlayer.uid)
             {
               var items = [],
                   venues = [],
@@ -1147,7 +1147,7 @@
               $(templates.locationpick).appendTo('.container').find('form.location').hide().find('button[name="scramble"]').text(texts.misc.button_place);
               $('form.location input[type="submit"]').val(texts.misc.button_save);
 
-              mapOptions.center = firebaseUser.values.location;
+              mapOptions.center = firebasePlayer.values.location;
 
               var chain = new Promise(function(resolve, reject)
               {
@@ -1308,7 +1308,7 @@
           });
         }
 
-        function manageUsers()
+        function managePlayers()
         {
           return new Promise(function(resolve, reject)
           {
@@ -1323,26 +1323,26 @@
               {
                 event.preventDefault();
 
-                fireDatabase.ref('games/' + firebaseGame.uid + '/users').orderByChild('timestamp').endAt(Date.now() + serverTimeOffset - (10 * 1000)).once('value').then(function(usersSnapshot)
+                fireDatabase.ref('games/' + firebaseGame.uid + '/players').orderByChild('timestamp').endAt(Date.now() + serverTimeOffset - (10 * 1000)).once('value').then(function(playersSnapshot)
                 {
-                  if(usersSnapshot.numChildren() == 0)
+                  if(playersSnapshot.numChildren() == 0)
                   {
                     return Promise.resolve();
                   }
 
                   $('form.controls input[type="submit"]').hide();
 
-                  var userStateUpdates = [];
-                  $.each(usersSnapshot.val(), function(userID, user)
+                  var playerStateUpdates = [];
+                  $.each(playersSnapshot.val(), function(playerID, player)
                   {
-                    userStateUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID).update({ state: PLAYER.STATE.BIDING }));
+                    playerStateUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID).update({ state: PLAYER.STATE.BIDING }));
                   });
-                  return Promise.all(userStateUpdates);
+                  return Promise.all(playerStateUpdates);
                 }).then(function()
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users').orderByChild('state').equalTo(PLAYER.STATE.READY).once('value').then(function(usersSnapshot)
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players').orderByChild('state').equalTo(PLAYER.STATE.READY).once('value').then(function(playersSnapshot)
                   {
-                    if(usersSnapshot.numChildren() == Object.keys(firebaseGame.values.users).length)
+                    if(playersSnapshot.numChildren() == Object.keys(firebaseGame.values.players).length)
                     {
                       $('form.controls').hide();
                       fireDatabase.ref('games/' + firebaseGame.uid).update({ state: GAME.STATE.ONGOING, timestamp: firebase.database.ServerValue.TIMESTAMP });
@@ -1355,7 +1355,7 @@
                 });
               }).find('button[name="whatsapp"]').text(texts.misc.button_invite_whatsapp).siblings('input[type="submit"]').val(texts.misc.button_start);
               
-              if(firebaseUser.uid == firebaseGame.values.admin)
+              if(firebasePlayer.uid == firebaseGame.values.host)
               {
                 new Slip($('.container').find('ul.players').get()[0]);
                 $('.container').find('ul.players').on('slip:beforereorder', function(event)
@@ -1364,7 +1364,7 @@
                 })
                 .on('slip:beforeswipe', function(event)
                 {
-                  if($(event.target).attr('data-user-id') == firebaseUser.uid)
+                  if($(event.target).attr('data-player-id') == firebasePlayer.uid)
                   {
                     event.preventDefault();
                   }
@@ -1372,51 +1372,51 @@
                 .on('slip:swipe', function(event)
                 {
                   $(event.target).remove();
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + $(event.target).attr('data-user-id')).remove();
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + $(event.target).attr('data-player-id')).remove();
                 });
               }
               
-              if(firebaseGame.values.admin == firebaseUser.uid)
+              if(firebaseGame.values.host == firebasePlayer.uid)
               {
                 $('form.controls button[name="whatsapp"]').show();
               }
 
               $('ul.players').on('click', 'i', function()
               {
-                if($(this).hasClass('state') && $(this).closest('li').data('user-id') == firebaseUser.uid)
+                if($(this).hasClass('state') && $(this).closest('li').data('player-id') == firebasePlayer.uid)
                 {
                   var newState = PLAYER.STATE.BIDING;
                   if($(this).hasClass(PLAYER.STATE.BIDING))
                   {
                     newState = PLAYER.STATE.READY;
                   }
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ state: newState }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid).update($.extend({ state: newState }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                 }
-                else if($(this).hasClass('role') && firebaseUser.uid == firebaseGame.values.admin)
+                else if($(this).hasClass('role') && firebasePlayer.uid == firebaseGame.values.host)
                 {
-                  var newFugitive = $(this).closest('li').data('user-id');
-                  $.each(firebaseGame.values.users, function(userID, user)
+                  var newFugitive = $(this).closest('li').data('player-id');
+                  $.each(firebaseGame.values.players, function(playerID, player)
                   {
-                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID).update($.extend({ role: (userID == newFugitive ? PLAYER.ROLE.FUGITIVE : PLAYER.ROLE.HUNTER) }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
+                    fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID).update($.extend({ role: (playerID == newFugitive ? PLAYER.ROLE.FUGITIVE : PLAYER.ROLE.HUNTER) }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                   });
                 }
               });
-              fireDatabase.ref('games/' + firebaseGame.uid + '/users').on('child_added', function(gameUserSnapshot)
+              fireDatabase.ref('games/' + firebaseGame.uid + '/players').on('child_added', function(gamePlayerSnapshot)
               {
-                fireDatabase.ref('users/' + gameUserSnapshot.key).once('value').then(function(userSnapshot)
+                fireDatabase.ref('players/' + gamePlayerSnapshot.key).once('value').then(function(playerSnapshot)
                 {
-                  $(templates.playerlistitem).find('li').clone().attr('data-user-id', gameUserSnapshot.key).appendTo('ul.players').find('span').text(userSnapshot.val().name).siblings('.role').addClass(gameUserSnapshot.val().role).siblings('.state').addClass(gameUserSnapshot.val().state);
+                  $(templates.playerlistitem).find('li').clone().attr('data-player-id', gamePlayerSnapshot.key).appendTo('ul.players').find('span').text(playerSnapshot.val().name).siblings('.role').addClass(gamePlayerSnapshot.val().role).siblings('.state').addClass(gamePlayerSnapshot.val().state);
                 });
               });
-              fireDatabase.ref('games/' + firebaseGame.uid + '/users').on('child_changed', function(userSnapshot)
+              fireDatabase.ref('games/' + firebaseGame.uid + '/players').on('child_changed', function(playerSnapshot)
               {
-                $('ul.players li[data-user-id="' + userSnapshot.key + '"] i.role').removeClass(PLAYER.ROLE.FUGITIVE).removeClass(PLAYER.ROLE.HUNTER).addClass(userSnapshot.val().role).siblings('i.state').removeClass(PLAYER.STATE.BIDING).removeClass(PLAYER.STATE.READY).addClass(userSnapshot.val().state);
+                $('ul.players li[data-player-id="' + playerSnapshot.key + '"] i.role').removeClass(PLAYER.ROLE.FUGITIVE).removeClass(PLAYER.ROLE.HUNTER).addClass(playerSnapshot.val().role).siblings('i.state').removeClass(PLAYER.STATE.BIDING).removeClass(PLAYER.STATE.READY).addClass(playerSnapshot.val().state);
                 
-                if(firebaseUser.uid == firebaseGame.values.admin && Object.keys(firebaseGame.values.users).length > 1)
+                if(firebasePlayer.uid == firebaseGame.values.host && Object.keys(firebaseGame.values.players).length > 1)
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users').orderByChild('state').equalTo(PLAYER.STATE.READY).once('value').then(function(usersSnapshot)
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players').orderByChild('state').equalTo(PLAYER.STATE.READY).once('value').then(function(playersSnapshot)
                   {
-                    if(usersSnapshot.numChildren() == Object.keys(firebaseGame.values.users).length)
+                    if(playersSnapshot.numChildren() == Object.keys(firebaseGame.values.players).length)
                     {
                       $('form.controls input[type="submit"]').show();
                     }
@@ -1427,22 +1427,22 @@
                   });
                 }
               });
-              fireDatabase.ref('games/' + firebaseGame.uid + '/users').on('child_removed', function(gameUserSnapshot)
+              fireDatabase.ref('games/' + firebaseGame.uid + '/players').on('child_removed', function(gamePlayerSnapshot)
               {
-                if(gameUserSnapshot.key == firebaseUser.uid)
+                if(gamePlayerSnapshot.key == firebasePlayer.uid)
                 {
-                  fireDatabase.ref('users/' + firebaseUser.uid + '/game').remove();
+                  fireDatabase.ref('players/' + firebasePlayer.uid + '/game').remove();
                   window.location.replace('/');
                 }
-                $('ul.players li[data-user-id="' + gameUserSnapshot.key + '"]').remove();
+                $('ul.players li[data-player-id="' + gamePlayerSnapshot.key + '"]').remove();
               });
               fireDatabase.ref('games/' + firebaseGame.uid + '/state').on('value', function(stateSnapshot)
               {
                 if(stateSnapshot.val() != GAME.STATE.ASSEMBLING)
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users').off('child_added');
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users').off('child_changed');
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users').off('child_removed');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players').off('child_added');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players').off('child_changed');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players').off('child_removed');
                   resolve();
                 }
               });
@@ -1462,7 +1462,7 @@
             $('.container').remove();
             $(templates.battlefield).children().clone().prependTo('body').filter('ul.inventory, ul.pharmacy').find('li').remove();
             $('.distance .pin').remove();
-            $('div.info section.explanation').append(texts.misc['info_' + firebaseGame.values.users[firebaseUser.uid].role].replace(/\s{2}/g, '<br>')).siblings('section.tips').append($('<ul>').append(texts.misc.info_tips.map(function(string)
+            $('div.info section.explanation').append(texts.misc['info_' + firebaseGame.values.players[firebasePlayer.uid].role].replace(/\s{2}/g, '<br>')).siblings('section.tips').append($('<ul>').append(texts.misc.info_tips.map(function(string)
             {
               return '<li>' + string + '</li>';
             })));
@@ -1471,16 +1471,16 @@
               $(this).prop('class', 'game-icon game-icon-' + $(this).prop('class'));
             });
 
-            if(firebaseUser.values.location)
+            if(firebasePlayer.values.location)
             {
-              mapOptions.center = firebaseUser.values.location;
+              mapOptions.center = firebasePlayer.values.location;
             }
             else
             {
               mapOptions.center = { lat: firebaseGame.values.location.lat, lng: firebaseGame.values.location.lng };
             }
             mapOptions.zoom = 18;
-            firebaseUser.lastTimestamp = firebaseGame.values.users[firebaseUser.uid].timestamp;
+            firebasePlayer.lastTimestamp = firebaseGame.values.players[firebasePlayer.uid].timestamp;
 
             notify(texts.misc.notify_start_title, texts.misc.notify_start_body);
 
@@ -1499,33 +1499,33 @@
 
             fireDatabase.ref('games/' + firebaseGame.uid + '/shots').orderByChild('timestamp').startAt(Date.now() + serverTimeOffset).on('child_added', function(shotSnapshot)
             {
-              if(firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE && !shotSnapshot.val().hit)
+              if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE && !shotSnapshot.val().hit)
               {
                 var notificationTitle = texts.misc.notify_shot_at_title_default;
-                if(firebaseUsers[shotSnapshot.val().by].name)
+                if(firebasePlayers[shotSnapshot.val().by].name)
                 {
-                  notificationTitle = texts.misc.notify_shot_at_title_name.replace('$1', firebaseUsers[shotSnapshot.val().by].name);
+                  notificationTitle = texts.misc.notify_shot_at_title_name.replace('$1', firebasePlayers[shotSnapshot.val().by].name);
                 }
                 notify(notificationTitle, texts.misc.notify_shot_at_body_miss);
               }
-              else if(firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE) // && shotSnapshot.val().hit
+              else if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE) // && shotSnapshot.val().hit
               {
-                var indexOfLife = -1;
-                if(firebaseGame.values.users[firebaseUser.uid].items)
+                var indexOfMedkit = -1;
+                if(firebaseGame.values.players[firebasePlayer.uid].items)
                 {
-                  indexOfLife = firebaseGame.values.users[firebaseUser.uid].items.indexOf(ITEM.TYPE.MEDKIT);
+                  indexOfMedkit = firebaseGame.values.players[firebasePlayer.uid].items.indexOf(ITEM.TYPE.MEDKIT);
                 }
 
-                if(indexOfLife >= 0)
+                if(indexOfMedkit >= 0)
                 {
-                  var items = firebaseGame.values.users[firebaseUser.uid].items;
-                  items.splice(indexOfLife, 1);
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
+                  var items = firebaseGame.values.players[firebasePlayer.uid].items;
+                  items.splice(indexOfMedkit, 1);
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid + '/items').set(items);
 
                   var notificationTitle = texts.misc.notify_shot_at_title_default;
-                  if(firebaseUsers[shotSnapshot.val().by].name)
+                  if(firebasePlayers[shotSnapshot.val().by].name)
                   {
-                    notificationTitle = texts.misc.notify_shot_at_title_name.replace('$1', firebaseUsers[shotSnapshot.val().by].name);
+                    notificationTitle = texts.misc.notify_shot_at_title_name.replace('$1', firebasePlayers[shotSnapshot.val().by].name);
                   }
                   
                   notify(notificationTitle, texts.misc.notify_shot_at_body_hit);
@@ -1536,20 +1536,20 @@
                   fireDatabase.ref('games/' + firebaseGame.uid).update({ state: GAME.STATE.APPREHENDED });
                 }
               }
-              else if(!shotSnapshot.val().hit) // && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER
+              else if(!shotSnapshot.val().hit) // && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER
               {
                 var notificationTitle = texts.misc.notify_shot_to_title_default;
-                if(shotSnapshot.val().by == firebaseUser.uid)
+                if(shotSnapshot.val().by == firebasePlayer.uid)
                 {
                   notificationTitle = texts.misc.notify_shot_to_title_self;
                 }
-                else if(firebaseUsers[shotSnapshot.val().by].name)
+                else if(firebasePlayers[shotSnapshot.val().by].name)
                 {
-                  notificationTitle = texts.misc.notify_shot_to_title_name.replace('$1', firebaseUsers[shotSnapshot.val().by].name);
+                  notificationTitle = texts.misc.notify_shot_to_title_name.replace('$1', firebasePlayers[shotSnapshot.val().by].name);
                 }
                 notify(notificationTitle, texts.misc.notify_shot_to_body_miss);
               }
-              else // shotSnapshot.val().hit && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER
+              else // shotSnapshot.val().hit && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER
               {
                 // No notification here... Either we'll receive a notification about the fugitive using a medkit or it's game over...
               }
@@ -1592,13 +1592,13 @@
                   if(itemsSnapshot.val().type != ITEM.TYPE.BULLET)
                   {
                     var notificationTitle = texts.misc.notify_found_item_title_default;
-                    if(firebaseFugitiveUser == firebaseUser.uid)
+                    if(firebaseFugitivePlayer == firebasePlayer.uid)
                     {
                       notificationTitle = texts.misc.notify_found_item_title_self;
                     }
-                    else if(firebaseUsers[firebaseFugitiveUser].name)
+                    else if(firebasePlayers[firebaseFugitivePlayer].name)
                     {
-                      notificationTitle = texts.misc.notify_found_item_title_name.replace('$2', firebaseUsers[firebaseFugitiveUser].name);
+                      notificationTitle = texts.misc.notify_found_item_title_name.replace('$2', firebasePlayers[firebaseFugitivePlayer].name);
                     }
                     notificationTitle = langArticleSet(notificationTitle, texts.articles, texts.items[itemsSnapshot.val().type], '1');
 
@@ -1638,13 +1638,13 @@
                   $('.gmaps-venue.' + venuesSnapshot.val().type).addClass(VENUE.STATE.ROBBED);
 
                   var notificationBody = texts.misc.notify_robbed_body_default;
-                  if(firebaseFugitiveUser == firebaseUser.uid)
+                  if(firebaseFugitivePlayer == firebasePlayer.uid)
                   {
                     notificationBody = texts.misc.notify_robbed_body_self;
                   }
-                  else if(firebaseUsers[firebaseFugitiveUser].name)
+                  else if(firebasePlayers[firebaseFugitivePlayer].name)
                   {
-                    notificationBody = texts.misc.notify_robbed_body_name.replace('$2', firebaseUsers[firebaseFugitiveUser].name);
+                    notificationBody = texts.misc.notify_robbed_body_name.replace('$2', firebasePlayers[firebaseFugitivePlayer].name);
                   }
                   notificationBody = notificationBody.replace('$1', balance);
                   
@@ -1652,53 +1652,53 @@
                 }
               });
 
-              if(firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE && firebaseGame.values.exit)
+              if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE && firebaseGame.values.exit)
               {
                 var exitMarker = new VenueMarker(firebaseGame.values.exit.location, EXIT, texts.misc.exit, [], -5000);
                 exitMarker.setMap(map);
               }
 
               // Put other players on the map:
-              $.each(firebaseGame.values.users, function(userID, user)
+              $.each(firebaseGame.values.players, function(playerID, player)
               {
-                firebaseUsers[userID] = { name: null, location: firebaseUser.values.location };
+                firebasePlayers[playerID] = { name: null, location: firebasePlayer.values.location };
 
-                if(user.role == PLAYER.ROLE.FUGITIVE)
+                if(player.role == PLAYER.ROLE.FUGITIVE)
                 {
-                  firebaseFugitiveUser = userID;
+                  firebaseFugitivePlayer = playerID;
                 }
                 else
                 {
-                  $(templates.battlefield).find('.distance .pin').clone().appendTo('.distance').attr('data-user-id', userID).hide();
-                  if(userID == firebaseUser.uid)
+                  $(templates.battlefield).find('.distance .pin').clone().appendTo('.distance').attr('data-player-id', playerID).hide();
+                  if(playerID == firebasePlayer.uid)
                   {
-                    $('.distance .pin[data-user-id="' + userID + '"]').addClass('self');
+                    $('.distance .pin[data-player-id="' + playerID + '"]').addClass('self');
                   }
                 }
 
-                if(userID == firebaseUser.uid)
+                if(playerID == firebasePlayer.uid)
                 {
                   // Put the player itself on the map:
-                  mapMarkers.me = new PlayerMarker(firebaseUser.values.location, firebaseGame.values.users[firebaseUser.uid].role);
+                  mapMarkers.me = new PlayerMarker(firebasePlayer.values.location, firebaseGame.values.players[firebasePlayer.uid].role);
                   mapMarkers.me.setMap(map);
 
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/timestamp').on('value', function(userTimestampSnapshot)
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID + '/timestamp').on('value', function(playerTimestampSnapshot)
                   {
-                    if(userTimestampSnapshot.val() - firebaseUser.lastTimestamp > userMaxTimeout)
+                    if(playerTimestampSnapshot.val() - firebasePlayer.lastTimestamp > playerMaxTimeout)
                     {
-                      if(firebaseGame.values.users[firebaseUser.uid].items)
+                      if(firebaseGame.values.players[firebasePlayer.uid].items)
                       {
-                        if(firebaseGame.values.users[firebaseUser.uid].items.length > 0)
+                        if(firebaseGame.values.players[firebasePlayer.uid].items.length > 0)
                         {
-                          var items = firebaseGame.values.users[firebaseUser.uid].items;
-                          var item = items.splice(Math.floor(Math.random() * (firebaseGame.values.users[firebaseUser.uid].items.length - 0.000001)), 1);
+                          var items = firebaseGame.values.players[firebasePlayer.uid].items;
+                          var item = items.splice(Math.floor(Math.random() * (firebaseGame.values.players[firebasePlayer.uid].items.length - 0.000001)), 1);
                           for(var k in firebaseGame.values.items)
                           {
                             if(firebaseGame.values.items[k].state == ITEM.STATE.FOUND && firebaseGame.values.items[k].type == item)
                             {
-                              fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').set(items);
-                              fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + k).update({ state: ITEM.STATE.LOST, location: firebaseUser.lastLocation });
-                              mapMarkers.items[k].setPosition(firebaseUser.lastLocation);
+                              fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid + '/items').set(items);
+                              fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + k).update({ state: ITEM.STATE.LOST, location: firebasePlayer.lastLocation });
+                              mapMarkers.items[k].setPosition(firebasePlayer.lastLocation);
                               mapMarkers.items[k].show();
                               notify(texts.misc.notify_lost_item_title, langArticleSet(texts.misc.notify_lost_item_body, texts.articles, texts.items[item], '1'));
                               break;
@@ -1707,42 +1707,42 @@
                         }
                       }
                     }
-                    firebaseUser.lastTimestamp = userTimestampSnapshot.val();
-                    firebaseUser.lastLocation = firebaseUser.values.location;
+                    firebasePlayer.lastTimestamp = playerTimestampSnapshot.val();
+                    firebasePlayer.lastLocation = firebasePlayer.values.location;
                   });
                 }
                 else
                 {
                   // Put the other players on the map:
-                  mapMarkers.users[userID] = new PlayerMarker(firebaseUsers[userID].location, user.role);
-                  if(user.items)
+                  mapMarkers.players[playerID] = new PlayerMarker(firebasePlayers[playerID].location, player.role);
+                  if(player.items)
                   {
-                    mapMarkers.users[userID].setItems(user.items);
+                    mapMarkers.players[playerID].setItems(player.items);
                   }
-                  mapMarkers.users[userID].setMap(map);
-                  mapMarkers.users[userID].hide();
+                  mapMarkers.players[playerID].setMap(map);
+                  mapMarkers.players[playerID].hide();
 
-                  fireDatabase.ref('users/' + userID + '/name').once('value').then(function(userNameSnapshot)
+                  fireDatabase.ref('players/' + playerID + '/name').once('value').then(function(playerNameSnapshot)
                   {
-                    firebaseUsers[userID].name = userNameSnapshot.val();
-                    mapMarkers.users[userID].setName(firebaseUsers[userID].name);
+                    firebasePlayers[playerID].name = playerNameSnapshot.val();
+                    mapMarkers.players[playerID].setName(firebasePlayers[playerID].name);
                   });
 
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/location').on('value', function(userLocationSnapshot)
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID + '/location').on('value', function(playerLocationSnapshot)
                   {
-                    if(userLocationSnapshot.val())
+                    if(playerLocationSnapshot.val())
                     {
-                      mapMarkers.users[userID].setPosition(userLocationSnapshot.val());
-                      mapMarkers.users[userID].show();
+                      mapMarkers.players[playerID].setPosition(playerLocationSnapshot.val());
+                      mapMarkers.players[playerID].show();
                     }
                   });
                 }
 
-                if(user.role == PLAYER.ROLE.FUGITIVE && userID != firebaseUser.uid)
+                if(player.role == PLAYER.ROLE.FUGITIVE && playerID != firebasePlayer.uid)
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').on('child_removed', function(useritemsSnapshot)
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID + '/items').on('child_removed', function(playerItemsSnapshot)
                   {
-                    if(useritemsSnapshot.val() == ITEM.TYPE.MEDKIT)
+                    if(playerItemsSnapshot.val() == ITEM.TYPE.MEDKIT)
                     {
                       var lastShot = null,
                           notificationTitle = texts.misc.notify_shot_to_title_default,
@@ -1760,82 +1760,82 @@
                       }
                       if(lastShot)
                       {
-                        if(lastShot.by == firebaseUser.uid)
+                        if(lastShot.by == firebasePlayer.uid)
                         {
                           notificationTitle = texts.misc.notify_shot_to_title_self;
                         }
-                        else if(firebaseUsers[lastShot.by].name)
+                        else if(firebasePlayers[lastShot.by].name)
                         {
-                          notificationTitle = texts.misc.notify_shot_to_title_name.replace('$1', firebaseUsers[lastShot.by].name);
+                          notificationTitle = texts.misc.notify_shot_to_title_name.replace('$1', firebasePlayers[lastShot.by].name);
                         }
                       }
-                      if(firebaseUsers[firebaseFugitiveUser].name)
+                      if(firebasePlayers[firebaseFugitivePlayer].name)
                       {
-                        notificationBody = texts.misc.notify_shot_to_body_hit_name.replace('$1', firebaseUsers[firebaseFugitiveUser].name);
+                        notificationBody = texts.misc.notify_shot_to_body_hit_name.replace('$1', firebasePlayers[firebaseFugitivePlayer].name);
                       }
                       notify(notificationTitle, notificationBody);
                     }
                   });
                 }
 
-                var initialUserItemsLoad = true;
-                fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').on('value', function(useritemsSnapshot)
+                var initialPlayerItemsLoad = true;
+                fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID + '/items').on('value', function(playerItemsSnapshot)
                 {
-                  if(user.role == PLAYER.ROLE.HUNTER && !initialUserItemsLoad && useritemsSnapshot.val())
+                  if(player.role == PLAYER.ROLE.HUNTER && !initialPlayerItemsLoad && playerItemsSnapshot.val())
                   {
-                    if(useritemsSnapshot.val().indexOf(ITEM.TYPE.BULLET) >= 0)
+                    if(playerItemsSnapshot.val().indexOf(ITEM.TYPE.BULLET) >= 0)
                     {
                       var notificationTitle = texts.misc.notify_found_bullet_title_default;
-                      if(userID == firebaseUser.uid)
+                      if(playerID == firebasePlayer.uid)
                       {
                         notificationTitle = texts.misc.notify_found_bullet_title_self;
                       }
-                      else if(firebaseUsers[userID].name)
+                      else if(firebasePlayers[playerID].name)
                       {
-                        notificationTitle = texts.misc.notify_found_bullet_title_name.replace('$1', firebaseUsers[userID].name);
+                        notificationTitle = texts.misc.notify_found_bullet_title_name.replace('$1', firebasePlayers[playerID].name);
                       }
                       notify(notificationTitle);
                     }
                   }
-                  initialUserItemsLoad = false;
+                  initialPlayerItemsLoad = false;
 
-                  if(userID != firebaseUser.uid && useritemsSnapshot.val())
+                  if(playerID != firebasePlayer.uid && playerItemsSnapshot.val())
                   {
-                    mapMarkers.users[userID].setItems(useritemsSnapshot.val());
+                    mapMarkers.players[playerID].setItems(playerItemsSnapshot.val());
                   }
                 });
 
-                fireDatabase.ref('users/' + userID + '/location').on('value', function(userLocationSnapshot)
+                fireDatabase.ref('players/' + playerID + '/location').on('value', function(playerLocationSnapshot)
                 {
                   var distance = 0,
                       pinsToUpdate = [];
 
-                  firebaseUsers[userID].location = userLocationSnapshot.val();
+                  firebasePlayers[playerID].location = playerLocationSnapshot.val();
 
-                  if(firebaseGame.values.users[userID].role == PLAYER.ROLE.FUGITIVE)
+                  if(firebaseGame.values.players[playerID].role == PLAYER.ROLE.FUGITIVE)
                   {
-                    // Loop all other users against this one
-                    pinsToUpdate = Object.keys(firebaseUsers);
-                    pinsToUpdate.splice(pinsToUpdate.indexOf(firebaseFugitiveUser), 1);
+                    // Loop all other players against this one
+                    pinsToUpdate = Object.keys(firebasePlayers);
+                    pinsToUpdate.splice(pinsToUpdate.indexOf(firebaseFugitivePlayer), 1);
                   }
-                  else if(firebaseFugitiveUser != null)
+                  else if(firebaseFugitivePlayer != null)
                   {
-                    // compare this user with fugitive
-                    pinsToUpdate = [userID];
+                    // compare this player with fugitive
+                    pinsToUpdate = [playerID];
                   }
 
-                  if(firebaseFugitiveUser != null)
+                  if(firebaseFugitivePlayer != null)
                   {
                     for(var i in pinsToUpdate)
                     {
-                      distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[pinsToUpdate[i]].location.lat, firebaseUsers[pinsToUpdate[i]].location.lng), new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng));
+                      distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebasePlayers[pinsToUpdate[i]].location.lat, firebasePlayers[pinsToUpdate[i]].location.lng), new google.maps.LatLng(firebasePlayers[firebaseFugitivePlayer].location.lat, firebasePlayers[firebaseFugitivePlayer].location.lng));
                       if(distance < 200)
                       {
-                        $('.distance .pin[data-user-id="' + pinsToUpdate[i] + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
+                        $('.distance .pin[data-player-id="' + pinsToUpdate[i] + '"]').css({ right: (distance / 200 * 100) + '%' }).show();
                       }
                       else
                       {
-                        $('.distance .pin[data-user-id="' + pinsToUpdate[i] + '"]').hide();
+                        $('.distance .pin[data-player-id="' + pinsToUpdate[i] + '"]').hide();
                       }
                     }
                   }
@@ -1844,36 +1844,36 @@
                   // - Hunter sees hunters
                   // - Every 4 minutes
                   // - When the fugitive picks up an item, or robs a venue
-                  if(firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER && $('.gmaps-player[data-user-id="' + userID + '"]').hasClass(PLAYER.ROLE.HUNTER)) // TODO: Replace usage of htmlmarker for actual (firebase) data
+                  if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER && $('.gmaps-player[data-player-id="' + playerID + '"]').hasClass(PLAYER.ROLE.HUNTER)) // TODO: Replace usage of htmlmarker for actual (firebase) data
                   {
-                    mapMarkers.users[userID].setPosition(userLocationSnapshot.val());
+                    mapMarkers.players[playerID].setPosition(playerLocationSnapshot.val());
                   }
                 });
               });
               
-              // Keep track of users leaving the game:
-              fireDatabase.ref('games/' + firebaseGame.uid + '/users').on('child_removed', function(gameUserSnapshot)
+              // Keep track of players leaving the game:
+              fireDatabase.ref('games/' + firebaseGame.uid + '/players').on('child_removed', function(gamePlayerSnapshot)
               {
-                if(gameUserSnapshot.key != firebaseUser.uid)
+                if(gamePlayerSnapshot.key != firebasePlayer.uid)
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + gameUserSnapshot.key + '/location').off('value');
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + gameUserSnapshot.key + '/items').off('child_removed');
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + gameUserSnapshot.key + '/items').off('value');
-                  fireDatabase.ref('users/' + gameUserSnapshot.key + '/location').off('value');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + gamePlayerSnapshot.key + '/location').off('value');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + gamePlayerSnapshot.key + '/items').off('child_removed');
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + gamePlayerSnapshot.key + '/items').off('value');
+                  fireDatabase.ref('players/' + gamePlayerSnapshot.key + '/location').off('value');
 
-                  mapMarkers.users[gameUserSnapshot.key].hide();
-                  mapMarkers.users[gameUserSnapshot.key].setMap(null);
+                  mapMarkers.players[gamePlayerSnapshot.key].hide();
+                  mapMarkers.players[gamePlayerSnapshot.key].setMap(null);
 
-                  $('.distance .pin[data-user-id="' + gameUserSnapshot.key + '"]').remove();
+                  $('.distance .pin[data-player-id="' + gamePlayerSnapshot.key + '"]').remove();
 
-                  notify(texts.misc.notify_user_left_title.replace('$1', firebaseUsers[gameUserSnapshot.key].name));
+                  notify(texts.misc.notify_user_left_title.replace('$1', firebasePlayers[gamePlayerSnapshot.key].name));
                 }
               });
 
-              // Listen for changes on the user's items:
-              fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').on('value', function(useritemsSnapshot)
+              // Listen for changes on the player's items:
+              fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid + '/items').on('value', function(playerItemsSnapshot)
               {
-                var items = useritemsSnapshot.val(),
+                var items = playerItemsSnapshot.val(),
                     itemContainer = '';
 
                 $('ul.inventory, ul.pharmacy').empty();
@@ -1889,7 +1889,7 @@
                     }
                     $(templates.battlefield).find('ul.' + itemContainer + ' li').clone().appendTo('ul.' + itemContainer).find('i').addClass(items[k]);
                   }
-                  if(firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER && items.indexOf(ITEM.TYPE.BULLET) >= 0)
+                  if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER && items.indexOf(ITEM.TYPE.BULLET) >= 0)
                   {
                     $('button.fire').show();
                   }
@@ -1914,11 +1914,11 @@
 
                 $('.clock').text(date.toISOString().substr(14, 5));
 
-                if(resetsPassed > firebaseGame.values.users[firebaseUser.uid].resets)
+                if(resetsPassed > firebaseGame.values.players[firebasePlayer.uid].resets)
                 {
-                  fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ resets: resetsPassed, location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid).update($.extend({ resets: resetsPassed, location: firebasePlayer.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
 
-                  if(firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE)
+                  if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE)
                   {
                     notify(texts.misc.notify_clock_title, texts.misc.notify_clock_hunters_body);
                   }
@@ -1943,13 +1943,13 @@
                 if($(this).hasClass('gmaps-item'))
                 {
                   // Assume item only glows when nearby:
-                  if(($(this).hasClass('glow-blue') || $(this).hasClass('glow-orange')) && ((firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE && !$(this).hasClass(ITEM.TYPE.BULLET)) || (firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER && $(this).hasClass(ITEM.TYPE.BULLET))))
+                  if(($(this).hasClass('glow-blue') || $(this).hasClass('glow-orange')) && ((firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE && !$(this).hasClass(ITEM.TYPE.BULLET)) || (firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER && $(this).hasClass(ITEM.TYPE.BULLET))))
                   {
                     var k = $('.battlefield .gmaps-item').index(this),
                         items = [];
-                    if(firebaseGame.values.users[firebaseUser.uid].items)
+                    if(firebaseGame.values.players[firebasePlayer.uid].items)
                     {
-                      items = firebaseGame.values.users[firebaseUser.uid].items;
+                      items = firebaseGame.values.players[firebasePlayer.uid].items;
                     }
                     // Check if item of this type is not already added to the inventory:
                     if(items.indexOf(firebaseGame.values.items[k].type) < 0 || firebaseGame.values.items[k].type == ITEM.TYPE.MEDKIT)
@@ -1957,14 +1957,14 @@
                       items.push(firebaseGame.values.items[k].type);
                     }
                     fireDatabase.ref('games/' + firebaseGame.uid + '/items/' + k).update({ state: ITEM.STATE.FOUND });
-                    fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ items: items, location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
+                    fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid).update($.extend({ items: items, location: firebasePlayer.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                   }
                 }
                 // Concerns a venue:
                 else if($(this).hasClass('gmaps-venue'))
                 {
                   // Assume venue only glows green when nearby and all items present:
-                  if($(this).hasClass('glow-green') && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE)
+                  if($(this).hasClass('glow-green') && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE)
                   {
                     if($(this).hasClass(EXIT))
                     {
@@ -1976,7 +1976,7 @@
                     {
                       var k = $('.battlefield .gmaps-venue').index(this);
                       fireDatabase.ref('games/' + firebaseGame.uid + '/venues/' + k).update({ state: VENUE.STATE.ROBBED });
-                      fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid).update($.extend({ location: firebaseUser.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
+                      fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid).update($.extend({ location: firebasePlayer.values.location }, ( firebaseConnected ? { timestamp: firebase.database.ServerValue.TIMESTAMP } : {})));
                       // Recalculate amount of money the fugitive has stolen!
                       $(this).removeClass('glow-green');
                     }
@@ -1986,7 +1986,7 @@
                 else if($(this).hasClass('gmaps-player'))
                 {
                   // TODO: If click on fugitive, show 'shoot' button?
-                  if(firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER)
+                  if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER)
                   {
 
                   }
@@ -2031,12 +2031,12 @@
                 $(this).hide();
 
                 // Calculate range:
-                var distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseUsers[firebaseFugitiveUser].location.lat, firebaseUsers[firebaseFugitiveUser].location.lng), new google.maps.LatLng(firebaseUsers[firebaseUser.uid].location.lat, firebaseUsers[firebaseUser.uid].location.lng));
+                var distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebasePlayers[firebaseFugitivePlayer].location.lat, firebasePlayers[firebaseFugitivePlayer].location.lng), new google.maps.LatLng(firebasePlayers[firebasePlayer.uid].location.lat, firebasePlayers[firebasePlayer.uid].location.lng));
                 
-                fireDatabase.ref('games/' + firebaseGame.uid + '/shots').push({ by: firebaseUser.uid, hit: (distance < 50), timestamp: firebase.database.ServerValue.TIMESTAMP });
+                fireDatabase.ref('games/' + firebaseGame.uid + '/shots').push({ by: firebasePlayer.uid, hit: (distance < 50), timestamp: firebase.database.ServerValue.TIMESTAMP });
                 
                 // Remove all items from the inventory, cause there can only be one bullet anyway:
-                fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').remove();
+                fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid + '/items').remove();
               });
 
               $('button.center').on('click', function(event)
@@ -2045,7 +2045,7 @@
 
                 $(this).hide();
 
-                map.setCenter(new google.maps.LatLng(firebaseUsers[firebaseUser.uid].location.lat, firebaseUsers[firebaseUser.uid].location.lng));
+                map.setCenter(new google.maps.LatLng(firebasePlayers[firebasePlayer.uid].location.lat, firebasePlayers[firebasePlayer.uid].location.lng));
                 centerMapOnPlayer = true;
               }).hide();
             });
@@ -2058,18 +2058,18 @@
           fireDatabase.ref('games/' + firebaseGame.uid + '/items').off('child_changed');
           fireDatabase.ref('games/' + firebaseGame.uid + '/shots').off('child_added');
           fireDatabase.ref('games/' + firebaseGame.uid + '/state').off('value');
-          fireDatabase.ref('games/' + firebaseGame.uid + '/users').off('child_removed');
+          fireDatabase.ref('games/' + firebaseGame.uid + '/players').off('child_removed');
           fireDatabase.ref('games/' + firebaseGame.uid + '/venues').off('child_changed');
-          fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + firebaseUser.uid + '/items').off('value');
+          fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid + '/items').off('value');
           fireDatabase.ref('.info/connected').off('value');
 
-          $.each(firebaseGame.values.users, function(userID, user)
+          $.each(firebaseGame.values.players, function(playerID, player)
           {
-            fireDatabase.ref('users/' + userID + '/location').off('value');
-            fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').off('child_removed');
-            fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/items').off('value');
-            fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/location').off('value');
-            fireDatabase.ref('games/' + firebaseGame.uid + '/users/' + userID + '/timestamp').off('value');
+            fireDatabase.ref('players/' + playerID + '/location').off('value');
+            fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID + '/items').off('child_removed');
+            fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID + '/items').off('value');
+            fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID + '/location').off('value');
+            fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + playerID + '/timestamp').off('value');
           });
 
           clearInterval(clockInterval);
@@ -2078,22 +2078,22 @@
               modalBody,
               stats = '';
 
-          if(state == GAME.STATE.VANISHED && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE)
+          if(state == GAME.STATE.VANISHED && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE)
           {
             modalTitle = texts.misc.notify_win_title;
             modalBody = texts.misc.notify_escaped_body;
           }
-          else if(state == GAME.STATE.VANISHED && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER)
+          else if(state == GAME.STATE.VANISHED && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER)
           {
             modalTitle = texts.misc.notify_lose_title;
             modalBody = texts.misc.notify_escaped_body;
           }
-          else if(state == GAME.STATE.APPREHENDED && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE)
+          else if(state == GAME.STATE.APPREHENDED && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE)
           {
             modalTitle = texts.misc.notify_lose_title;
             modalBody = texts.misc.notify_apprehended_body;
           }
-          else if(state == GAME.STATE.APPREHENDED && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER)
+          else if(state == GAME.STATE.APPREHENDED && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER)
           {
             modalTitle = texts.misc.notify_win_title;
             modalBody = texts.misc.notify_apprehended_body;
@@ -2110,14 +2110,14 @@
           var lastHit = { timestamp: 0, by: null };
           var i = 0;
 
-          if(firebaseGame.values.users[firebaseFugitiveUser].items)
+          if(firebaseGame.values.players[firebaseFugitivePlayer].items)
           {
-            numberOfItems = firebaseGame.values.users[firebaseFugitiveUser].items.length;
+            numberOfItems = firebaseGame.values.players[firebaseFugitivePlayer].items.length;
           }
 
-          for(i in firebaseGame.values.users[firebaseFugitiveUser].venues)
+          for(i in firebaseGame.values.players[firebaseFugitivePlayer].venues)
           {
-            if(firebaseGame.values.users[firebaseFugitiveUser].venues[i].state == VENUE.STATE.ROBBED)
+            if(firebaseGame.values.players[firebaseFugitivePlayer].venues[i].state == VENUE.STATE.ROBBED)
             {
               numberOfVenues ++;
             }
@@ -2157,13 +2157,13 @@
           if(state == GAME.STATE.APPREHENDED)
           {
             stats += '<em>' + texts.misc.stats_kill + '</em>';
-            if(lastHit.by == firebaseUser.uid)
+            if(lastHit.by == firebasePlayer.uid)
             {
-              stats += '<strong>' + firebaseUser.values.name + '</strong>';
+              stats += '<strong>' + firebasePlayer.values.name + '</strong>';
             }
             else
             {
-              stats += '<strong>' + firebaseUsers[lastHit.by].name + '</strong>';
+              stats += '<strong>' + firebasePlayers[lastHit.by].name + '</strong>';
             }
           }
 
@@ -2185,15 +2185,15 @@
 
           for(var i in firebaseGame.values.items)
           {
-            if(firebaseGame.values.items[i].state == ITEM.STATE.LOST && ((firebaseGame.values.items[i].type == ITEM.TYPE.BULLET && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.HUNTER) || (firebaseGame.values.items[i].type != ITEM.TYPE.BULLET && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE)))
+            if(firebaseGame.values.items[i].state == ITEM.STATE.LOST && ((firebaseGame.values.items[i].type == ITEM.TYPE.BULLET && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.HUNTER) || (firebaseGame.values.items[i].type != ITEM.TYPE.BULLET && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE)))
             {
               distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(location.lat, location.lng), new google.maps.LatLng(firebaseGame.values.items[i].location.lat, firebaseGame.values.items[i].location.lng));
               if(distance < 10)
               {
                 glow = 'glow-blue';
-                if(firebaseGame.values.users[firebaseUser.uid].items)
+                if(firebaseGame.values.players[firebasePlayer.uid].items)
                 {
-                  if(firebaseGame.values.items[i].type != ITEM.TYPE.MEDKIT && firebaseGame.values.users[firebaseUser.uid].items.indexOf(firebaseGame.values.items[i].type) >= 0)
+                  if(firebaseGame.values.items[i].type != ITEM.TYPE.MEDKIT && firebaseGame.values.players[firebasePlayer.uid].items.indexOf(firebaseGame.values.items[i].type) >= 0)
                   {
                     glow = 'glow-orange';
                   }
@@ -2209,7 +2209,7 @@
           }
           for(var i in firebaseGame.values.venues)
           {
-            if(firebaseGame.values.venues[i].state == VENUE.STATE.ORDINARY && firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE)
+            if(firebaseGame.values.venues[i].state == VENUE.STATE.ORDINARY && firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE)
             {
               distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(location.lat, location.lng), new google.maps.LatLng(firebaseGame.values.venues[i].location.lat, firebaseGame.values.venues[i].location.lng));
               if(distance < 10)
@@ -2217,11 +2217,11 @@
                 var classToAdd = 'glow-red',
                     hasAllItems = true;
 
-                if(firebaseGame.values.users[firebaseUser.uid].items)
+                if(firebaseGame.values.players[firebasePlayer.uid].items)
                 {
                   for(var itemI in entities.venues[i].needs)
                   {
-                    if(firebaseGame.values.users[firebaseUser.uid].items.indexOf(entities.venues[i].needs[itemI]) == -1)
+                    if(firebaseGame.values.players[firebasePlayer.uid].items.indexOf(entities.venues[i].needs[itemI]) == -1)
                     {
                       hasAllItems = false;
                       break;
@@ -2241,7 +2241,7 @@
             }
           }
           
-          if(firebaseGame.values.users[firebaseUser.uid].role == PLAYER.ROLE.FUGITIVE && firebaseGame.values.exit)
+          if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE && firebaseGame.values.exit)
           {
             distance = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(location.lat, location.lng), new google.maps.LatLng(firebaseGame.values.exit.location.lat, firebaseGame.values.exit.location.lng));
             if(distance < 10)
@@ -2299,7 +2299,7 @@
         .then(registerToGame)
         // Everything save! Continue to next phase
         .then(pickLocation)
-        .then(manageUsers)
+        .then(managePlayers)
         .then(battle)
         .then(wrapUp)
         .catch(function(error)
