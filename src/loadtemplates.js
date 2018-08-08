@@ -1,4 +1,4 @@
-function loadTemplates(url)
+export default function loadTemplates(url)
 {
     return new Promise(function(resolve, reject)
     {

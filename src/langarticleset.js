@@ -10,7 +10,7 @@
  * @param {object} word - Object containing the word at key `word` and other optional attributes
  * @param {string} keyword - The keyword the function replaces, without the prefix
  */
-function langArticleSet(text, articles, word, keyword)
+export default function langArticleSet(text, articles, word, keyword)
 {
   text = text.replace('$' + keyword, word.word);
 

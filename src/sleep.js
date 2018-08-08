@@ -24,6 +24,10 @@
      sleep.allow()
 
  */
+
+import './muted-blank.mp4';
+import './muted-blank.ogv';
+
 var sleep = {
     prevent: function() {
         if (!this._video) {
@@ -66,3 +70,5 @@ var sleep = {
     },
     _video: null
 }
+
+export default sleep;

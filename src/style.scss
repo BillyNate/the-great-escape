@@ -1,5 +1,8 @@
+@import url("~sanitize.css");
+@import url("./game-icons.css");
+@import url("//fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons");
 html, body { width: 100%; height: 100%; }
-body { background: #000 url("/background01.jpg") no-repeat center center fixed; background-size: cover; color: rgba(0, 0, 0, 0.87); font-family: Roboto, Helvetica, Arial, sans-serif; color: #fff; }
+body { background: #000 url("./background01.jpg") no-repeat center center fixed; background-size: cover; color: rgba(0, 0, 0, 0.87); font-family: Roboto, Helvetica, Arial, sans-serif; color: #fff; }
 button, input[type="submit"] { cursor: pointer; }
 button:focus, a:focus { outline: none; }
 a { color: #fff; }
