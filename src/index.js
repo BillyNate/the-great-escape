@@ -964,7 +964,6 @@ ready().then(function()
           if(firebaseGame.values.venues[i].state == VENUE.STATE.ROBBED)
           {
             balance += entities.venues[i].needs.length * 1000;
-            $('.gmaps-venue.' + firebaseGame.values.venues[i].type).addClass(VENUE.STATE.ROBBED);
           }
         }
         $('.piggybank').text(balance);
@@ -1149,6 +1148,30 @@ ready().then(function()
             if(playerID != firebasePlayer.uid && playerItemsSnapshot.val())
             {
               mapMarkers.players[playerID].setItems(playerItemsSnapshot.val());
+            }
+
+            if(player.role == PLAYER.ROLE.FUGITIVE)
+            {
+              $('.gmaps-venue .requirements li').removeClass('found');
+
+              if(playerItemsSnapshot.val())
+              {
+                var acquired = playerItemsSnapshot.val();
+
+                for(var i in acquired)
+                {
+                  $('.gmaps-venue .requirements li.' + acquired[i]).addClass('found');
+                }
+              }
+            }
+          });
+          
+          // Google maps might finish loading *after* the fugitive items have been loaded, causing the jQuery to have no effect. This should fix this:
+          google.maps.event.addListenerOnce(map, 'idle', function(event)
+          {
+            for(var itemI in firebaseGame.values.players[firebaseFugitivePlayer].items)
+            {
+              $('.gmaps-venue .requirements li.' + firebaseGame.values.players[firebaseFugitivePlayer].items[itemI]).addClass('found');
             }
           });
 

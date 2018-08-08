@@ -31,6 +31,8 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
   .gmaps-venue.open .requirements, .gmaps-player.open .items { top: -30px; }
     .gmaps-venue .requirements li, .gmaps-player .items li { display: inline-block; background-color: #fff; border-radius: 50%; padding: .3em; margin: 0 -1.1em; color: #333; opacity: 0; transition: margin .4s, opacity .4s; }
     .gmaps-venue .requirements li:before, .gmaps-player .items li:before { font-size: 1.5em; }
+    .gmaps-venue .requirements li.found { color: #777; }
+    .gmaps-venue .requirements li.found:after { content: "\2713"; display: block; position: absolute; top: 0; font-size: 1.7em; font-weight: 700; color: #03a9f4; }
     .gmaps-venue.open .requirements li, .gmaps-player.open .items li { margin: 0 .1em; opacity: 1; }  
   
   .gmaps-player i.fugitive:before     { content: "\E629" !important; color: #b71c1c; }
