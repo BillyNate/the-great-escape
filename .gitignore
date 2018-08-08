@@ -1,3 +1,8 @@
 .firebaserc
 firebase-debug.log
 functions/node_modules
+node_modules
+/firebase.init.js
+/pages/*
+!/pages/*.html
+!/pages/serviceWorker.min.js

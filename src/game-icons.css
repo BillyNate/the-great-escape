@@ -2,10 +2,8 @@
 	font-family: "game-icons";
 	src: url('./game-icons.eot');
 	src: url('./game-icons.eot?#iefix') format('eot'),
-		url('./game-icons.woff2') format('woff2'),
 		url('./game-icons.woff') format('woff'),
-		url('./game-icons.ttf') format('truetype'),
-		url('./game-icons.svg#game-icons') format('svg');
+		url('./game-icons.ttf') format('truetype');
 }
 
 .game-icon:before {

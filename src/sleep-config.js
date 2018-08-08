@@ -1,3 +1,5 @@
+import sleep from './sleep.js';
+
 $(function()
 {
   sleep.prevent();
