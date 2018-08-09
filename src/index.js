@@ -665,6 +665,8 @@ ready().then(function()
       }
       else
       {
+        var players = {};
+
         $('.container').empty();
         $(templates.playeroverview).appendTo('.container').find('form.controls').on('submit', function(event)
         {
@@ -752,7 +754,8 @@ ready().then(function()
         {
           fireDatabase.ref('players/' + gamePlayerSnapshot.key).once('value').then(function(playerSnapshot)
           {
-            $(templates.playerlistitem).find('li').clone().attr('data-player-id', gamePlayerSnapshot.key).appendTo('ul.players').find('span').text(playerSnapshot.val().name).siblings('.role').addClass(gamePlayerSnapshot.val().role).siblings('.state').addClass(gamePlayerSnapshot.val().state);
+            players[gamePlayerSnapshot.key] = playerSnapshot.val().name;
+            $(templates.playerlistitem).find('li').clone().attr('data-player-id', gamePlayerSnapshot.key).prependTo('ul.players').find('span').text(playerSnapshot.val().name).siblings('.role').addClass(gamePlayerSnapshot.val().role).siblings('.state').addClass(gamePlayerSnapshot.val().state).closest('li').insertAfter('ul.players li:nth-child(' + (Object.values(players).sort().indexOf(playerSnapshot.val().name) + 1) + ')');;
           });
         });
         fireDatabase.ref('games/' + firebaseGame.uid + '/players').on('child_changed', function(playerSnapshot)
@@ -776,6 +779,7 @@ ready().then(function()
         });
         fireDatabase.ref('games/' + firebaseGame.uid + '/players').on('child_removed', function(gamePlayerSnapshot)
         {
+          delete players[gamePlayerSnapshot.key];
           if(gamePlayerSnapshot.key == firebasePlayer.uid)
           {
             fireDatabase.ref('players/' + firebasePlayer.uid + '/game').remove();
