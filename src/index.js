@@ -229,18 +229,18 @@ ready().then(function()
       {
         if(resolved)
         {
-          $('ul.loading .' + finished + ' > i').text('check_circle').removeClass('rotating');
+          $('ul.loading .' + finished + ' > i').text('check').removeClass('rotating');
           resolve(returnValue);
         }
         else if(resolved === null)
         {
-          $('ul.loading .' + finished + ' > i').text('remove_circle').removeClass('rotating');
+          $('ul.loading .' + finished + ' > i').text('remove').removeClass('rotating');
           $('ul.loading .' + finished + ' .note').show();
           resolve(returnValue);
         }
         else
         {
-          $('ul.loading .' + finished + ' > i').text('cancel').removeClass('rotating');
+          $('ul.loading .' + finished + ' > i').text('close').removeClass('rotating');
           $('ul.loading .' + finished + ' .note').show();
           reject(returnValue);
         }

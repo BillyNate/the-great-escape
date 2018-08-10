@@ -70,6 +70,8 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
       ul.loading li > * { display: block; position: relative; float: left; }
       ul.loading li > :first-child { margin-right: 1rem; }
       ul.loading li .note { display: block; position: relative; font-style: normal; width: 100%; font-size: .8em; line-height: 1.2em; padding-left: 3rem; }
+      ul.loading .material-icons { font-size: 20px; padding: 1px; }
+      ul.loading i { background: #fff; border-radius: 50%; color: #00bcd4; }
   form.enter { display: block; position: relative; width: 100%; max-width: 540px; margin: 2vh auto 0; }
   	form.enter input { display: block; position: relative; float: left; width: 100%; padding: .5rem 1rem; margin: .5rem 0; border: 1px solid #00bcd4; border-radius: .5rem; }
   	form.enter input[type="text"]::placeholder { color: inherit; }
