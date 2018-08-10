@@ -204,6 +204,13 @@ ready().then(function()
           {
             gameLoop(coords);
           }
+          else if(firebaseGame.values.state == GAME.STATE.ASSEMBLING)
+          {
+            if(firebaseGame.values.players[firebasePlayer.uid].state == PLAYER.STATE.READY && firebaseGame.values.location.radius < google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseGame.values.location.lat, firebaseGame.values.location.lng), new google.maps.LatLng(location.coords.latitude, location.coords.longitude)))
+            {
+              fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid).update({ state: PLAYER.STATE.BIDING });
+            }
+          }
         }
       }
     }
@@ -735,7 +742,7 @@ ready().then(function()
           if($(this).hasClass('state') && $(this).closest('li').data('player-id') == firebasePlayer.uid)
           {
             var newState = PLAYER.STATE.BIDING;
-            if($(this).hasClass(PLAYER.STATE.BIDING))
+            if($(this).hasClass(PLAYER.STATE.BIDING) && firebaseGame.values.location.radius > google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseGame.values.location.lat, firebaseGame.values.location.lng), new google.maps.LatLng(firebasePlayer.values.location.lat, firebasePlayer.values.location.lng)))
             {
               newState = PLAYER.STATE.READY;
             }
