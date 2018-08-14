@@ -354,7 +354,7 @@ ready().then(function()
 
     if(!firebaseGame.uid)
     {
-      $('ul.loading .gamedata > i').text('remove_circle');
+      $('ul.loading .gamedata > i').text('remove');
     }
 
     if(returnValues[4] !== null && returnValues[4] < .25)
