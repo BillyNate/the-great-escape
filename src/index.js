@@ -217,7 +217,7 @@ ready().then(function()
           {
             gameLoop(coords);
           }
-          else if(firebaseGame.values.state == GAME.STATE.ASSEMBLING)
+          else if(firebaseGame.values.state == GAME.STATE.ASSEMBLING && firebaseGame.values.players[firebasePlayer.uid])
           {
             if(firebaseGame.values.players[firebasePlayer.uid].state == PLAYER.STATE.READY && firebaseGame.values.location.radius < google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(firebaseGame.values.location.lat, firebaseGame.values.location.lng), new google.maps.LatLng(location.coords.latitude, location.coords.longitude)))
             {
@@ -303,12 +303,16 @@ ready().then(function()
       if(confirm(texts.misc.dialog_leave_game))
       {
         var gameUpdates = [];
-        if(firebaseGame.values.host == firebasePlayer.uid)
+        if(firebaseGame.values.state == GAME.STATE.ASSEMBLING && firebaseGame.values.host == firebasePlayer.uid)
         {
           gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/players').remove());
         }
         else
         {
+          if(firebaseGame.values.state == GAME.STATE.ONGOING && firebaseFugitivePlayer == firebasePlayer.uid)
+          {
+            gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid).update({ state: GAME.STATE.APPREHENDED }));
+          }
           gameUpdates.push(fireDatabase.ref('games/' + firebaseGame.uid + '/players/' + firebasePlayer.uid).remove());
         }
         gameUpdates.push(fireDatabase.ref('players/' + firebasePlayer.uid + '/game').remove());
