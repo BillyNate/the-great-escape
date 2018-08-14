@@ -1552,7 +1552,7 @@ ready().then(function()
     stats += '<em>' + texts.misc.stats_shots + '</em><strong>' + numberOfShots + '</strong>';
     stats += '<em>' + texts.misc.stats_hits + '</em><strong>' + numberOfHits + '</strong>';
 
-    if(state == GAME.STATE.APPREHENDED)
+    if(state == GAME.STATE.APPREHENDED && lastHit.timestamp > 0)
     {
       stats += '<em>' + texts.misc.stats_kill + '</em>';
       if(lastHit.by == firebasePlayer.uid)
