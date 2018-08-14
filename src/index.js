@@ -124,20 +124,33 @@ ready().then(function()
             fireDatabase.ref('venues').once('value')
           ]).then(function(returnValues)
           {
-            firebasePlayer.values = returnValues[0].val();
+            var optionalPromises = [];
+            if(returnValues[0].val())
+            {
+              firebasePlayer.values = returnValues[0].val();
+            }
+            else
+            {
+              // If there's no record of this player, then create one containing a zero value location. Otherwise there's no record to keep track of:
+              optionalPromises.push(fireDatabase.ref('players/' + firebasePlayer.uid).update({ location: { lat: 0, lng: 0 } }));
+            }
             entities.items = returnValues[1].val()
             entities.venues = returnValues[2].val();
-            _resolve(firebasePlayer);
-          });
 
-          // Keep track of changes to the player:
-          fireDatabase.ref('players/' + player.uid).on('child_changed', function(changedPlayerSnapshot)
-          {
-            if(!firebasePlayer.values)
+            Promise.all(optionalPromises).then(function()
             {
-              firebasePlayer.values = {};
-            }
-            firebasePlayer.values[changedPlayerSnapshot.key] = changedPlayerSnapshot.val();
+              // Keep track of changes to the player:
+              fireDatabase.ref('players/' + firebasePlayer.uid).on('value', function(changedPlayerSnapshot)
+              {
+                if(!firebasePlayer.values)
+                {
+                  firebasePlayer.values = {};
+                }
+                firebasePlayer.values = changedPlayerSnapshot.val();
+              });
+
+              _resolve(firebasePlayer);
+            });
           });
         });
       })
