@@ -1683,7 +1683,7 @@ ready().then(function()
     }
   });
 
-  firebase.database().ref('/.info/serverTimeOffset').once('value').then(function(snapshot)
+  fireDatabase.ref('/.info/serverTimeOffset').once('value').then(function(snapshot)
   {
     serverTimeOffset = snapshot.val();
   });
