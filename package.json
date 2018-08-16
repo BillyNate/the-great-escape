@@ -1,12 +1,16 @@
 {
   "name": "the-great-escape",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "HTML5 location based game where several cops hunt down an escaping fugitive",
   "main": "app.js",
   "scripts": {
     "build:prod": "webpack --mode production",
-    "build:dev": "webpack --mode development --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:dev": "webpack --mode development",
+    "deploy": "npm run build:prod && npm run push:db && npm run push:pages",
+    "push:db": "firebase database:update / database.data.json --confirm | firebase deploy --only database | cross-var firebase database:update / --data \"{\\\"version\\\" : \\\"$npm_package_version\\\"}\" --confirm",
+    "push:pages": "firebase deploy --only hosting",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --mode development --watch"
   },
   "repository": {
     "type": "git",
@@ -32,6 +36,7 @@
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
     "babel-preset-env": "^1.7.0",
     "bowser": "^1.9.4",
+    "cross-var": "^1.1.0",
     "css-loader": "^1.0.0",
     "document-ready-promise": "^3.0.1",
     "file-loader": "^1.1.11",

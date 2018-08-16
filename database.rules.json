@@ -52,6 +52,10 @@
     "venues": {
       ".read": true,
       ".write": false
+    },
+    "version" : {
+      ".read": true,
+      ".write": false
     }
   }
 }

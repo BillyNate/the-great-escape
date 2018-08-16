@@ -85,6 +85,11 @@ module.exports = {
       $: 'jquery',
       jQuery: 'jquery',
       firebase: 'firebase'
+    }),
+    new webpack.DefinePlugin({
+      PACKAGE: {
+        VERSION: JSON.stringify(process.env.npm_package_version)
+      }
     })
   ]
 }

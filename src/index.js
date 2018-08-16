@@ -32,6 +32,7 @@ var googleMapsApiSettings = { v: '3', key: 'AIzaSyDj1NcE7259YziwZBoxXaVGaNtnmA4u
 
 ready().then(function()
 {
+
   if(!Bowser.check({ safari: '10.0' }))
   {
     return;
@@ -1674,6 +1675,14 @@ ready().then(function()
       $(mapMarkers.me.div).removeClass('clickthrough')
     }
   }
+
+  fireDatabase.ref('version').once('value').then(function(versionSnapshot)
+  {
+    if(versionSnapshot.val() != PACKAGE.VERSION)
+    {
+      location.reload(true);
+    }
+  });
 
   firebase.database().ref('/.info/serverTimeOffset').once('value').then(function(snapshot)
   {
