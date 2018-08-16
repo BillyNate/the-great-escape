@@ -49,7 +49,6 @@ ready().then(function()
       firebaseFugitivePlayer = null,
       firebaseConnected = true,
       entities = { items: [], venues: [] },
-      geoloc = { lat: 0, lng: 0 },
       serverTimeOffset = 0,
       playerMaxTimeout = 20 * 1000,
       map = null,
