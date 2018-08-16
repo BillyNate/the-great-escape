@@ -21,8 +21,11 @@ Before the game starts it checks the client for location access and notification
    - Set the just created project as the default
    - Set `database.rules.json` as Database rules, don't overwrite
    - Set `pages` as the public hosting directory, it's a single page app, don't overwrite `pages/index.html`
-7. Push the data to the Firebase Realtime Database: `firebase database:update / database.data.json`
-8. Deploy the project: `firebase deploy`
+7. Download `/__/firebase/init.js` from your firebase project url (`*.firebaseapp.com`) and save it in the root directory as `firebase.init.js`
+8. Install all required node modules: `npm install`
+9. Run a development or production build: `npm run build:dev` or `npm run build:prod`
+10. Push the database and its rules to the server: `npm run push:db`
+11. Push the static content to the server: `npm run push:pages`
 
 ### Contributing
 If you found a bug, got an idea for an improvement or some other comment, please feel free to open up an issue on the issues page.  
