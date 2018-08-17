@@ -943,20 +943,20 @@ ready().then(function()
         });
 
         // Put items on the map:
-        for(i in firebaseGame.values.items)
+        fireDatabase.ref('games/' + firebaseGame.uid + '/items').on('child_added', function(itemsSnapshot)
         {
-          mapMarkers.items[i] = new ItemMarker(firebaseGame.values.items[i].location, firebaseGame.values.items[i].type, texts.items[firebaseGame.values.items[i].type].word);
-          mapMarkers.items[i].setMap(map);
+          mapMarkers.items[itemsSnapshot.key] = new ItemMarker(itemsSnapshot.val().location, itemsSnapshot.val().type, texts.items[itemsSnapshot.val().type].word);
+          mapMarkers.items[itemsSnapshot.key].setMap(map);
 
-          if(firebaseGame.values.items[i].state == ITEM.STATE.FOUND)
+          if(itemsSnapshot.val().state == ITEM.STATE.FOUND)
           {
-            mapMarkers.items[i].hide();
+            mapMarkers.items[itemsSnapshot.key].hide();
           }
           else
           {
-            mapMarkers.items[i].show();
+            mapMarkers.items[itemsSnapshot.key].show();
           }
-        }
+        });
 
         fireDatabase.ref('games/' + firebaseGame.uid + '/items').on('child_changed', function(itemsSnapshot)
         {
@@ -978,6 +978,29 @@ ready().then(function()
               notificationTitle = langArticleSet(notificationTitle, texts.articles, texts.items[itemsSnapshot.val().type], '1');
 
               notify(notificationTitle);
+            }
+            else if(firebaseGame.values.host == firebasePlayer.uid) // Just found item is a bullet. The host should check if a new bullet needs be added to the map:
+            {
+              var lostBullets = 0,
+                  updateItems = {};
+              for(var itemI in firebaseGame.values.items)
+              {
+                if(firebaseGame.values.items[itemI].type == ITEM.TYPE.BULLET && firebaseGame.values.items[itemI].state == ITEM.STATE.LOST)
+                {
+                  lostBullets ++;
+                }
+              }
+              if(lostBullets <= 2)
+              {
+                // New location to be used for the new bullet (does not take the already existing locations in consideration):
+                Promise.resolve(getEvenlyRandomLocations(new google.maps.LatLng(firebaseGame.values.location.lat, firebaseGame.values.location.lng), firebaseGame.values.location.radius/10, firebaseGame.values.location.radius, 1))
+                .then(loadNearestRoads)
+                .then(function(newLocations)
+                {
+                  updateItems[firebaseGame.values.items.length] = { type: ITEM.TYPE.BULLET, state: ITEM.STATE.LOST, location: { lat: newLocations[0].latitude, lng: newLocations[0].longitude } };
+                  fireDatabase.ref('games/' + firebaseGame.uid + '/items').update(updateItems);
+                });
+              }
             }
           }
         });
