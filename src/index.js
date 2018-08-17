@@ -830,6 +830,37 @@ ready().then(function()
     });
   }
 
+  function countdown()
+  {
+    return new Promise(function(resolve, reject)
+    {
+      var counter = 0;
+      if(firebaseGame.values.players[firebasePlayer.uid].role == PLAYER.ROLE.FUGITIVE)
+      {
+        resolve();
+      }
+      else if((Date.now() + serverTimeOffset - firebaseGame.values.timestamp) / 1000 > 20)
+      {
+        resolve()
+      }
+      else
+      {
+        $('.container').empty();
+        $(templates.countdown).appendTo('.container');
+        var countdownInterval = setInterval(function()
+        {
+          counter = Math.ceil(20 - ((Date.now() + serverTimeOffset - firebaseGame.values.timestamp) / 1000));
+          $('#countdown').text(counter.toString().padStart(2, '0'));
+          if(counter <= 0)
+          {
+            clearInterval(countdownInterval);
+            resolve();
+          }
+        }, 100); // Update every 100ms to keep all clients clocks pretty much in sync
+      }
+    });
+  }
+
   function battle()
   {
     return new Promise(function(resolve, reject)
@@ -1729,6 +1760,7 @@ ready().then(function()
   // Everything save! Continue to next phase
   .then(pickLocation)
   .then(managePlayers)
+  .then(countdown)
   .then(battle)
   .then(wrapUp)
   .catch(function(error)

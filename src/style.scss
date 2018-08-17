@@ -97,6 +97,7 @@ video::-internal-media-controls-overlay-cast-button { display: none; }
     form.controls input, form.controls button { display: block; position: relative; float: right; width: 100%; padding: .5rem 1rem; margin: 2vh 0 0; border: 1px solid #00bcd4; border-radius: .5rem; }
     form.controls button[name="whatsapp"] { float: left; background-color: #00bcd4; }
     form.controls input[type="submit"] { background-color: #00bcd4; }
+#countdown { position: relative; width: 100%; max-width: 540px; margin: 10vh auto 0; padding: 0; border-radius: .5rem; background-color: #00bcd4; max-height: 80vh; text-align: center; font-size: 4em; line-height: 2em; }
 .battlefield { width: 100%; height: 100%; }
   button.fullscreen, button.info { position: absolute; right: 14px; top: 10px; width: 24px; height: 24px; background-color: #fff; border: none; padding: 0; color: #000; }
   button.info { top: 45px; }
