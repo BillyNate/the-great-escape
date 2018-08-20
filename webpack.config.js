@@ -87,6 +87,7 @@ module.exports = {
       firebase: 'firebase'
     }),
     new webpack.DefinePlugin({
+      MODE: JSON.stringify(process.env.npm_lifecycle_script.substr(process.env.npm_lifecycle_script.indexOf('--mode ') + '--mode '.length, process.env.npm_lifecycle_script.substr(process.env.npm_lifecycle_script.indexOf('--mode ') + '--mode '.length).search(/($|\s)/))),
       PACKAGE: {
         VERSION: JSON.stringify(process.env.npm_package_version)
       }

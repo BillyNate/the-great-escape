@@ -32,7 +32,6 @@ var googleMapsApiSettings = { v: '3', key: 'AIzaSyDj1NcE7259YziwZBoxXaVGaNtnmA4u
 
 ready().then(function()
 {
-
   if(!Bowser.check({ safari: '10.0' }))
   {
     return;
@@ -165,35 +164,39 @@ ready().then(function()
     });
   }
 
-  // DEBUG! {
-  var locationOffset = { lat: 0, lng: 0 };
-  document.onkeydown = function(event)
+  if(MODE == 'development')
   {
-    event = event || window.event;
-
-    switch(event.keyCode.toString())
+    var locationOffset = { lat: 0, lng: 0 };
+    document.onkeydown = function(event)
     {
-      case '38':
-        locationOffset.lat += 0.0001;
-        break;
-      case '40':
-        locationOffset.lat -= 0.0001;
-        break;
-      case '39':
-        locationOffset.lng += 0.0001;
-        break;
-      case '37':
-        locationOffset.lng -= 0.0001;
-        break;
-    }
-  };
-  // DEBUG! }
+      event = event || window.event;
+
+      switch(event.keyCode.toString())
+      {
+        case '38':
+          locationOffset.lat += 0.0001;
+          break;
+        case '40':
+          locationOffset.lat -= 0.0001;
+          break;
+        case '39':
+          locationOffset.lng += 0.0001;
+          break;
+        case '37':
+          locationOffset.lng -= 0.0001;
+          break;
+      }
+    };
+  }
 
   function onLocationChange(location)
   {
     var coords = { lat: location.coords.latitude, lng: location.coords.longitude };
-    coords.lat += locationOffset.lat;
-    coords.lng += locationOffset.lng;
+    if(MODE == 'development')
+    {
+      coords.lat += locationOffset.lat;
+      coords.lng += locationOffset.lng;
+    }
 
     if(firebasePlayer.uid)
     {
