@@ -31,3 +31,20 @@ Before the game starts it checks the client for location access and notification
 If you found a bug, got an idea for an improvement or some other comment, please feel free to open up an issue on the issues page.  
 It would be even better if you would fix the bug or create the improvement yourself and share your changes by means of a pull request.  
 Just fork this repository, clone it to your local workstation, create a new branch, make the changes, push it and create a pull request.
+
+### Thanks
+None of this would possible without the generosity of various creators of free content:
+- [Game-icons.net](https://game-icons.net)
+- [Material Design](https://material.io/tools/icons)
+- [Caroline Keyzor on FREEIMAGES](https://nl.freeimages.com/photographer/ckeyzor-44210)
+- [Webpack](https://webpack.js.org)
+- [jQuery](https://jquery.com)
+- [Google Maps](https://maps.google.com)
+- [Modernizr](https://modernizr.com)
+- [Bowser](https://github.com/lancedikson/bowser)
+- [Push](https://pushjs.org/)
+- [Computer Sleep](https://github.com/ivanmaeder/computer-sleep)
+- [jQuery Fullscreen Plugin](https://github.com/kayahr/jquery-fullscreen-plugin)
+- [Slip.js](https://kornel.ski/slip)
+- [Firebase (Spark Plan)](https://firebase.google.com)
+- And probably some more...
