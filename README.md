@@ -38,7 +38,8 @@ Before the game starts it checks the client for location access and notification
 ### Contributing
 If you found a bug, got an idea for an improvement or some other comment, please feel free to open up an issue on the issues page.  
 It would be even better if you would fix the bug or create the improvement yourself and share your changes by means of a pull request.  
-Just fork this repository, clone it to your local workstation, create a new branch, make the changes, push it and create a pull request.
+Just fork this repository, clone it to your local workstation, create a new branch, make the changes, push it and create a pull request.  
+The issues are mirrored on a [Kanban board](https://waffle.io/BillyNate/the-great-escape) as well!
 
 ### Thanks
 None of this would possible without the generosity of various creators of free content:
