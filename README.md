@@ -5,6 +5,14 @@ One player starts a new game and sends out invites to others to join his game. T
 One of the players is the fugitive, just escaped from prison, trying to get to an extraction point while gathering enough money to leave the area.
 The other players are cops hunting down the fugitive.
 
+### Screenshots
+|                                                                              |                                                                                   |                                                                                      |
+|:----------------------------------------------------------------------------:|:---------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------:|
+|![](readme_assets/01_loading.png) Starts by loading, checking and verifying   |![](readme_assets/02_enter.png) Players need to enter a name                       |![](readme_assets/03_location.png) Pick location for a new game                       |
+|![](readme_assets/04_items.png) Items will be placed at random                |![](readme_assets/05_invite.png) Invite other players                              |![](readme_assets/06_start.png) Start game when everyone is ready                     |
+|![](readme_assets/07_countdown.png) The fugitive will be given a head start   |![](readme_assets/08_hunter.png) The hunters can pick up bullets in order to shoot |![](readme_assets/09_fugitive.png) The fugitive can pick up tools and rob some venues |
+|![](readme_assets/10_gameover.png) Once the fugitive is shot the game is over |
+
 ### Technical
 The game is an in-browser (JavaScript) game, running on the client. It connects to a Firebase Realtime Database in order to share the data between all clients.  
 Before the game starts it checks the client for location access and notifications.
